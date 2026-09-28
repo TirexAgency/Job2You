@@ -33,10 +33,9 @@ Route::middleware('auth')->group(function () {
         ->name('verification.verify');
 
     // Renvoyer l'email de vérification
-    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return back()->with('message', 'Lien de vérification renvoyé !');
-    })->middleware('throttle:6,1')->name('verification.send');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 });
 
 // Routes du profil (Breeze)

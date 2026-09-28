@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('plan_id')->constrained()->onDelete('cascade');
             $table->dateTime('starts_at');
-            $table->dateTime('ends_at');
+            $table->dateTime('ends_at')->nullable();
             $table->integer('sms_remaining')->default(0);
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
 

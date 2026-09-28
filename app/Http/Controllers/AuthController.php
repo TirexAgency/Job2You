@@ -28,8 +28,10 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
+        // Transaction SQL : création utilisateur + abonnement atomique
         $user = DB::transaction(function () use ($validated) {
-            return User::create([
+            // Création de l'utilisateur
+            $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
@@ -40,6 +42,22 @@ class AuthController extends Controller
                 'sms_quota' => 2,
                 'sms_sent' => 0,
             ]);
+
+            // Récupérer le plan gratuit
+            $freePlan = Plan::where('name', 'free')->first();
+
+            // Créer l'abonnement gratuit (RG01)
+            if ($freePlan) {
+                $user->subscriptions()->create([
+                    'plan_id' => $freePlan->id,
+                    'starts_at' => now(),
+                    'ends_at' => null,
+                    'sms_remaining' => $freePlan->sms_quota,
+                    'status' => 'active',
+                ]);
+            }
+
+            return $user;
         });
 
         Auth::login($user);
@@ -70,5 +88,24 @@ class AuthController extends Controller
 
         return redirect()->route('home')
             ->with('success', 'Votre email a été vérifié avec succès ! Bienvenue sur Job2You.');
+    }
+
+    /**
+     * Renvoie l'email de vérification.
+     */
+    public function resendVerification(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Vérifier si l'email est déjà vérifié
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('home')
+                ->with('info', 'Votre email est déjà vérifié.');
+        }
+
+        // Renvoyer l'email de vérification
+        $user->sendEmailVerificationNotification();
+
+        return back()->with('resent', 'Lien de vérification renvoyé !');
     }
 }
