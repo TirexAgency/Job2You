@@ -7,6 +7,19 @@
     <title>Inscription - Job2You</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .password-toggle {
+            cursor: pointer;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container">
@@ -76,8 +89,11 @@
                             <!-- Mot de passe -->
                             <div class="mb-3">
                                 <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                       id="password" name="password" required>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                           id="password" name="password" required>
+                                    <i class="bi bi-eye-slash password-toggle" id="togglePassword"></i>
+                                </div>
                                 <div class="form-text">8 caractères minimum, avec majuscule, minuscule, chiffre et symbole</div>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -87,8 +103,11 @@
                             <!-- Confirmation mot de passe -->
                             <div class="mb-3">
                                 <label for="password_confirmation" class="form-label">Confirmer le mot de passe <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control"
-                                       id="password_confirmation" name="password_confirmation" required>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-control"
+                                           id="password_confirmation" name="password_confirmation" required>
+                                    <i class="bi bi-eye-slash password-toggle" id="togglePasswordConfirmation"></i>
+                                </div>
                             </div>
 
                             <!-- Bouton -->
@@ -111,5 +130,24 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Toggle mot de passe
+            $('#togglePassword').on('click', function() {
+                const passwordField = $('#password');
+                const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+                passwordField.attr('type', type);
+                $(this).toggleClass('bi-eye bi-eye-slash');
+            });
+
+            // Toggle confirmation mot de passe
+            $('#togglePasswordConfirmation').on('click', function() {
+                const passwordField = $('#password_confirmation');
+                const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+                passwordField.attr('type', type);
+                $(this).toggleClass('bi-eye bi-eye-slash');
+            });
+        });
+    </script>
 </body>
 </html>
