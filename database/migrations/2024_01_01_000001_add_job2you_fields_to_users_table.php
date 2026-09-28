@@ -21,7 +21,7 @@ return new class extends Migration
                 $table->enum('role', ['candidate', 'admin', 'recruiter'])->default('candidate')->after('phone');
             }
             if (! Schema::hasColumn('users', 'status')) {
-                $table->enum('status', ['active', 'inactive', 'suspended'])->default('active')->after('role');
+                $table->enum('status', ['pending', 'active', 'inactive', 'suspended'])->default('pending')->after('role');
             }
             if (! Schema::hasColumn('users', 'plan')) {
                 $table->string('plan', 20)->default('free')->after('status');

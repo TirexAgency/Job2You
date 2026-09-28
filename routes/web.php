@@ -3,13 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-// Page d'accueil
 Route::get('/', function () {
     return view('home');
 })->name('home');
@@ -27,6 +20,25 @@ Route::middleware('guest')->group(function () {
         ->name('logout')->middleware('auth');
 });
 
+// Routes de vérification email personnalisées
+Route::middleware('auth')->group(function () {
+    // Page d'attente (avant vérification)
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    // Lien de vérification (signé, expire dans 48h)
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
+    // Renvoyer l'email de vérification
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('message', 'Lien de vérification renvoyé !');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
+
 // Routes du profil (Breeze)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile');
@@ -36,5 +48,5 @@ Route::middleware('auth')->group(function () {
 
 // Routes des offres (à développer à l'étape 3)
 Route::get('/jobs', function () {
-    return view('home'); // Temporaire
+    return view('home');
 })->name('jobs.index');

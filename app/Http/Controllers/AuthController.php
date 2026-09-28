@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -24,26 +26,49 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request): RedirectResponse
     {
-        // Les données sont déjà validées par RegisterRequest
         $validated = $request->validated();
 
-        // Création de l'utilisateur
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'password' => Hash::make($validated['password']),
-            'role' => 'candidate', // Rôle par défaut
-            'status' => 'active',
-            'plan' => 'free',
-            'sms_quota' => 2, // 2 SMS gratuits (RG01)
-            'sms_sent' => 0,
-        ]);
+        $user = DB::transaction(function () use ($validated) {
+            return User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'candidate',
+                'status' => 'pending',
+                'plan' => 'free',
+                'sms_quota' => 2,
+                'sms_sent' => 0,
+            ]);
+        });
 
-        // Connexion automatique après inscription
         Auth::login($user);
 
+        return redirect()->route('verification.notice')
+            ->with('success', 'Votre compte a été créé ! Vérifiez votre email pour activer votre compte.');
+    }
+
+    /**
+     * Vérifie l'email de l'utilisateur.
+     */
+    public function verifyEmail(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Vérifier si l'email est déjà vérifié
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('home')
+                ->with('info', 'Votre email est déjà vérifié.');
+        }
+
+        // Marquer l'email comme vérifié
+        $user->markEmailAsVerified();
+
+        // Mise à jour du statut de pending à active
+        $user->status = 'active';
+        $user->save();
+
         return redirect()->route('home')
-            ->with('success', 'Votre compte a été créé avec succès ! Bienvenue sur Job2You.');
+            ->with('success', 'Votre email a été vérifié avec succès ! Bienvenue sur Job2You.');
     }
 }
