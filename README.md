@@ -20,8 +20,8 @@ Job2You est une plateforme de recherche d'emploi qui met en relation les profils
 
 ## Stack technique
 
-- PHP 8.3 ou supérieur ;
-- Laravel 13 ;
+- PHP 8.4+ ;
+- Laravel 11+ (approche `bootstrap/app.php`, pas de `Kernel.php`) ;
 - Laravel Breeze pour l'authentification ;
 - SQLite par défaut, avec support MySQL, MariaDB, PostgreSQL et SQL Server ;
 - Blade, Vite, Tailwind CSS et Alpine.js ;
@@ -31,7 +31,7 @@ Job2You est une plateforme de recherche d'emploi qui met en relation les profils
 
 ### Prérequis
 
-- PHP 8.3+ avec les extensions requises par Laravel ;
+- PHP 8.4+ avec les extensions requises par Laravel ;
 - Composer ;
 - Node.js et npm.
 
@@ -81,7 +81,9 @@ php artisan db:seed
 
 ## Tests et qualité
 
-Lancer la suite PHPUnit :
+### Exécuter les tests
+
+Lancer la suite PHPUnit complète :
 
 ```bash
 composer test
@@ -111,6 +113,45 @@ Lancer un test spécifique par nom :
 php artisan test --filter=test_successful_registration_creates_user
 ```
 
+### Couverture des tests
+
+#### Tests unitaires (`tests/Unit/`)
+
+| Test | Description |
+|------|-------------|
+| `test_password_is_hashed_on_creation` | Vérifie que le mot de passe est hashé à la création |
+| `test_password_is_hashed_on_update` | Vérifie que le mot de passe est hashé à la mise à jour |
+| `test_password_hash_uses_bcrypt` | Vérifie l'algorithme bcrypt |
+| `test_email_must_be_unique` | Vérifie l'unicité de l'email en base |
+| `test_phone_must_be_unique` | Vérifie l'unicité du téléphone en base |
+| `test_has_active_subscription_*` | Vérifie la logique d'abonnement actif |
+| `test_get_sms_quota_*` | Vérifie le quota SMS |
+
+#### Tests fonctionnels (`tests/Feature/`)
+
+| Test | Description |
+|------|-------------|
+| `test_successful_registration_creates_user` | Inscription réussie : utilisateur créé |
+| `test_successful_registration_creates_subscription` | Inscription réussie : abonnement free créé |
+| `test_successful_registration_logs_user_in` | Inscription réussie : utilisateur connecté |
+| `test_successful_registration_dispatches_registered_event` | Inscription réussie : event Registered dispatché |
+| `test_email_verification_notification_is_sent` | Email de validation envoyé |
+| `test_duplicate_email_is_rejected` | Email dupliqué rejeté |
+| `test_duplicate_phone_is_rejected` | Téléphone dupliqué rejeté |
+| `test_register_is_rate_limited_after_5_attempts` | Rate limiting inscription (5/min) |
+| `test_login_is_rate_limited_after_5_attempts` | Rate limiting connexion (5/min) |
+| `test_email_can_be_verified_with_valid_token` | Validation email avec token valide |
+| `test_email_cannot_be_verified_with_invalid_hash` | Validation email avec hash invalide |
+| `test_email_cannot_be_verified_with_unsigned_url` | Validation email sans signature |
+| `test_email_cannot_be_verified_with_expired_token` | Validation email avec token expiré |
+| `test_verification_email_can_be_resent` | Renvoi email de vérification |
+| `test_verification_email_is_actually_resent` | Renvoi email réel |
+| `test_verification_email_not_resent_if_already_verified` | Pas de renvoi si déjà vérifié |
+| `test_verification_notification_is_rate_limited` | Rate limiting renvoi email (6/min) |
+| `test_email_verification_is_rate_limited` | Rate limiting vérification email (6/min) |
+
+### Formater le code
+
 Formater les fichiers PHP modifiés avec Laravel Pint :
 
 ```bash
@@ -126,14 +167,40 @@ npm run build
 ## Structure du projet
 
 ```text
-app/                  Contrôleurs, modèles, services, policies et jobs
-database/migrations/  Schéma utilisateurs, offres, compétences et abonnements
-database/seeders/     Données initiales (plans free/premium)
-resources/views/      Interfaces Blade
-resources/js/         JavaScript et initialisation front-end
-resources/css/        Styles de l'application
-routes/               Routes web, authentification et console
-tests/                Tests unitaires et fonctionnels
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── AuthController.php          # Inscription + vérification email
+│   │   ├── ProfileController.php       # Gestion profil
+│   │   └── Auth/                       # Contrôleurs Breeze (login, password)
+│   ├── Middleware/
+│   │   └── CheckRole.php              # Middleware 'role'
+│   └── Requests/
+│       ├── RegisterRequest.php        # Validation inscription
+│       └── ProfileUpdateRequest.php
+├── Models/
+│   ├── User.php
+│   ├── Plan.php
+│   └── Subscription.php
+├── Policies/
+│   └── UserPolicy.php
+└── Providers/
+    └── AppServiceProvider.php
+
+database/
+├── factories/                         # UserFactory avec states
+├── migrations/                        # 16 migrations
+└── seeders/                           # PlanSeeder (free/premium)
+
+routes/
+├── web.php                            # Routes principales
+├── auth.php                           # Routes Breeze (non chargées)
+└── console.php
+
+tests/
+├── Unit/                              # Tests unitaires
+└── Feature/                           # Tests fonctionnels
+    └── Auth/                          # Tests authentification
 ```
 
 ## Documentation technique
@@ -182,6 +249,8 @@ tests/                Tests unitaires et fonctionnels
 | `GET /dashboard` | `auth`, `verified` |
 | `GET /profile` | `auth`, `verified` |
 | `POST /logout` | `auth` |
+| `GET /admin/dashboard` | `auth`, `role:admin` |
+| `GET /candidate/dashboard` | `auth`, `role:candidate` |
 
 ### Rate limiting
 
@@ -224,28 +293,39 @@ subscriptions
 └── status (active|inactive|suspended)
 ```
 
-### Variables d'environnement requises
+## Déploiement
+
+### Variables .env nécessaires
 
 ```env
 APP_NAME=Job2You
-APP_ENV=local
+APP_ENV=production
 APP_KEY=
-APP_DEBUG=true
-APP_URL=http://localhost:8000
+APP_DEBUG=false
+APP_URL=https://job2you.com
 
-DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database/database.sqlite
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=job2you
+DB_USERNAME=job2you_user
+DB_PASSWORD=
 
-MAIL_MAILER=log
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=
+MAIL_PASSWORD=
 MAIL_FROM_ADDRESS="hello@job2you.com"
 MAIL_FROM_NAME="${APP_NAME}"
 
 SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=true
+
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 ```
-
-## Déploiement
 
 ### Checklist de validation avant mise en production
 
@@ -255,6 +335,7 @@ QUEUE_CONNECTION=database
 - [ ] Base de données configurée (MySQL/PostgreSQL recommandé)
 - [ ] `MAIL_MAILER` configuré (SMTP/SendGrid/SES)
 - [ ] `SESSION_DRIVER` sécurisé (database/redis)
+- [ ] `SESSION_ENCRYPT=true`
 - [ ] `CACHE_STORE` configuré (redis recommandé)
 - [ ] Certificat HTTPS actif
 - [ ] `php artisan config:cache` exécuté
@@ -294,18 +375,19 @@ php artisan serve --host=0.0.0.0 --port=8000
 
 ### Points de vigilance sécurité
 
-| Risque | Mitigation |
-|--------|-----------|
-| Force brute inscription | Rate limiting 5/min |
-| Force brute connexion | Rate limiting 5/min |
-| Énumération d'emails | Messages d'erreur génériques |
-| CSRF | Middleware natif Laravel |
-| Injection SQL | Eloquent ORM (paramètres liés) |
-| XSS | Échappement Blade `{{ }}` |
-| Lien de vérification falsifié | Signature `signed` + hash `sha1` |
-| Session fixation | `session()->regenerate()` |
-| Mots de passe faibles | Règles `Password::defaults()` |
-| Vol de session | `SESSION_ENCRYPT=true` en prod |
+| Risque | Mitigation | Statut |
+|--------|-----------|--------|
+| Force brute inscription | Rate limiting 5/min | ✅ Implémenté |
+| Force brute connexion | Rate limiting 5/min | ✅ Implémenté |
+| Énumération d'emails | Messages d'erreur génériques | ✅ Implémenté |
+| CSRF | Middleware natif Laravel | ✅ Implémenté |
+| Injection SQL | Eloquent ORM (paramètres liés) | ✅ Implémenté |
+| XSS | Échappement Blade `{{ }}` | ✅ Implémenté |
+| Lien de vérification falsifié | Signature `signed` + hash `sha1` | ✅ Implémenté |
+| Session fixation | `session()->regenerate()` | ✅ Implémenté |
+| Mots de passe faibles | Règles `Password::min(8)->mixedCase()->numbers()->symbols()` | ✅ Implémenté |
+| Vol de session | `SESSION_ENCRYPT=true` en prod | ⚠️ À configurer |
+| Token de vérification réutilisable | `temporarySignedRoute` avec expiration | ✅ Implémenté |
 
 ## Contribuer
 
