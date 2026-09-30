@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use App\Models\Plan;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -60,7 +63,7 @@ class AuthController extends Controller
             return $user;
         });
 
-        Auth::login($user);
+        Auth::guard('web')->login($user);
 
         return redirect()->route('verification.notice')
             ->with('success', 'Votre compte a été créé ! Vérifiez votre email pour activer votre compte.');
@@ -79,12 +82,21 @@ class AuthController extends Controller
                 ->with('info', 'Votre email est déjà vérifié.');
         }
 
-        // Marquer l'email comme vérifié
-        $user->markEmailAsVerified();
+        // Vérifier le hash de sécurité
+        $validUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
 
-        // Mise à jour du statut de pending à active
-        $user->status = 'active';
-        $user->save();
+        // Marquer l'email comme vérifié
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
+
+            // Mise à jour du statut de pending à active
+            $user->status = 'active';
+            $user->save();
+        }
 
         return redirect()->route('home')
             ->with('success', 'Votre email a été vérifié avec succès ! Bienvenue sur Job2You.');

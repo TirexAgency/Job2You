@@ -29,13 +29,15 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required'],
         ]);
 
+        $remember = $request->boolean('remember');
+
         // Message générique pour éviter l'énumération d'emails
         $errorMessage = 'Identifiants incorrects ou compte non vérifié.';
 
         // Vérifier si l'utilisateur existe et a vérifié son email
         $user = \App\Models\User::where('email', $credentials['email'])->first();
 
-        if (!$user || !Auth::attempt($credentials)) {
+        if (!$user || !Auth::attempt($credentials, $remember)) {
             return back()->withErrors(['email' => $errorMessage]);
         }
 
@@ -61,7 +63,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

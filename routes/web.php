@@ -1,7 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('home');
@@ -14,26 +20,28 @@ Route::middleware('guest')->group(function () {
         ->middleware('throttle:5,1');
 });
 
-// Routes d'authentification Breeze (login, logout, password reset)
+// Routes d'authentification Breeze (login, password reset)
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'create'])
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
-    Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'store'])
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware('throttle:5,1');
-    
+
     // Routes mot de passe oublié
-    Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])
+    Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
-    Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])
+    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
-    Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
-    
-    Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout')->middleware('auth');
 });
+
+// Déconnexion (nécessite d'être authentifié)
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout')
+    ->middleware('auth');
 
 // Routes de vérification email avec rate limiting
 Route::middleware('auth')->group(function () {
@@ -52,11 +60,37 @@ Route::middleware('auth')->group(function () {
 
 // Routes protégées (auth + verified)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile');
-    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/dashboard', function () {
+        return view('home');
+    })->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/jobs', function () {
         return view('home');
     })->name('jobs.index');
+});
+
+// Routes de confirmation de mot de passe et mise à jour
+Route::middleware('auth')->group(function () {
+    Route::get('/confirm-password', [ConfirmablePasswordController::class, 'show'])
+        ->name('password.confirm');
+    Route::post('/confirm-password', [ConfirmablePasswordController::class, 'store']);
+    Route::put('/password', [PasswordController::class, 'update'])
+        ->name('password.update');
+});
+
+// Routes de test pour le middleware de rôles
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        return response()->json(['message' => 'Admin dashboard']);
+    })->name('admin.dashboard');
+});
+
+Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->group(function () {
+    Route::get('/dashboard', function () {
+        return response()->json(['message' => 'Candidate dashboard']);
+    })->name('candidate.dashboard');
 });

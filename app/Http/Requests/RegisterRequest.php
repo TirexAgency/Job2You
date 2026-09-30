@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
                 'string',
                 'unique:users,phone',
                 // Format Madagascar : +261 34 12 345 67 ou 034 12 345 67
-                'regex:/^(?:(?:\+|00)261|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/',
+                'regex:/^(?:(?:\+|00)261|0)\s*[1-9]\d[\s.-]*\d{2}[\s.-]*\d{3}[\s.-]*\d{2}$/',
             ],
             'password' => [
                 'required',
@@ -43,6 +43,9 @@ class RegisterRequest extends FormRequest
 
     /**
      * Messages d'erreur personnalisés en français.
+     *
+     * Protection contre l'énumération d'emails : message générique
+     * pour ne pas révéler si un email/phone est déjà enregistré.
      */
     public function messages(): array
     {
@@ -51,9 +54,9 @@ class RegisterRequest extends FormRequest
             'name.max' => 'Le nom ne peut pas dépasser 255 caractères.',
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email n\'est pas valide.',
-            'email.unique' => 'Cette adresse email est déjà utilisée.',
+            'email.unique' => 'Ces identifiants sont déjà associés à un compte existant.',
             'phone.required' => 'Le numéro de téléphone est obligatoire.',
-            'phone.unique' => 'Ce numéro de téléphone est déjà utilisé.',
+            'phone.unique' => 'Ces identifiants sont déjà associés à un compte existant.',
             'phone.regex' => 'Le numéro de téléphone n\'est pas valide (format Madagascar attendu : +261 34 12 345 67 ou 034 12 345 67).',
             'password.required' => 'Le mot de passe est obligatoire.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
