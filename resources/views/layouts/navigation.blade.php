@@ -2,7 +2,7 @@
     <div class="container">
         <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
-            <x-application-logo class="d-block" style="height: 2.25rem; width: auto;" />
+            <x-application-logo class="d-block" />
         </a>
 
         <!-- Hamburger (mobile) -->

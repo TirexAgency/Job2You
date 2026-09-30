@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <title>{{ config('app.name', 'Job2You') }} — Plateforme de matching d'offres d'emploi</title>
   
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -94,7 +95,7 @@
         .footer-section a:hover { color: var(--primary); }
         .footer-bottom { max-width: 48rem; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; color: var(--on-surface-variant); font-size: 0.75rem; font-weight: 600; }
         .footer-brand { display: flex; align-items: center; gap: 0.5rem; }
-        .footer-brand img { height: 1.5rem; width: auto; }
+        .footer-brand img { height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%; }
         .footer-brand span { font-size: 1.125rem; font-weight: 600; color: var(--primary); }
         .footer-desc { font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 0.25rem; }
         .status { display: flex; align-items: center; gap: 0.25rem; color: var(--tertiary); font-size: 0.75rem; font-weight: 600; }
@@ -258,8 +259,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <div class="footer-brand">
-                    <img src="{{ asset('images/teklab-logo.svg') }}" alt="TekLab Logo">
-                    <span>TekLab</span>
+                    <img src="{{ asset('logo.png') }}" alt="Job2You">
                 </div>
                 <p class="footer-desc">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
             </div>

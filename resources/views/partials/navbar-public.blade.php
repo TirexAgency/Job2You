@@ -1,6 +1,6 @@
 <nav style="position: fixed; top: 0; left: 0; right: 0; height: 4rem; background: rgba(249, 249, 255, 0.9); backdrop-filter: blur(12px); box-shadow: 0 1px 8px rgba(0,0,0,0.04); z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;">
     <a href="{{ route('home') }}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
-        <img src="{{ asset('images/teklab-logo.svg') }}" alt="TekLab Logo" style="height: 2rem; width: auto;">
+        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
     </a>
     <div style="display: flex; align-items: center; gap: 1.5rem;">
         <a href="{{ route('home') }}" style="font-size: 0.875rem; font-weight: 500; color: var(--on-surface-variant); text-decoration: none; transition: color 0.2s; {{ request()->routeIs('home') ? 'color: var(--primary);' : '' }}">Accueil</a>
