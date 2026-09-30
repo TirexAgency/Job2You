@@ -15,6 +15,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'password',
         'phone',
         'role',
@@ -46,7 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
             ->where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('ends_at')
-                      ->orWhere('ends_at', '>', now());
+                    ->orWhere('ends_at', '>', now());
             })
             ->exists();
     }
@@ -61,7 +62,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 ->where('status', 'active')
                 ->where(function ($query) {
                     $query->whereNull('ends_at')
-                          ->orWhere('ends_at', '>', now());
+                        ->orWhere('ends_at', '>', now());
                 })
                 ->sum('sms_remaining');
         }
