@@ -16,22 +16,29 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+        <div class="app-shell d-lg-flex min-vh-100 bg-body-tertiary">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
+            <div class="app-content flex-grow-1">
+                <header class="app-mobile-header d-flex d-lg-none align-items-center gap-3 bg-white border-bottom px-3 py-2">
+                    <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Ouvrir le menu">
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M2 3.5A.5.5 0 0 1 2.5 3h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 4A.5.5 0 0 1 2.5 7h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    </button>
+                    <span class="fw-semibold">{{ config('app.name', 'Job2You') }}</span>
                 </header>
-            @endisset
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+                @isset($header)
+                    <header class="bg-white border-bottom px-3 px-lg-4 py-3">
+                        {{ $header }}
+                    </header>
+                @endisset
+
+                <main class="app-main">
+                    {{ $slot }}
+                </main>
+            </div>
         </div>
     </body>
 </html>

@@ -161,6 +161,20 @@ class AuthSecurityTest extends TestCase
             ->assertSee('SMS disponibles');
     }
 
+    public function test_admin_can_access_the_shared_dashboard_sidebar(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Espace administrateur')
+            ->assertSee('Dashboard')
+            ->assertSee('Offres')
+            ->assertSee('Mon profil')
+            ->assertSee('Déconnexion');
+    }
+
     public function test_successful_login_redirects_to_dashboard(): void
     {
         $user = User::factory()->create();

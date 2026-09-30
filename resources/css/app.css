@@ -8,6 +8,89 @@
 	object-position: center 46%;
 }
 
+.dashboard-sidebar {
+	--bs-offcanvas-width: 17rem;
+	width: 17rem;
+	min-height: 100vh;
+	flex: 0 0 17rem;
+	background: #fff;
+}
+
+.dashboard-sidebar .offcanvas-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding: 1.5rem 1.25rem;
+}
+
+.sidebar-brand {
+	display: flex;
+	min-height: 2.75rem;
+	align-items: center;
+	padding: 0 0.25rem;
+}
+
+.sidebar-label {
+	margin: 0 0 -1rem;
+	color: #6c757d;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.dashboard-nav-link {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-height: 2.75rem;
+	color: #364152;
+	font-weight: 500;
+}
+
+.dashboard-nav-link:hover {
+	background: #f1f5f9;
+	color: #004ac6;
+}
+
+.dashboard-nav-link.active {
+	background: #e8f0ff;
+	color: #004ac6;
+	font-weight: 600;
+}
+
+.sidebar-nav-mark {
+	display: inline-flex;
+	width: 1.25rem;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.1rem;
+}
+
+.sidebar-account {
+	border-top: 1px solid #dee2e6;
+	padding-top: 1rem;
+}
+
+.app-content,
+.app-main {
+	min-width: 0;
+}
+
+.app-mobile-header {
+	position: sticky;
+	top: 0;
+	z-index: 1020;
+}
+
+@media (min-width: 992px) {
+	.dashboard-sidebar {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+	}
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
