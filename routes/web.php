@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -62,8 +63,15 @@ Route::middleware('auth')->group(function () {
 
 // Routes protégées (auth + verified)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('home');
+    Route::get('/dashboard', function (Request $request) {
+        $user = $request->user();
+        $smsQuota = $user->getSmsQuota();
+
+        return view('dashboard', [
+            'user' => $user,
+            'smsQuota' => $smsQuota,
+            'smsRemaining' => max($smsQuota - $user->sms_sent, 0),
+        ]);
     })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

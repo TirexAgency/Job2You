@@ -155,7 +155,20 @@ class AuthSecurityTest extends TestCase
 
         $this->actingAs($user)
             ->get('/dashboard')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('Espace candidat')
+            ->assertSee($user->name)
+            ->assertSee('SMS disponibles');
+    }
+
+    public function test_successful_login_redirects_to_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('dashboard'));
     }
 
     // ---------------------------------------------------------------
