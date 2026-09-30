@@ -1,11 +1,4 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 ## Job2You
 
@@ -13,15 +6,17 @@ Job2You est une plateforme de recherche d'emploi qui met en relation les profils
 
 ## Fonctionnalités
 
-- inscription, connexion et réinitialisation du mot de passe ;
-- vérification de l'adresse e-mail et protection des routes authentifiées ;
-- gestion du profil utilisateur ;
-- recherche et affichage des offres d'emploi ;
-- gestion des profils candidats, compétences, sources et correspondances ;
-- plans, abonnements, paiements et journalisation des SMS dans le modèle de données ;
-- rôles `admin` et `candidate` avec middleware dédié.
-
-Les écrans et flux de matching, de notifications et d'abonnement sont encore en cours d'implémentation. Les routes et migrations existantes servent de base au développement du MVP.
+- Inscription, connexion et réinitialisation du mot de passe ;
+- Vérification de l'adresse e-mail et protection des routes authentifiées ;
+- Gestion du profil utilisateur ;
+- Recherche et affichage des offres d'emploi ;
+- Gestion des profils candidats, compétences, sources et correspondances ;
+- Plans, abonnements, paiements et journalisation des SMS dans le modèle de données ;
+- Rôles `admin` et `candidate` avec middleware dédié ;
+- Attribution automatique d'un abonnement gratuit (2 SMS) à l'inscription (RG01) ;
+- Rate limiting sur les routes sensibles (inscription, vérification email) ;
+- Protection CSRF native Laravel sur tous les formulaires ;
+- Protection contre l'énumération d'emails (messages d'erreur génériques).
 
 ## Stack technique
 
@@ -57,6 +52,7 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
+php artisan db:seed
 npm install
 npm run build
 ```
@@ -91,6 +87,30 @@ Lancer la suite PHPUnit :
 composer test
 ```
 
+Lancer uniquement les tests unitaires :
+
+```bash
+php artisan test --testsuite=Unit
+```
+
+Lancer uniquement les tests fonctionnels :
+
+```bash
+php artisan test --testsuite=Feature
+```
+
+Lancer un fichier de test spécifique :
+
+```bash
+php artisan test tests/Feature/Auth/RegistrationFlowTest.php
+```
+
+Lancer un test spécifique par nom :
+
+```bash
+php artisan test --filter=test_successful_registration_creates_user
+```
+
 Formater les fichiers PHP modifiés avec Laravel Pint :
 
 ```bash
@@ -108,13 +128,184 @@ npm run build
 ```text
 app/                  Contrôleurs, modèles, services, policies et jobs
 database/migrations/  Schéma utilisateurs, offres, compétences et abonnements
-database/seeders/     Données initiales
+database/seeders/     Données initiales (plans free/premium)
 resources/views/      Interfaces Blade
 resources/js/         JavaScript et initialisation front-end
 resources/css/        Styles de l'application
 routes/               Routes web, authentification et console
 tests/                Tests unitaires et fonctionnels
 ```
+
+## Documentation technique
+
+### Architecture d'authentification
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PARCOURS D'INSCRIPTION                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  GET /register  ──►  Formulaire (avec @csrf)                │
+│       │                                                     │
+│       ▼                                                     │
+│  POST /register  ──►  RegisterRequest (validation)          │
+│       │              ├─ name required                       │
+│       │              ├─ email required|unique               │
+│       │              ├─ phone required|unique|regex:MG      │
+│       │              └─ password required|confirmed|strong   │
+│       │                                                     │
+│       ▼                                                     │
+│  DB::transaction()                                          │
+│       ├─ User::create()  (role=candidate, status=pending)   │
+│       └─ Subscription::create()  (plan=free, sms=2)         │
+│       │                                                     │
+│       ▼                                                     │
+│  Auth::login()  +  Event::Registered                        │
+│       │                                                     │
+│       ▼                                                     │
+│  Redirect → /email/verify  (avec notification)              │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Middleware appliqués
+
+| Route | Middleware |
+|-------|-----------|
+| `GET /register` | `guest` |
+| `POST /register` | `guest`, `throttle:5,1` |
+| `GET /login` | `guest` |
+| `POST /login` | `guest`, `throttle:5,1` |
+| `GET /email/verify` | `auth` |
+| `GET /email/verify/{id}/{hash}` | `auth`, `signed`, `throttle:6,1` |
+| `POST /email/verification-notification` | `auth`, `throttle:6,1` |
+| `GET /dashboard` | `auth`, `verified` |
+| `GET /profile` | `auth`, `verified` |
+| `POST /logout` | `auth` |
+
+### Rate limiting
+
+| Route | Limite | Fenêtre |
+|-------|--------|---------|
+| `POST /register` | 5 | 1 minute |
+| `POST /login` | 5 | 1 minute |
+| `GET /email/verify/{id}/{hash}` | 6 | 1 minute |
+| `POST /email/verification-notification` | 6 | 1 minute |
+
+### Protection contre l'énumération
+
+Tous les messages d'erreur d'authentification sont génériques :
+
+- **Inscription** : "Ces identifiants sont déjà associés à un compte existant."
+- **Connexion** : "Identifiants incorrects ou compte non vérifié."
+
+Cela empêche un attaquant de déterminer si un email/phone est déjà enregistré.
+
+### Modèle de données
+
+```
+users
+├── id, name, email, phone, password
+├── role (admin|candidate)
+├── status (pending|active|suspended|inactive)
+├── plan (free|premium)
+├── sms_quota, sms_sent
+└── email_verified_at
+
+plans
+├── id, name, price, duration_days
+├── sms_quota, cv_parsing_enabled, active
+└── ...
+
+subscriptions
+├── id, user_id, plan_id
+├── starts_at, ends_at
+├── sms_remaining
+└── status (active|inactive|suspended)
+```
+
+### Variables d'environnement requises
+
+```env
+APP_NAME=Job2You
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database/database.sqlite
+
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="hello@job2you.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+```
+
+## Déploiement
+
+### Checklist de validation avant mise en production
+
+- [ ] `APP_DEBUG=false`
+- [ ] `APP_ENV=production`
+- [ ] `APP_KEY` généré et sécurisé
+- [ ] Base de données configurée (MySQL/PostgreSQL recommandé)
+- [ ] `MAIL_MAILER` configuré (SMTP/SendGrid/SES)
+- [ ] `SESSION_DRIVER` sécurisé (database/redis)
+- [ ] `CACHE_STORE` configuré (redis recommandé)
+- [ ] Certificat HTTPS actif
+- [ ] `php artisan config:cache` exécuté
+- [ ] `php artisan route:cache` exécuté
+- [ ] `php artisan view:cache` exécuté
+- [ ] Tests : `php artisan test` → 100% passent
+- [ ] `npm run build` exécuté
+
+### Commandes de déploiement
+
+```bash
+# 1. Installer les dépendances
+composer install --no-dev --optimize-autoloader
+
+# 2. Configurer l'environnement
+cp .env.example .env
+php artisan key:generate
+
+# 3. Exécuter les migrations
+php artisan migrate --force
+
+# 4. Charger les données initiales
+php artisan db:seed --force
+
+# 5. Construire les assets
+npm ci
+npm run build
+
+# 6. Optimiser
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 7. Lancer le serveur
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+### Points de vigilance sécurité
+
+| Risque | Mitigation |
+|--------|-----------|
+| Force brute inscription | Rate limiting 5/min |
+| Force brute connexion | Rate limiting 5/min |
+| Énumération d'emails | Messages d'erreur génériques |
+| CSRF | Middleware natif Laravel |
+| Injection SQL | Eloquent ORM (paramètres liés) |
+| XSS | Échappement Blade `{{ }}` |
+| Lien de vérification falsifié | Signature `signed` + hash `sha1` |
+| Session fixation | `session()->regenerate()` |
+| Mots de passe faibles | Règles `Password::defaults()` |
+| Vol de session | `SESSION_ENCRYPT=true` en prod |
 
 ## Contribuer
 

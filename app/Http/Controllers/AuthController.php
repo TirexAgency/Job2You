@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Plan;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,6 +64,9 @@ class AuthController extends Controller
         });
 
         Auth::guard('web')->login($user);
+
+        // Déclenche l'envoi de l'email de vérification (listener MustVerifyEmail)
+        event(new Registered($user));
 
         return redirect()->route('verification.notice')
             ->with('success', 'Votre compte a été créé ! Vérifiez votre email pour activer votre compte.');
