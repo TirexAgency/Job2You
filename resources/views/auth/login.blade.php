@@ -50,7 +50,7 @@
                             <div class="mb-3">
                                 <label for="email" class="form-label">Adresse email</label>
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                       id="email" name="email" value="{{ old('email') }}" required autofocus>
+                                       id="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -60,14 +60,17 @@
                             <div class="mb-3">
                                 <label for="password" class="form-label">Mot de passe</label>
                                 <div class="position-relative">
-                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required autocomplete="current-password">
                                     <i class="bi bi-eye-slash position-absolute top-50 end-0 translate-middle-y me-3" id="togglePassword" style="cursor: pointer;"></i>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
                             <!-- Se souvenir de moi -->
                             <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                <input type="checkbox" class="form-check-input" id="remember" name="remember" value="1" @checked(old('remember'))>
                                 <label class="form-check-label" for="remember">Se souvenir de moi</label>
                             </div>
 
@@ -95,13 +98,12 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#togglePassword').on('click', function() {
-                const passwordField = $('#password');
-                const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
-                passwordField.attr('type', type);
-                $(this).toggleClass('bi-eye bi-eye-slash');
-            });
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordField = document.getElementById('password');
+            const isHidden = passwordField.type === 'password';
+            passwordField.type = isHidden ? 'text' : 'password';
+            this.classList.toggle('bi-eye', isHidden);
+            this.classList.toggle('bi-eye-slash', !isHidden);
         });
     </script>
 </body>

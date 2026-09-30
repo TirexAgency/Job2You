@@ -205,6 +205,29 @@ tests/
 
 ## Documentation technique
 
+### Connexion et déconnexion sécurisées
+
+- `GET /login` affiche le formulaire Blade avec `@csrf`, le champ « Se souvenir de moi » et la récupération de mot de passe.
+- `POST /login` est protégé par `guest` et `throttle:5,1`. `LoginRequest` valide l'email et le mot de passe, limite aussi les tentatives par email et adresse IP, et n'authentifie que les comptes actifs avec email vérifié.
+- Les erreurs d'identifiants, comptes non vérifiés et comptes inactifs partagent un message générique. Après succès, Laravel régénère l'identifiant de session et le guard gère le cookie ainsi que le `remember_token` quand « Se souvenir de moi » est activé.
+- La redirection respecte d'abord l'URL `intended`, puis utilise le dashboard réel de l'application, dont le contenu est adapté au rôle. Les routes de rôle distinctes restent des endpoints de test JSON.
+- `POST /logout` exige `auth` et un jeton CSRF. Le guard déconnecte l'utilisateur et renouvelle son `remember_token` ; la session est invalidée, le jeton CSRF est régénéré, puis l'utilisateur est redirigé vers le login avec un message de succès.
+- Le cookie persistant est géré par le guard Laravel (`remember_web_*`) ; l'application ne fabrique pas son nom manuellement.
+- Le profil utilise les formulaires Bootstrap pour les données personnelles, le mot de passe et la suppression du compte.
+
+Commandes utiles depuis la racine :
+
+```bash
+php artisan route:list --path=login
+php artisan route:list --path=logout
+php artisan test --compact tests/Feature/Auth/AuthenticationTest.php
+php artisan test --compact tests/Feature/Auth/LogoutTest.php
+php artisan test --compact tests/Feature/AuthSecurityTest.php
+php artisan test --compact tests/Feature/ProfileTest.php
+vendor/bin/pint --dirty --format agent
+npm run build
+```
+
 ### Architecture d'authentification
 
 ```
@@ -266,9 +289,9 @@ tests/
 Tous les messages d'erreur d'authentification sont génériques :
 
 - **Inscription** : "Ces identifiants sont déjà associés à un compte existant."
-- **Connexion** : "Identifiants incorrects ou compte non vérifié."
+- **Connexion** : "Identifiants incorrects ou compte non disponible."
 
-Cela empêche un attaquant de déterminer si un email/phone est déjà enregistré.
+Cela évite de divulguer si l'email existe, s'il est vérifié ou si le compte est actif.
 
 ### Modèle de données
 

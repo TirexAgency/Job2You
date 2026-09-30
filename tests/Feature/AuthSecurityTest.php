@@ -32,6 +32,21 @@ class AuthSecurityTest extends TestCase
             ->assertStatus(429);
     }
 
+    public function test_login_is_rate_limited_to_5_attempts_per_minute(): void
+    {
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $this->from('/login')->post('/login', [
+                'email' => 'unknown@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/login');
+        }
+
+        $this->from('/login')->post('/login', [
+            'email' => 'unknown@example.com',
+            'password' => 'wrong-password',
+        ])->assertTooManyRequests();
+    }
+
     public function test_verification_notification_is_rate_limited_to_6_attempts_per_minute(): void
     {
         $user = User::factory()->unverified()->create();
@@ -172,6 +187,8 @@ class AuthSecurityTest extends TestCase
             ->assertSee('Dashboard')
             ->assertSee('Offres')
             ->assertSee('Mon profil')
+            ->assertSee('bi-speedometer2', false)
+            ->assertSee('bi-box-arrow-right', false)
             ->assertSee('Déconnexion');
     }
 
@@ -242,9 +259,23 @@ class AuthSecurityTest extends TestCase
 
         // Message générique : ne révèle PAS que l'email est inconnu
         $this->assertSame(
-            'Identifiants incorrects ou compte non vérifié.',
+            'Identifiants incorrects ou compte non disponible.',
             session('errors')->first('email'),
         );
+    }
+
+    public function test_login_does_not_reveal_inactive_or_unverified_account_status(): void
+    {
+        $user = User::factory()->suspended()->create();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertSessionHasErrors([
+            'email' => 'Identifiants incorrects ou compte non disponible.',
+        ]);
+
+        $this->assertGuest();
     }
 
     // ---------------------------------------------------------------

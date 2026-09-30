@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,11 +43,19 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $user = User::where('email', $this->string('email')->toString())->first();
+        $isEligible = $user !== null
+            && $user->hasVerifiedEmail()
+            && $user->status === 'active';
+
+        if (! $isEligible || ! Auth::attempt(
+            $this->only('email', 'password') + ['status' => 'active'],
+            $this->boolean('remember'),
+        )) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Identifiants incorrects ou compte non disponible.',
             ]);
         }
 

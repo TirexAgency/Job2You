@@ -49,40 +49,34 @@ class LogoutTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)->get('/dashboard');
+        $this->actingAs($user)
+            ->withSession(['private_value' => 'must be removed'])
+            ->post('/logout')
+            ->assertSessionMissing('private_value');
 
-        $this->actingAs($user)->post('/logout');
-
-        // La session est invalidée : l'utilisateur ne peut plus accéder aux routes protégées
         $this->get('/dashboard')->assertRedirect(route('login'));
     }
 
     public function test_logout_regenerates_csrf_token(): void
     {
         $user = User::factory()->create();
-
         $this->actingAs($user);
 
-        $tokenBefore = csrf_token();
+        $this->get('/dashboard');
+        $tokenBefore = session()->token();
+        $response = $this->post('/logout');
 
-        $this->post('/logout');
-
-        // Après déconnexion, le token CSRF est régénéré
-        // On vérifie que la session est invalidée en tentant une requête POST
-        $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => 'password',
-        ])->assertSessionDoesntHaveErrors('token');
+        $this->assertNotSame($tokenBefore, session()->token());
     }
 
-    public function test_logout_removes_remember_token_cookie(): void
+    public function test_logout_rotates_remember_token(): void
     {
         $user = User::factory()->create();
+        $rememberTokenBefore = $user->getRememberToken();
 
-        $response = $this->actingAs($user)->post('/logout');
+        $this->actingAs($user)->post('/logout');
 
-        // Vérifier que le cookie remember_token est supprimé
-        $this->assertNull(auth()->user());
+        $this->assertNotSame($rememberTokenBefore, $user->refresh()->getRememberToken());
     }
 
     // ============================================================

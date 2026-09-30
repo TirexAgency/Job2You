@@ -11,15 +11,15 @@
         <p class="sidebar-label">Espace personnel</p>
         <div class="nav nav-pills flex-column gap-1">
             <a href="{{ route('dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" @if (request()->routeIs('dashboard')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true">⌂</span>
+                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span>
                 <span>Dashboard</span>
             </a>
             <a href="{{ route('jobs.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('jobs.*') ? 'active' : '' }}" @if (request()->routeIs('jobs.*')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true">▤</span>
+                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-briefcase"></i></span>
                 <span>Offres d'emploi</span>
             </a>
             <a href="{{ route('profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" @if (request()->routeIs('profile.*')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true">◉</span>
+                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-person-circle"></i></span>
                 <span>Mon profil</span>
             </a>
         </div>
@@ -30,7 +30,7 @@
             <form method="POST" action="{{ route('logout') }}" class="mt-3">
                 @csrf
                 <button type="submit" class="btn btn-outline-danger w-100 text-start" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
-                    <span aria-hidden="true" class="me-2">↗</span>Déconnexion
+                    <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Déconnexion
                 </button>
             </form>
         </div>

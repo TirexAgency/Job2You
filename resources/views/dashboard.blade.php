@@ -18,7 +18,7 @@
                         <p class="text-secondary mb-0">Ajoutez vos informations et vos compétences pour faciliter votre mise en relation avec les offres qui vous correspondent.</p>
                     </div>
                     <div class="col-lg-4 text-lg-end">
-                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">Gérer mon profil <span aria-hidden="true">&rarr;</span></a>
+                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">Gérer mon profil <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </section>
@@ -59,7 +59,7 @@
                                 <span class="d-block fw-semibold">Mon profil</span>
                                 <span class="small text-secondary">Mettre à jour mes informations</span>
                             </span>
-                            <span class="fs-4 text-primary" aria-hidden="true">&rarr;</span>
+                            <i class="bi bi-arrow-right fs-4 text-primary" aria-hidden="true"></i>
                         </a>
                     </div>
                     <div class="col-md-6">
@@ -68,7 +68,7 @@
                                 <span class="d-block fw-semibold">Découvrir les offres</span>
                                 <span class="small text-secondary">Explorer les opportunités disponibles</span>
                             </span>
-                            <span class="fs-4 text-primary" aria-hidden="true">&rarr;</span>
+                            <i class="bi bi-arrow-right fs-4 text-primary" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>

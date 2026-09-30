@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
         <title>{{ config('app.name', 'Job2You') }}</title>
 
@@ -22,9 +23,7 @@
             <div class="app-content flex-grow-1">
                 <header class="app-mobile-header d-flex d-lg-none align-items-center gap-3 bg-white border-bottom px-3 py-2">
                     <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Ouvrir le menu">
-                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M2 3.5A.5.5 0 0 1 2.5 3h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 4A.5.5 0 0 1 2.5 7h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-                        </svg>
+                        <i class="bi bi-list fs-4" aria-hidden="true"></i>
                     </button>
                     <span class="fw-semibold">{{ config('app.name', 'Job2You') }}</span>
                 </header>
