@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
-use App\Models\User;
 use App\Models\Plan;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -82,12 +81,11 @@ class AuthController extends Controller
                 ->with('info', 'Votre email est déjà vérifié.');
         }
 
-        // Vérifier le hash de sécurité
-        $validUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1($user->email)]
-        );
+        // Vérifier le hash de sécurité (protection contre la falsification)
+        if (! hash_equals((string) sha1($user->email), (string) $request->hash)) {
+            return redirect()->route('home')
+                ->with('error', 'Le lien de vérification est invalide.');
+        }
 
         // Marquer l'email comme vérifié
         if ($user->markEmailAsVerified()) {
