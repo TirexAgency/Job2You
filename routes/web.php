@@ -44,18 +44,20 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth');
 
 // Routes de vérification email avec rate limiting
-Route::middleware('auth')->group(function () {
-    Route::get('/email/verify', function () {
-        return view('auth.verify-email');
-    })->name('verification.notice');
+// verification.notice et verification.send sont accessibles sans auth (pour les utilisateurs déconnectés)
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->name('verification.notice');
 
+Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
+    ->middleware('throttle:6,1')
+    ->name('verification.send');
+
+// verification.verify nécessite auth (le lien contient un hash lié à l'utilisateur connecté)
+Route::middleware('auth')->group(function () {
     Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
-
-    Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
 });
 
 // Routes protégées (auth + verified)

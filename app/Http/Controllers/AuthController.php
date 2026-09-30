@@ -106,10 +106,24 @@ class AuthController extends Controller
 
     /**
      * Renvoie l'email de vérification.
+     * Accessible aux utilisateurs connectés et déconnectés (via email en POST).
      */
     public function resendVerification(Request $request): RedirectResponse
     {
-        $user = $request->user();
+        // Si l'utilisateur est déconnecté, on attend un email en POST
+        if (! $request->user()) {
+            $request->validate([
+                'email' => ['required', 'email', 'exists:users,email'],
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if (! $user) {
+                return back()->with('error', 'Aucun compte trouvé avec cette adresse email.');
+            }
+        } else {
+            $user = $request->user();
+        }
 
         // Vérifier si l'email est déjà vérifié
         if ($user->hasVerifiedEmail()) {

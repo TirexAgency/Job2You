@@ -44,19 +44,46 @@
                             </div>
                         @endif
 
-                        <div class="d-grid gap-2">
-                            <form method="POST" action="{{ route('verification.send') }}">
-                                @csrf
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-send"></i> Renvoyer le lien
-                                </button>
-                            </form>
-                        </div>
+                        @auth
+                            <div class="d-grid gap-2">
+                                <form method="POST" action="{{ route('verification.send') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-send"></i> Renvoyer le lien
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <div class="d-grid gap-2">
+                                <form method="POST" action="{{ route('verification.send') }}">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <input type="email" name="email" class="form-control" placeholder="Votre adresse email" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-send"></i> Renvoyer le lien
+                                    </button>
+                                </form>
+                            </div>
+                        @endauth
 
                         <hr>
-                        <p class="text-center mb-0">
-                            <a href="{{ route('logout') }}">Se déconnecter</a>
-                        </p>
+                        @auth
+                            <p class="text-center mb-0">
+                                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-link p-0 m-0 align-baseline" style="text-decoration: underline;">
+                                        Se déconnecter
+                                    </button>
+                                </form>
+                            </p>
+                        @else
+                            <p class="text-center mb-0">
+                                <a href="{{ route('login') }}" class="btn btn-link p-0 m-0 align-baseline" style="text-decoration: underline;">
+                                    Se connecter
+                                </a>
+                            </p>
+                        @endauth
                     </div>
                 </div>
             </div>
