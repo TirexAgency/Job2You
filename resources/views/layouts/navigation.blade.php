@@ -24,6 +24,16 @@
             </a>
         </div>
 
+        @if(Auth::user() && Auth::user()->isAdmin())
+            <p class="sidebar-label mt-4">Administration</p>
+            <div class="nav nav-pills flex-column gap-1">
+                <a href="{{ route('admin.users.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" @if (request()->routeIs('admin.users.*')) aria-current="page" @endif>
+                    <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-people"></i></span>
+                    <span>Utilisateurs</span>
+                </a>
+            </div>
+        @endif
+
         <div class="sidebar-account mt-auto">
             <div class="small fw-semibold text-truncate">{{ Auth::user()->name }}</div>
             <div class="small text-secondary">{{ ucfirst(Auth::user()->role ?? 'Utilisateur') }}</div>
