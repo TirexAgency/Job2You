@@ -19,6 +19,7 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $users = User::query()
+            ->with(['activeSubscriptions.plan'])
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")

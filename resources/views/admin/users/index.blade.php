@@ -28,6 +28,16 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Filters -->
             <section class="bg-white border rounded-3 shadow-sm p-4 mb-4">
                 <form method="GET" action="{{ route('admin.users.index') }}" class="row g-3">
@@ -69,7 +79,7 @@
                                 <th>Contact</th>
                                 <th>Rôle</th>
                                 <th>Statut</th>
-                                <th>SMS</th>
+                                <th>SMS restants / quota</th>
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
@@ -101,14 +111,14 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="small">{{ $user->sms_sent }} / {{ $user->sms_quota }}</div>
+                                        <div class="small">{{ $user->getSmsRemaining() }} / {{ $user->getSmsQuotaLimit() }}</div>
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
                                             <button type="button" class="btn btn-sm btn-outline-primary" title="Voir" data-bs-toggle="modal" data-bs-target="#showUserModal{{ $user->id }}">
                                                 <i class="bi bi-eye" aria-hidden="true"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Modifier" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Modifier" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" data-auto-open="{{ $errors->any() && old('_user_id') == $user->id ? 'true' : 'false' }}">
                                                 <i class="bi bi-pencil" aria-hidden="true"></i>
                                             </button>
                                             @if($user->id !== auth()->id())
@@ -256,6 +266,7 @@
                     <form method="POST" action="{{ route('admin.users.update', $user) }}">
                         @csrf
                         @method('PUT')
+                        <input type="hidden" name="_user_id" value="{{ $user->id }}">
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -378,13 +389,13 @@
                                     <dd class="col-sm-7 fw-semibold">{{ ucfirst($user->plan) }}</dd>
 
                                     <dt class="col-sm-5 text-secondary">Quota SMS</dt>
-                                    <dd class="col-sm-7">{{ $user->sms_quota }}</dd>
+                                    <dd class="col-sm-7">{{ $user->getSmsQuotaLimit() }}</dd>
 
                                     <dt class="col-sm-5 text-secondary">SMS envoyés</dt>
                                     <dd class="col-sm-7">{{ $user->sms_sent }}</dd>
 
                                     <dt class="col-sm-5 text-secondary">SMS restants</dt>
-                                    <dd class="col-sm-7 fw-semibold text-primary">{{ max($user->sms_quota - $user->sms_sent, 0) }}</dd>
+                                    <dd class="col-sm-7 fw-semibold text-primary">{{ $user->getSmsRemaining() }}</dd>
                                 </dl>
 
                                 <h3 class="h6 fw-bold mb-3 mt-4">Informations système</h3>
@@ -409,4 +420,12 @@
             </div>
         </div>
     @endforeach
+
+    @if($errors->any() && old('_user_id'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelector('[data-auto-open="true"]')?.click();
+            });
+        </script>
+    @endif
 </x-app-layout>

@@ -38,18 +38,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Subscription::class);
     }
 
-    /**
-     * Vérifie si l'utilisateur a un abonnement actif.
-     */
-    public function hasActiveSubscription(): bool
+    public function activeSubscriptions(): HasMany
     {
         return $this->subscriptions()
             ->where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('ends_at')
                     ->orWhere('ends_at', '>', now());
-            })
-            ->exists();
+            });
+    }
+
+    /**
+     * Vérifie si l'utilisateur a un abonnement actif.
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscriptions()->exists();
     }
 
     /**
@@ -57,14 +61,32 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getSmsQuota(): int
     {
+        $remaining = $this->activeSubscriptions()->sum('sms_remaining');
+
         if ($this->hasActiveSubscription()) {
-            return $this->subscriptions()
-                ->where('status', 'active')
-                ->where(function ($query) {
-                    $query->whereNull('ends_at')
-                        ->orWhere('ends_at', '>', now());
-                })
-                ->sum('sms_remaining');
+            return $remaining;
+        }
+
+        return $this->sms_quota;
+    }
+
+    public function getSmsRemaining(): int
+    {
+        $subscriptions = $this->activeSubscriptions;
+
+        if ($subscriptions->isNotEmpty()) {
+            return $subscriptions->sum('sms_remaining');
+        }
+
+        return max($this->sms_quota - $this->sms_sent, 0);
+    }
+
+    public function getSmsQuotaLimit(): int
+    {
+        $subscriptions = $this->activeSubscriptions;
+
+        if ($subscriptions->isNotEmpty()) {
+            return $subscriptions->sum(fn (Subscription $subscription) => $subscription->plan?->sms_quota ?? 0);
         }
 
         return $this->sms_quota;
