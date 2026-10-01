@@ -105,9 +105,9 @@
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
-                                            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-outline-primary" title="Voir">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" title="Voir" data-bs-toggle="modal" data-bs-target="#showUserModal{{ $user->id }}">
                                                 <i class="bi bi-eye" aria-hidden="true"></i>
-                                            </a>
+                                            </button>
                                             <button type="button" class="btn btn-sm btn-outline-secondary" title="Modifier" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
                                                 <i class="bi bi-pencil" aria-hidden="true"></i>
                                             </button>
@@ -318,6 +318,93 @@
                             <button type="submit" class="btn btn-primary">Mettre à jour</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <!-- Show User Modals -->
+    @foreach($users as $user)
+        <div class="modal fade" id="showUserModal{{ $user->id }}" tabindex="-1" aria-labelledby="showUserModal{{ $user->id }}Label" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5 fw-bold" id="showUserModal{{ $user->id }}Label">{{ $user->name }}</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h3 class="h6 fw-bold mb-3">Informations personnelles</h3>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5 text-secondary">Nom complet</dt>
+                                    <dd class="col-sm-7 fw-semibold">{{ $user->name }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">Adresse email</dt>
+                                    <dd class="col-sm-7">{{ $user->email }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">Téléphone</dt>
+                                    <dd class="col-sm-7">{{ $user->phone ?: 'Non renseigné' }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">Rôle</dt>
+                                    <dd class="col-sm-7">
+                                        <span class="badge bg-{{ $user->role === 'admin' ? 'danger' : ($user->role === 'recruiter' ? 'warning' : 'info') }}">
+                                            {{ ucfirst($user->role) }}
+                                        </span>
+                                    </dd>
+
+                                    <dt class="col-sm-5 text-secondary">Statut</dt>
+                                    <dd class="col-sm-7">
+                                        <span class="badge bg-{{ $user->status === 'active' ? 'success' : ($user->status === 'pending' ? 'warning' : 'secondary') }}">
+                                            {{ ucfirst($user->status) }}
+                                        </span>
+                                    </dd>
+
+                                    <dt class="col-sm-5 text-secondary">Email vérifié</dt>
+                                    <dd class="col-sm-7">
+                                        @if($user->email_verified_at)
+                                            <span class="text-success"><i class="bi bi-check-circle me-1" aria-hidden="true"></i>Oui, le {{ $user->email_verified_at->format('d/m/Y H:i') }}</span>
+                                        @else
+                                            <span class="text-warning"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Non vérifié</span>
+                                        @endif
+                                    </dd>
+                                </dl>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h3 class="h6 fw-bold mb-3">Abonnement & SMS</h3>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5 text-secondary">Formule</dt>
+                                    <dd class="col-sm-7 fw-semibold">{{ ucfirst($user->plan) }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">Quota SMS</dt>
+                                    <dd class="col-sm-7">{{ $user->sms_quota }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">SMS envoyés</dt>
+                                    <dd class="col-sm-7">{{ $user->sms_sent }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">SMS restants</dt>
+                                    <dd class="col-sm-7 fw-semibold text-primary">{{ max($user->sms_quota - $user->sms_sent, 0) }}</dd>
+                                </dl>
+
+                                <h3 class="h6 fw-bold mb-3 mt-4">Informations système</h3>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5 text-secondary">ID utilisateur</dt>
+                                    <dd class="col-sm-7">{{ $user->id }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">Créé le</dt>
+                                    <dd class="col-sm-7">{{ $user->created_at->format('d/m/Y H:i') }}</dd>
+
+                                    <dt class="col-sm-5 text-secondary">Dernière mise à jour</dt>
+                                    <dd class="col-sm-7">{{ $user->updated_at->format('d/m/Y H:i') }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">Modifier</button>
+                    </div>
                 </div>
             </div>
         </div>

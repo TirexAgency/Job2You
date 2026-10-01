@@ -88,7 +88,7 @@
                             </a>
                         </div>
                         <div class="col-md-6">
-                            <a href="{{ route('admin.users.create') }}" class="d-flex align-items-center justify-content-between gap-3 h-100 bg-white border rounded-3 p-4 text-decoration-none text-dark">
+                            <a href="{{ route('admin.users.index') }}" class="d-flex align-items-center justify-content-between gap-3 h-100 bg-white border rounded-3 p-4 text-decoration-none text-dark">
                                 <span>
                                     <span class="d-block fw-semibold">Nouvel utilisateur</span>
                                     <span class="small text-secondary">Ajouter un utilisateur à la plateforme</span>

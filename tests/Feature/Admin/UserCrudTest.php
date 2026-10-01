@@ -28,14 +28,6 @@ class UserCrudTest extends TestCase
         $response->assertViewIs('admin.users.index');
     }
 
-    public function test_admin_can_view_create_user_form(): void
-    {
-        $response = $this->actingAs($this->admin)->get('/admin/users/create');
-
-        $response->assertStatus(200);
-        $response->assertViewIs('admin.users.create');
-    }
-
     public function test_admin_can_create_user(): void
     {
         $response = $this->actingAs($this->admin)->post('/admin/users', [
@@ -55,26 +47,6 @@ class UserCrudTest extends TestCase
             'email' => 'nouveau@example.com',
             'role' => 'candidate',
         ]);
-    }
-
-    public function test_admin_can_view_user_details(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($this->admin)->get("/admin/users/{$user->id}");
-
-        $response->assertStatus(200);
-        $response->assertViewIs('admin.users.show');
-    }
-
-    public function test_admin_can_view_edit_user_form(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($this->admin)->get("/admin/users/{$user->id}/edit");
-
-        $response->assertStatus(200);
-        $response->assertViewIs('admin.users.edit');
     }
 
     public function test_admin_can_update_user(): void
@@ -141,14 +113,12 @@ class UserCrudTest extends TestCase
         $candidate = User::factory()->candidate()->create();
 
         $this->actingAs($candidate)->get('/admin/users')->assertStatus(403);
-        $this->actingAs($candidate)->get('/admin/users/create')->assertStatus(403);
         $this->actingAs($candidate)->post('/admin/users')->assertStatus(403);
     }
 
     public function test_guest_cannot_access_user_crud(): void
     {
         $this->get('/admin/users')->assertRedirect('/login');
-        $this->get('/admin/users/create')->assertRedirect('/login');
         $this->post('/admin/users')->assertRedirect('/login');
     }
 

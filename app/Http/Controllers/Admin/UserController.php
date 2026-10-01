@@ -44,17 +44,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new user.
-     */
-    public function create(): View
-    {
-        return view('admin.users.create', [
-            'roles' => ['candidate', 'admin', 'recruiter'],
-            'statuses' => ['pending', 'active', 'inactive', 'suspended'],
-        ]);
-    }
-
-    /**
      * Store a newly created user in storage.
      */
     public function store(Request $request): RedirectResponse
@@ -86,28 +75,6 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', "Utilisateur {$user->name} créé avec succès.");
-    }
-
-    /**
-     * Display the specified user.
-     */
-    public function show(User $user): View
-    {
-        return view('admin.users.show', [
-            'user' => $user,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified user.
-     */
-    public function edit(User $user): View
-    {
-        return view('admin.users.edit', [
-            'user' => $user,
-            'roles' => ['candidate', 'admin', 'recruiter'],
-            'statuses' => ['pending', 'active', 'inactive', 'suspended'],
-        ]);
     }
 
     /**

@@ -99,8 +99,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         return response()->json(['message' => 'Admin dashboard']);
     })->name('dashboard');
 
-    // CRUD Utilisateurs
-    Route::resource('users', UserController::class);
+    // CRUD Utilisateurs (resource sans create/show/edit - utilisés dans des modals)
+    Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->group(function () {
