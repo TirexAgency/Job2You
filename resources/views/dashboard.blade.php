@@ -73,6 +73,32 @@
                     </div>
                 </div>
             </section>
+
+            @if($user->role === 'admin')
+                <section aria-labelledby="admin-actions-title" class="mt-4">
+                    <h2 id="admin-actions-title" class="h5 fw-bold mb-3">Administration</h2>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.users.index') }}" class="d-flex align-items-center justify-content-between gap-3 h-100 bg-white border rounded-3 p-4 text-decoration-none text-dark">
+                                <span>
+                                    <span class="d-block fw-semibold">Gestion des utilisateurs</span>
+                                    <span class="small text-secondary">Créer, modifier et supprimer des utilisateurs</span>
+                                </span>
+                                <i class="bi bi-people fs-4 text-primary" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.users.create') }}" class="d-flex align-items-center justify-content-between gap-3 h-100 bg-white border rounded-3 p-4 text-decoration-none text-dark">
+                                <span>
+                                    <span class="d-block fw-semibold">Nouvel utilisateur</span>
+                                    <span class="small text-secondary">Ajouter un utilisateur à la plateforme</span>
+                                </span>
+                                <i class="bi bi-person-plus fs-4 text-primary" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            @endif
         </div>
     </div>
 </x-app-layout>
