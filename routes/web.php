@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -92,11 +93,14 @@ Route::middleware('auth')->group(function () {
         ->name('password.update');
 });
 
-// Routes de test pour le middleware de rôles
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+// Routes d'administration (admin uniquement)
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
         return response()->json(['message' => 'Admin dashboard']);
-    })->name('admin.dashboard');
+    })->name('dashboard');
+
+    // CRUD Utilisateurs
+    Route::resource('users', UserController::class);
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->group(function () {
