@@ -7,10 +7,26 @@
                     <h1 class="h2 fw-bold mb-1">Gestion des utilisateurs</h1>
                     <p class="text-secondary mb-0">Gérez les comptes utilisateurs de la plateforme.</p>
                 </div>
-                <a href="{{ route('admin.users.create') }}" class="btn btn-primary px-4 py-2">
+                <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
                     <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nouvel utilisateur
-                </a>
+                </button>
             </header>
+
+            <!-- Success Message -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                </div>
+            @endif
+
+            <!-- Error Message -->
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                </div>
+            @endif
 
             <!-- Filters -->
             <section class="bg-white border rounded-3 shadow-sm p-4 mb-4">
@@ -92,9 +108,9 @@
                                             <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-outline-primary" title="Voir">
                                                 <i class="bi bi-eye" aria-hidden="true"></i>
                                             </a>
-                                            <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Modifier" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}">
                                                 <i class="bi bi-pencil" aria-hidden="true"></i>
-                                            </a>
+                                            </button>
                                             @if($user->id !== auth()->id())
                                                 <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
                                                     @csrf
@@ -126,4 +142,184 @@
             </section>
         </div>
     </div>
+
+    <!-- Create User Modal -->
+    <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5 fw-bold" id="createUserModalLabel">Nouvel utilisateur</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <form method="POST" action="{{ route('admin.users.store') }}">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Nom complet</label>
+                                <input type="text" class="form-control @error('name') is-invalid @endif" id="name" name="name" value="{{ old('name') }}" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Adresse email</label>
+                                <input type="email" class="form-control @error('email') is-invalid @endif" id="email" name="email" value="{{ old('email') }}" required>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control @error('phone') is-invalid @endif" id="phone" name="phone" value="{{ old('phone') }}">
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Rôle</label>
+                                <select class="form-select @error('role') is-invalid @endif" id="role" name="role" required>
+                                    <option value="">Sélectionner un rôle</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role }}" {{ old('role') === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                    @endforeach
+                                </select>
+                                @error('role')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Statut</label>
+                                <select class="form-select @error('status') is-invalid @endif" id="status" name="status" required>
+                                    <option value="">Sélectionner un statut</option>
+                                    @foreach($statuses as $status)
+                                        <option value="{{ $status }}" {{ old('status') === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                    @endforeach
+                                </select>
+                                @error('status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="plan" class="form-label">Formule</label>
+                                <input type="text" class="form-control @error('plan') is-invalid @endif" id="plan" name="plan" value="{{ old('plan', 'free') }}" required>
+                                @error('plan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="sms_quota" class="form-label">Quota SMS</label>
+                                <input type="number" class="form-control @error('sms_quota') is-invalid @endif" id="sms_quota" name="sms_quota" value="{{ old('sms_quota', 2) }}" min="0" required>
+                                @error('sms_quota')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <input type="password" class="form-control @error('password') is-invalid @endif" id="password" name="password" required>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="password_confirmation" class="form-label">Confirmer le mot de passe</label>
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modals -->
+    @foreach($users as $user)
+        <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" aria-labelledby="editUserModal{{ $user->id }}Label" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5 fw-bold" id="editUserModal{{ $user->id }}Label">Modifier {{ $user->name }}</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <form method="POST" action="{{ route('admin.users.update', $user) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="edit_name_{{ $user->id }}" class="form-label">Nom complet</label>
+                                    <input type="text" class="form-control" id="edit_name_{{ $user->id }}" name="name" value="{{ old('name', $user->name) }}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_email_{{ $user->id }}" class="form-label">Adresse email</label>
+                                    <input type="email" class="form-control" id="edit_email_{{ $user->id }}" name="email" value="{{ old('email', $user->email) }}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_phone_{{ $user->id }}" class="form-label">Téléphone</label>
+                                    <input type="tel" class="form-control" id="edit_phone_{{ $user->id }}" name="phone" value="{{ old('phone', $user->phone) }}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_role_{{ $user->id }}" class="form-label">Rôle</label>
+                                    <select class="form-select" id="edit_role_{{ $user->id }}" name="role" required>
+                                        @foreach($roles as $role)
+                                            <option value="{{ $role }}" {{ old('role', $user->role) === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_status_{{ $user->id }}" class="form-label">Statut</label>
+                                    <select class="form-select" id="edit_status_{{ $user->id }}" name="status" required>
+                                        @foreach($statuses as $status)
+                                            <option value="{{ $status }}" {{ old('status', $user->status) === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_plan_{{ $user->id }}" class="form-label">Formule</label>
+                                    <input type="text" class="form-control" id="edit_plan_{{ $user->id }}" name="plan" value="{{ old('plan', $user->plan) }}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_sms_quota_{{ $user->id }}" class="form-label">Quota SMS</label>
+                                    <input type="number" class="form-control" id="edit_sms_quota_{{ $user->id }}" name="sms_quota" value="{{ old('sms_quota', $user->sms_quota) }}" min="0" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_password_{{ $user->id }}" class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" class="form-control" id="edit_password_{{ $user->id }}" name="password">
+                                    <div class="form-text">Laissez vide pour conserver le mot de passe actuel.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="edit_password_confirmation_{{ $user->id }}" class="form-label">Confirmer le mot de passe</label>
+                                    <input type="password" class="form-control" id="edit_password_confirmation_{{ $user->id }}" name="password_confirmation">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 </x-app-layout>
