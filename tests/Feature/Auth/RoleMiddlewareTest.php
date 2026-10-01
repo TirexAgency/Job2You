@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use Database\Seeders\AdminSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -51,5 +52,33 @@ class RoleMiddlewareTest extends TestCase
         $response = $this->actingAs($candidate)->get('/candidate/dashboard');
 
         $response->assertStatus(200);
+    }
+
+    public function test_recruiter_cannot_access_admin_routes(): void
+    {
+        $recruiter = User::factory()->create(['role' => 'recruiter']);
+
+        $response = $this->actingAs($recruiter)->get('/admin/dashboard');
+
+        $response->assertStatus(403);
+    }
+
+    public function test_recruiter_cannot_access_candidate_routes(): void
+    {
+        $recruiter = User::factory()->create(['role' => 'recruiter']);
+
+        $response = $this->actingAs($recruiter)->get('/candidate/dashboard');
+
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_seeder_creates_admin_user(): void
+    {
+        $this->seed(AdminSeeder::class);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'admin@job2you.com',
+            'role' => 'admin',
+        ]);
     }
 }

@@ -70,4 +70,58 @@ class PasswordResetTest extends TestCase
             return true;
         });
     }
+
+    public function test_reset_token_can_only_be_used_once(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            // First reset - should succeed
+            $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ])->assertSessionHasNoErrors();
+
+            // Second reset with same token - should fail
+            $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'another-password',
+                'password_confirmation' => 'another-password',
+            ])->assertSessionHasErrors();
+
+            return true;
+        });
+    }
+
+    public function test_reset_link_expires_after_24_hours(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            // Simulate 25 hours passing
+            $this->travel(25)->hours();
+
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+            $response->assertSessionHasErrors();
+
+            return true;
+        });
+    }
 }
