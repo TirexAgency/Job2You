@@ -61,10 +61,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getSmsQuota(): int
     {
-        $remaining = $this->activeSubscriptions()->sum('sms_remaining');
+        $subscriptions = $this->activeSubscriptions;
 
-        if ($this->hasActiveSubscription()) {
-            return $remaining;
+        if ($subscriptions->isNotEmpty()) {
+            return $subscriptions->sum('sms_remaining');
         }
 
         return $this->sms_quota;

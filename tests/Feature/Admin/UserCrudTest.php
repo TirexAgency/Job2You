@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\User;
 use App\Models\Plan;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -69,10 +69,34 @@ class UserCrudTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/users');
+        $response->assertSessionHas('success', 'Utilisateur Nouvel Utilisateur créé avec succès.');
         $this->assertDatabaseHas('users', [
             'email' => 'nouveau@example.com',
             'role' => 'candidate',
         ]);
+    }
+
+    public function test_create_validation_errors_reopen_the_create_modal(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->followingRedirects()
+            ->from('/admin/users')
+            ->post('/admin/users', [
+                'name' => 'Nouvel Utilisateur',
+                'email' => 'invalid-email',
+                'phone' => '+261341234567',
+                'password' => 'Password1!',
+                'password_confirmation' => 'Password1!',
+                'role' => 'candidate',
+                'status' => 'active',
+                'plan' => 'free',
+                'sms_quota' => 2,
+            ]);
+
+        $response
+            ->assertSee('alert-danger')
+            ->assertSee('data-auto-open="true"', false)
+            ->assertSee('The email field must be a valid email address.');
     }
 
     public function test_admin_can_update_user(): void
@@ -90,6 +114,7 @@ class UserCrudTest extends TestCase
         ]);
 
         $response->assertRedirect('/admin/users');
+        $response->assertSessionHas('success', 'Utilisateur Nom Modifié mis à jour avec succès.');
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'Nom Modifié',
@@ -102,6 +127,7 @@ class UserCrudTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($this->admin)
+            ->followingRedirects()
             ->from('/admin/users')
             ->put("/admin/users/{$user->id}", [
                 '_user_id' => $user->id,
@@ -116,11 +142,9 @@ class UserCrudTest extends TestCase
                 'password_confirmation' => '',
             ]);
 
-        $response->assertRedirect('/admin/users')->assertSessionHasErrors('email');
-
-        $this->get('/admin/users')
+        $response
             ->assertSee('alert-danger')
-            ->assertSee('data-auto-open="true"')
+            ->assertSee('data-auto-open="true"', false)
             ->assertSee('The email field must be a valid email address.');
     }
 
@@ -150,6 +174,7 @@ class UserCrudTest extends TestCase
         $response = $this->actingAs($this->admin)->delete("/admin/users/{$user->id}");
 
         $response->assertRedirect('/admin/users');
+        $response->assertSessionHas('success', "Utilisateur {$user->name} supprimé avec succès.");
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 
@@ -158,6 +183,7 @@ class UserCrudTest extends TestCase
         $response = $this->actingAs($this->admin)->delete("/admin/users/{$this->admin->id}");
 
         $response->assertRedirect();
+        $response->assertSessionHas('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         $this->assertDatabaseHas('users', ['id' => $this->admin->id]);
     }
 

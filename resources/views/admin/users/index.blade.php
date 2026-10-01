@@ -7,7 +7,7 @@
                     <h1 class="h2 fw-bold mb-1">Gestion des utilisateurs</h1>
                     <p class="text-secondary mb-0">Gérez les comptes utilisateurs de la plateforme.</p>
                 </div>
-                <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#createUserModal" data-auto-open="{{ $errors->any() && !old('_user_id') ? 'true' : 'false' }}">
                     <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nouvel utilisateur
                 </button>
             </header>
@@ -421,7 +421,7 @@
         </div>
     @endforeach
 
-    @if($errors->any() && old('_user_id'))
+    @if($errors->any())
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelector('[data-auto-open="true"]')?.click();
