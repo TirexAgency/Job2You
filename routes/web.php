@@ -12,7 +12,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('home');
+    $recentOffers = App\Models\Offer::with(['source', 'offerSkills.skill'])
+        ->active()
+        ->recent()
+        ->limit(3)
+        ->get();
+
+    return view('home', compact('recentOffers'));
 })->name('home');
 
 // Routes d'inscription avec rate limiting et middleware guest
@@ -108,3 +114,28 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->group(functi
         return response()->json(['message' => 'Candidate dashboard']);
     })->name('candidate.dashboard');
 });
+
+// Routes publiques
+Route::get('/pricing', function () {
+    return view('pricing');
+})->name('pricing');
+
+Route::get('/how-it-works', function () {
+    return view('how-it-works');
+})->name('how-it-works');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+
+// Routes offres (publiques)
+Route::get('/offers', [App\Http\Controllers\OfferController::class, 'index'])->name('offers.index');
+Route::get('/offers/{offer}', [App\Http\Controllers\OfferController::class, 'show'])->name('offers.show');
