@@ -94,3 +94,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Tailwind fournit .collapse{visibility:collapse}, ce qui casse le collapse Bootstrap (navbar). */
+.collapse {
+	visibility: visible;
+}
+
+.collapse:not(.show) {
+	display: none;
+}
+
+.collapsing {
+	visibility: visible;
+}
