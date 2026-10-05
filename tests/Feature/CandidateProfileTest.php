@@ -5,8 +5,12 @@ namespace Tests\Feature;
 use App\Models\CandidateProfile;
 use App\Models\Education;
 use App\Models\Experience;
+use App\Models\Offer;
 use App\Models\Plan;
 use App\Models\Skill;
+use App\Models\SmsLog;
+use App\Models\Source;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -170,6 +174,33 @@ class CandidateProfileTest extends TestCase
         $this->assertSame('premium', $user->fresh()->plan);
         $this->assertSame(50, $user->fresh()->sms_quota);
         $this->assertDatabaseHas('subscriptions', ['user_id' => $user->id, 'plan_id' => $plan->id, 'status' => 'active', 'sms_remaining' => 50]);
+    }
+
+    public function test_candidate_can_toggle_sms_alerts(): void
+    {
+        $user = User::factory()->create();
+        CandidateProfile::create(['user_id' => $user->id, 'experience_level' => 'junior', 'alerts_enabled' => false]);
+
+        $this->actingAs($user)->post(route('candidate.sms.alerts'), ['alerts_enabled' => 1])
+            ->assertRedirect(route('candidate.sms'));
+        $this->assertTrue($user->fresh()->candidateProfile->alerts_enabled);
+
+        $this->actingAs($user)->post(route('candidate.sms.alerts'), ['alerts_enabled' => 0]);
+        $this->assertFalse($user->fresh()->candidateProfile->alerts_enabled);
+    }
+
+    public function test_candidate_can_delete_sms_log(): void
+    {
+        $user = User::factory()->create();
+        $source = Source::create(['name' => 'Test', 'collector_key' => 'test']);
+        $offer = Offer::create(['source_id' => $source->id, 'external_id' => '1', 'title' => 'Dev']);
+        $plan = Plan::create(['name' => 'Free', 'price' => 0, 'duration_days' => 30, 'sms_quota' => 2, 'active' => true]);
+        $subscription = Subscription::create(['user_id' => $user->id, 'plan_id' => $plan->id, 'starts_at' => now(), 'status' => 'active', 'sms_remaining' => 2]);
+        $log = SmsLog::create(['user_id' => $user->id, 'offer_id' => $offer->id, 'subscription_id' => $subscription->id, 'status' => 'sent', 'sent_at' => now()]);
+
+        $this->actingAs($user)->delete(route('candidate.sms.destroy', $log))
+            ->assertRedirect(route('candidate.sms'));
+        $this->assertDatabaseMissing('sms_logs', ['id' => $log->id]);
     }
 
     public function test_guest_cannot_access_profile_page(): void

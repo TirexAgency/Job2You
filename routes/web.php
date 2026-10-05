@@ -156,9 +156,22 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     })->name('recommendations');
     Route::get('/sms', function (Request $request) {
         $logs = SmsLog::where('user_id', $request->user()->id)->latest()->get();
+        $alertsEnabled = $request->user()->candidateProfile?->alerts_enabled ?? false;
 
-        return view('candidate.sms', compact('logs'));
+        return view('candidate.sms', compact('logs', 'alertsEnabled'));
     })->name('sms');
+    Route::post('/sms/alerts', function (Request $request) {
+        $profile = $request->user()->candidateProfile()->firstOrCreate(['user_id' => $request->user()->id]);
+        $profile->update(['alerts_enabled' => $request->boolean('alerts_enabled')]);
+
+        return redirect()->route('candidate.sms')->with('status', 'alerts-updated');
+    })->name('sms.alerts');
+    Route::delete('/sms/{log}', function (Request $request, SmsLog $log) {
+        abort_unless($log->user_id === $request->user()->id, 403);
+        $log->delete();
+
+        return redirect()->route('candidate.sms')->with('status', 'sms-deleted');
+    })->name('sms.destroy');
     Route::get('/subscription', function (Request $request) {
         $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
         $plans = Plan::where('active', true)->orderBy('price')->get();
