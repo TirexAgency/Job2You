@@ -7,12 +7,18 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CandidateProfileController;
+use App\Http\Controllers\CandidateSkillController;
+use App\Http\Controllers\EducationController;
+use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Offer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $recentOffers = App\Models\Offer::with(['source', 'offerSkills.skill'])
+    $recentOffers = Offer::with(['source', 'offerSkills.skill'])
         ->active()
         ->recent()
         ->limit(3)
@@ -109,10 +115,24 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
 });
 
-Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->group(function () {
+Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::get('/dashboard', function () {
         return response()->json(['message' => 'Candidate dashboard']);
-    })->name('candidate.dashboard');
+    })->name('dashboard');
+
+    Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
+
+    Route::post('/experiences', [ExperienceController::class, 'store'])->name('experiences.store');
+    Route::put('/experiences/{experience}', [ExperienceController::class, 'update'])->name('experiences.update');
+    Route::delete('/experiences/{experience}', [ExperienceController::class, 'destroy'])->name('experiences.destroy');
+
+    Route::post('/educations', [EducationController::class, 'store'])->name('educations.store');
+    Route::put('/educations/{education}', [EducationController::class, 'update'])->name('educations.update');
+    Route::delete('/educations/{education}', [EducationController::class, 'destroy'])->name('educations.destroy');
+
+    Route::post('/skills', [CandidateSkillController::class, 'store'])->name('skills.store');
+    Route::delete('/skills/{candidateSkill:skill_id}', [CandidateSkillController::class, 'destroy'])->name('skills.destroy');
 });
 
 // Routes publiques
@@ -137,5 +157,5 @@ Route::get('/privacy', function () {
 })->name('privacy');
 
 // Routes offres (publiques)
-Route::get('/offers', [App\Http\Controllers\OfferController::class, 'index'])->name('offers.index');
-Route::get('/offers/{offer}', [App\Http\Controllers\OfferController::class, 'show'])->name('offers.show');
+Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
+Route::get('/offers/{offer}', [OfferController::class, 'show'])->name('offers.show');

@@ -6,33 +6,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CandidateSkill extends Model
+class Experience extends Model
 {
     use HasFactory;
 
-    protected $table = 'candidate_skill';
-
-    public $timestamps = false;
-
     protected $fillable = [
         'candidate_profile_id',
-        'skill_id',
-        'level',
-        'weight',
+        'company',
+        'position',
+        'start_date',
+        'end_date',
+        'description',
     ];
 
     protected $casts = [
-        'level' => 'integer',
-        'weight' => 'decimal:2',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function candidateProfile(): BelongsTo
     {
         return $this->belongsTo(CandidateProfile::class);
-    }
-
-    public function skill(): BelongsTo
-    {
-        return $this->belongsTo(Skill::class);
     }
 }
