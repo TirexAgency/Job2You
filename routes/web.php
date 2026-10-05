@@ -116,8 +116,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
-    Route::get('/dashboard', function () {
-        return response()->json(['message' => 'Candidate dashboard']);
+    Route::get('/dashboard', function (Request $request) {
+        $profile = $request->user()->candidateProfile()->with(['experiences', 'educations', 'candidateSkills.skill'])->first();
+
+        return view('candidate.dashboard', [
+            'profile' => $profile,
+        ]);
     })->name('dashboard');
 
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
