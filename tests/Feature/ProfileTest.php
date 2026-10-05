@@ -22,7 +22,7 @@ class ProfileTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Mon profil')
+            ->assertSee('Paramètres')
             ->assertSee('Informations personnelles')
             ->assertSee('Sécurité du compte');
     }

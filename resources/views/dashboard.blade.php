@@ -56,7 +56,7 @@
                     <div class="col-md-6">
                         <a href="{{ route('profile.edit') }}" class="d-flex align-items-center justify-content-between gap-3 h-100 bg-white border rounded-3 p-4 text-decoration-none text-dark">
                             <span>
-                                <span class="d-block fw-semibold">Mon profil</span>
+                                <span class="d-block fw-semibold">Paramètres</span>
                                 <span class="small text-secondary">Mettre à jour mes informations</span>
                             </span>
                             <i class="bi bi-arrow-right fs-4 text-primary" aria-hidden="true"></i>

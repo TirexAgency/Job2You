@@ -4,7 +4,7 @@
             <header class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
                 <div>
                     <p class="text-uppercase small fw-semibold text-primary mb-1">Espace personnel</p>
-                    <h1 class="h2 fw-bold mb-1">Mon profil</h1>
+                    <h1 class="h2 fw-bold mb-1">Paramètres</h1>
                     <p class="text-secondary mb-0">Gérez vos informations personnelles et la sécurité de votre compte.</p>
                 </div>
                 <span class="badge rounded-pill {{ $user->status === 'active' ? 'text-bg-success' : 'text-bg-secondary' }} px-3 py-2">

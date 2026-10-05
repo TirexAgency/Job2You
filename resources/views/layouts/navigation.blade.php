@@ -19,8 +19,8 @@
                 <span>Offres d'emploi</span>
             </a>
             <a href="{{ route('profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" @if (request()->routeIs('profile.*')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-person-circle"></i></span>
-                <span>Mon profil</span>
+                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-gear"></i></span>
+                <span>Paramètres</span>
             </a>
         </div>
 
@@ -33,7 +33,7 @@
                 </a>
                 <a href="{{ route('candidate.profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.profile.*') ? 'active' : '' }}" @if (request()->routeIs('candidate.profile.*')) aria-current="page" @endif>
                     <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-card-checklist"></i></span>
-                    <span>Profil & compétences</span>
+                    <span>Mon profil candidat</span>
                 </a>
             </div>
         @endif
