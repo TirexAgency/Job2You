@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CandidateProfile;
 use App\Models\Education;
 use App\Models\Experience;
+use App\Models\Plan;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -156,6 +157,19 @@ class CandidateProfileTest extends TestCase
         $education = $user->fresh()->candidateProfile->educations->first();
         $this->assertInstanceOf(Education::class, $education);
         $this->assertSame('Licence Informatique', $education->degree);
+    }
+
+    public function test_candidate_can_change_plan(): void
+    {
+        $user = User::factory()->create(['plan' => 'free', 'sms_quota' => 2]);
+        $plan = Plan::create(['name' => 'Premium', 'price' => 49000, 'duration_days' => 30, 'sms_quota' => 50, 'active' => true]);
+
+        $this->actingAs($user)->post(route('candidate.subscription.change'), ['plan_id' => $plan->id])
+            ->assertRedirect(route('candidate.subscription'));
+
+        $this->assertSame('premium', $user->fresh()->plan);
+        $this->assertSame(50, $user->fresh()->sms_quota);
+        $this->assertDatabaseHas('subscriptions', ['user_id' => $user->id, 'plan_id' => $plan->id, 'status' => 'active', 'sms_remaining' => 50]);
     }
 
     public function test_guest_cannot_access_profile_page(): void

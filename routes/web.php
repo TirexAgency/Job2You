@@ -161,9 +161,35 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     })->name('sms');
     Route::get('/subscription', function (Request $request) {
         $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
+        $plans = Plan::where('active', true)->orderBy('price')->get();
 
-        return view('candidate.subscription', compact('subscription'));
+        return view('candidate.subscription', compact('subscription', 'plans'));
     })->name('subscription');
+    Route::post('/subscription/change', function (Request $request) {
+        $validated = $request->validate(['plan_id' => ['required', 'exists:plans,id']]);
+        $plan = Plan::findOrFail($validated['plan_id']);
+        $user = $request->user();
+
+        // Clôture l'abonnement actif actuel
+        $user->activeSubscriptions()->update(['status' => 'inactive', 'ends_at' => now()]);
+
+        Subscription::create([
+            'user_id' => $user->id,
+            'plan_id' => $plan->id,
+            'starts_at' => now(),
+            'ends_at' => now()->addDays($plan->duration_days),
+            'sms_remaining' => $plan->sms_quota,
+            'status' => 'active',
+        ]);
+
+        $user->update([
+            'plan' => strtolower($plan->name),
+            'sms_quota' => $plan->sms_quota,
+            'sms_sent' => 0,
+        ]);
+
+        return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
+    })->name('subscription.change');
 
     Route::post('/skills', [CandidateSkillController::class, 'store'])->name('skills.store');
     Route::delete('/skills/{candidateSkill:skill_id}', [CandidateSkillController::class, 'destroy'])->name('skills.destroy');
