@@ -49,7 +49,14 @@
         @endif
 
         <div class="sidebar-account mt-auto">
-            <div class="small fw-semibold text-truncate">{{ Auth::user()->name }}</div>
+            <div class="d-flex align-items-center gap-2">
+                @if (Auth::user()->photo_path)
+                    <img src="{{ asset('storage/'.Auth::user()->photo_path) }}" alt="Photo de {{ Auth::user()->name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                @else
+                    <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">{{ strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}</span>
+                @endif
+                <div class="small fw-semibold text-truncate">{{ Auth::user()->name }}</div>
+            </div>
             <div class="small text-secondary">{{ ucfirst(Auth::user()->role ?? 'Utilisateur') }}</div>
             <form method="POST" action="{{ route('logout') }}" class="mt-3">
                 @csrf

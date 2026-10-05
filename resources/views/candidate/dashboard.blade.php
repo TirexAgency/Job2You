@@ -17,6 +17,9 @@
         @if ($view === 'cv' && $profile)
             <section class="bg-white border rounded-3 p-4 p-md-5 mb-4">
                 <div class="text-center border-bottom pb-3 mb-4">
+                    @if (auth()->user()->photo_path)
+                        <img src="{{ asset('storage/'.auth()->user()->photo_path) }}" alt="Photo de {{ auth()->user()->name }}" class="rounded-circle mb-2" style="width: 96px; height: 96px; object-fit: cover;">
+                    @endif
                     <h2 class="h3 fw-bold mb-1">{{ auth()->user()->name }}</h2>
                     <p class="text-secondary mb-1">{{ $profile->desired_jobs ?: 'Candidat' }} · {{ ucfirst($profile->experience_level) }}</p>
                     <p class="small text-secondary mb-0">
