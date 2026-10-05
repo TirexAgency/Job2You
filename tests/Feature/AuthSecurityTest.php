@@ -186,7 +186,7 @@ class AuthSecurityTest extends TestCase
             ->assertSee('Espace administrateur')
             ->assertSee('Dashboard')
             ->assertSee('Offres')
-            ->assertSee('Mon profil')
+            ->assertSee('Paramètres')
             ->assertSee('bi-speedometer2', false)
             ->assertSee('bi-box-arrow-right', false)
             ->assertSee('Déconnexion');

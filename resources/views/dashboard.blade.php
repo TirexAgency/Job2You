@@ -7,7 +7,7 @@
                     <h1 class="h2 fw-bold mb-1">Bonjour {{ $user->name }}</h1>
                     <p class="text-secondary mb-0">Retrouvez ici les informations essentielles de votre compte.</p>
                 </div>
-                <a href="{{ route('profile.edit') }}" class="btn btn-primary px-4 py-2">Compléter mon profil</a>
+                <a href="{{ route('profile.edit') }}" class="btn btn-primary px-4 py-2">Paramètres du compte</a>
             </header>
 
             <section class="bg-white border-start border-4 border-primary rounded-3 shadow-sm p-4 p-lg-5 mb-4">
@@ -18,7 +18,7 @@
                         <p class="text-secondary mb-0">Ajoutez vos informations et vos compétences pour faciliter votre mise en relation avec les offres qui vous correspondent.</p>
                     </div>
                     <div class="col-lg-4 text-lg-end">
-                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">Gérer mon profil <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+                        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">Paramètres du compte <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
                     </div>
                 </div>
             </section>
