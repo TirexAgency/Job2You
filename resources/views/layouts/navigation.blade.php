@@ -8,43 +8,36 @@
             <x-application-logo />
         </a>
 
-        <p class="sidebar-label">Espace personnel</p>
-        <div class="nav nav-pills flex-column gap-1">
-            <a href="{{ route('dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" @if (request()->routeIs('dashboard')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span>
-                <span>Dashboard</span>
-            </a>
-            <a href="{{ route('jobs.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('jobs.*') ? 'active' : '' }}" @if (request()->routeIs('jobs.*')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-briefcase"></i></span>
-                <span>Offres d'emploi</span>
-            </a>
-            <a href="{{ route('profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" @if (request()->routeIs('profile.*')) aria-current="page" @endif>
-                <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-gear"></i></span>
-                <span>Paramètres</span>
-            </a>
-        </div>
-
+        <p class="sidebar-label">{{ Auth::user()->isAdmin() ? 'Espace Administration' : (Auth::user()->role === 'candidate' ? 'Espace Candidat' : 'Espace personnel') }}</p>
         @if(Auth::user() && Auth::user()->role === 'candidate')
-            <p class="sidebar-label mt-4">Candidat</p>
             <div class="nav nav-pills flex-column gap-1">
-                <a href="{{ route('candidate.dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.dashboard') ? 'active' : '' }}" @if (request()->routeIs('candidate.dashboard')) aria-current="page" @endif>
-                    <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
-                    <span>Aperçu candidat</span>
-                </a>
-                <a href="{{ route('candidate.profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.profile.*') ? 'active' : '' }}" @if (request()->routeIs('candidate.profile.*')) aria-current="page" @endif>
-                    <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-card-checklist"></i></span>
-                    <span>Mon profil candidat</span>
-                </a>
+                <a href="{{ route('candidate.dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.dashboard') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span><span>Dashboard</span></a>
+                <a href="{{ route('candidate.profile.edit', ['#' => 't-info']) }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.profile.edit') && !request()->query('tab') ? '' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-person"></i></span><span>Mon profil</span></a>
+                <a href="{{ route('candidate.profile.edit', ['tab' => 'skills']) }}" class="nav-link dashboard-nav-link"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-tools"></i></span><span>Mes compétences</span></a>
+                <a href="{{ route('candidate.recommendations') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.recommendations') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-stars"></i></span><span>Mes recommandations</span></a>
+                <a href="{{ route('candidate.dashboard', ['view' => 'cv']) }}" class="nav-link dashboard-nav-link"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span><span>Mon CV</span></a>
+                <a href="{{ route('candidate.sms') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.sms') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-chat-dots"></i></span><span>Mes alertes SMS</span></a>
+                <a href="{{ route('candidate.subscription') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.subscription') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-credit-card"></i></span><span>Mon abonnement</span></a>
+                <a href="{{ route('profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-gear"></i></span><span>Paramètres</span></a>
             </div>
-        @endif
-
-        @if(Auth::user() && Auth::user()->isAdmin())
-            <p class="sidebar-label mt-4">Administration</p>
+        @elseif(Auth::user() && Auth::user()->isAdmin())
             <div class="nav nav-pills flex-column gap-1">
-                <a href="{{ route('admin.users.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" @if (request()->routeIs('admin.users.*')) aria-current="page" @endif>
-                    <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-people"></i></span>
-                    <span>Utilisateurs</span>
-                </a>
+                <a href="{{ route('admin.dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span><span>Tableau de bord</span></a>
+                <a href="{{ route('admin.users.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-people"></i></span><span>Utilisateurs</span></a>
+                <a href="{{ route('admin.offers.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.offers.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-briefcase"></i></span><span>Offres</span></a>
+                <a href="{{ route('admin.sources.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.sources.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-collection"></i></span><span>Sources</span></a>
+                <a href="{{ route('admin.plans.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.plans.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-tags"></i></span><span>Plans</span></a>
+                <a href="{{ route('admin.subscriptions.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-repeat"></i></span><span>Abonnements</span></a>
+                <a href="{{ route('admin.payments.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-cash-coin"></i></span><span>Paiements</span></a>
+                <a href="{{ route('admin.sms.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.sms.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-chat-dots"></i></span><span>SMS</span></a>
+                <a href="{{ route('admin.logs.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-activity"></i></span><span>Logs / Supervision</span></a>
+                <a href="{{ route('profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-gear"></i></span><span>Paramètres</span></a>
+            </div>
+        @else
+            <div class="nav nav-pills flex-column gap-1">
+                <a href="{{ route('dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span><span>Dashboard</span></a>
+                <a href="{{ route('jobs.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('jobs.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-briefcase"></i></span><span>Offres d'emploi</span></a>
+                <a href="{{ route('profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-gear"></i></span><span>Paramètres</span></a>
             </div>
         @endif
 

@@ -206,4 +206,17 @@
         </div>
         </div>
     </div>
+    <script>
+        (function () {
+            const tab = new URLSearchParams(window.location.search).get('tab');
+            const map = { skills: '#t-skills', exp: '#t-exp', education: '#t-edu', preferences: '#t-info' };
+            if (tab && map[tab]) {
+                const el = document.querySelector('[data-bs-target="' + map[tab] + '"]');
+                if (el) { new bootstrap.Tab(el).show(); }
+                if (tab === 'preferences') {
+                    document.querySelector('#t-info form h3')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        })();
+    </script>
 </x-app-layout>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
@@ -13,7 +14,13 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
+use App\Models\JobMatch;
 use App\Models\Offer;
+use App\Models\Payment;
+use App\Models\Plan;
+use App\Models\SmsLog;
+use App\Models\Source;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -107,12 +114,18 @@ Route::middleware('auth')->group(function () {
 
 // Routes d'administration (admin uniquement)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return response()->json(['message' => 'Admin dashboard']);
-    })->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // CRUD Utilisateurs (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
+
+    Route::get('/offers', fn () => view('admin.offers.index', ['offers' => Offer::latest()->paginate(10)]))->name('offers.index');
+    Route::get('/sources', fn () => view('admin.sources.index', ['sources' => Source::latest()->paginate(10)]))->name('sources.index');
+    Route::get('/plans', fn () => view('admin.plans.index', ['plans' => Plan::all()]))->name('plans.index');
+    Route::get('/subscriptions', fn () => view('admin.subscriptions.index', ['subscriptions' => Subscription::with(['user', 'plan'])->latest()->paginate(10)]))->name('subscriptions.index');
+    Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
+    Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
+    Route::get('/logs', fn () => view('admin.logs.index'))->name('logs.index');
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
@@ -135,6 +148,22 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::post('/educations', [EducationController::class, 'store'])->name('educations.store');
     Route::put('/educations/{education}', [EducationController::class, 'update'])->name('educations.update');
     Route::delete('/educations/{education}', [EducationController::class, 'destroy'])->name('educations.destroy');
+
+    Route::get('/recommendations', function (Request $request) {
+        $matches = JobMatch::with(['offer.source'])->where('user_id', $request->user()->id)->orderByDesc('score')->get();
+
+        return view('candidate.recommendations', compact('matches'));
+    })->name('recommendations');
+    Route::get('/sms', function (Request $request) {
+        $logs = SmsLog::where('user_id', $request->user()->id)->latest()->get();
+
+        return view('candidate.sms', compact('logs'));
+    })->name('sms');
+    Route::get('/subscription', function (Request $request) {
+        $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
+
+        return view('candidate.subscription', compact('subscription'));
+    })->name('subscription');
 
     Route::post('/skills', [CandidateSkillController::class, 'store'])->name('skills.store');
     Route::delete('/skills/{candidateSkill:skill_id}', [CandidateSkillController::class, 'destroy'])->name('skills.destroy');
