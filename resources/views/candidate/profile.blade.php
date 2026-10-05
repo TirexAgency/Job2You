@@ -6,6 +6,15 @@
             <div class="alert alert-success">Profil mis à jour.</div>
         @endif
 
+        <ul class="nav nav-tabs mb-3" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#t-info" type="button" role="tab">Informations</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-skills" type="button" role="tab">Compétences</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-exp" type="button" role="tab">Expériences</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#t-edu" type="button" role="tab">Formations</button></li>
+        </ul>
+
+        <div class="tab-content">
+        <div class="tab-pane fade show active" id="t-info" role="tabpanel">
         <section class="bg-white border rounded-3 p-4 mb-4">
             <h2 class="h5 fw-bold mb-3">Informations & localisation</h2>
             <form method="POST" action="{{ route('candidate.profile.update') }}">
@@ -89,7 +98,9 @@
                 <button class="btn btn-primary mt-3">Enregistrer</button>
             </form>
         </section>
+        </div>
 
+        <div class="tab-pane fade" id="t-skills" role="tabpanel">
         <section class="bg-white border rounded-3 p-4 mb-4">
             <h2 class="h5 fw-bold mb-3">Compétences</h2>
             <form method="GET" action="{{ route('candidate.profile.edit') }}" class="row g-2 mb-3">
@@ -136,7 +147,9 @@
                 @endforelse
             </ul>
         </section>
+        </div>
 
+        <div class="tab-pane fade" id="t-exp" role="tabpanel">
         <section class="bg-white border rounded-3 p-4 mb-4">
             <h2 class="h5 fw-bold mb-3">Historique professionnel</h2>
             <form method="POST" action="{{ route('candidate.experiences.store') }}" class="row g-2 mb-3">
@@ -162,7 +175,9 @@
                 @endforelse
             </ul>
         </section>
+        </div>
 
+        <div class="tab-pane fade" id="t-edu" role="tabpanel">
         <section class="bg-white border rounded-3 p-4 mb-4">
             <h2 class="h5 fw-bold mb-3">Parcours académique</h2>
             <form method="POST" action="{{ route('candidate.educations.store') }}" class="row g-2 mb-3">
@@ -188,5 +203,7 @@
                 @endforelse
             </ul>
         </section>
+        </div>
+        </div>
     </div>
 </x-app-layout>

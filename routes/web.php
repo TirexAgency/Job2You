@@ -121,6 +121,7 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
         return view('candidate.dashboard', [
             'profile' => $profile,
+            'view' => $request->query('view', 'resume'),
         ]);
     })->name('dashboard');
 
