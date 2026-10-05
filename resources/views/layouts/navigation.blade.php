@@ -29,7 +29,7 @@
             <div class="nav nav-pills flex-column gap-1">
                 <a href="{{ route('candidate.dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.dashboard') ? 'active' : '' }}" @if (request()->routeIs('candidate.dashboard')) aria-current="page" @endif>
                     <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
-                    <span>Tableau de bord candidat</span>
+                    <span>Aperçu candidat</span>
                 </a>
                 <a href="{{ route('candidate.profile.edit') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.profile.*') ? 'active' : '' }}" @if (request()->routeIs('candidate.profile.*')) aria-current="page" @endif>
                     <span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-card-checklist"></i></span>

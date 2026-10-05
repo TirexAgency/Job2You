@@ -2,7 +2,7 @@
     <div class="container py-4" style="max-width: 1100px;">
         <header class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
             <div>
-                <p class="text-uppercase small fw-semibold text-primary mb-1">Espace candidat</p>
+                <p class="text-uppercase small fw-semibold text-primary mb-1">Aperçu candidat</p>
                 <h1 class="h2 fw-bold mb-1">Bonjour {{ auth()->user()->name }}</h1>
                 <p class="text-secondary mb-0">Voici le résumé de votre profil.</p>
             </div>
