@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -23,6 +25,25 @@ class ProfileTest extends TestCase
             ->assertSee('Mon profil')
             ->assertSee('Informations personnelles')
             ->assertSee('Sécurité du compte');
+    }
+
+    public function test_profile_photo_can_be_uploaded(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'photo' => UploadedFile::fake()->createWithContent('avatar.jpg', base64_decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAAP/EABQBAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAAaP//EABQBAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAQUCcf//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAXQb//EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEABj8CP//Z')),
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $user->refresh();
+        $this->assertNotNull($user->photo_path);
+        Storage::disk('public')->assertExists($user->photo_path);
     }
 
     public function test_profile_information_can_be_updated(): void

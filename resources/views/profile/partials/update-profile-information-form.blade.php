@@ -2,9 +2,22 @@
     @csrf
 </form>
 
-<form method="post" action="{{ route('profile.update') }}">
+<form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data">
     @csrf
     @method('patch')
+
+    <div class="mb-3">
+        <label for="photo" class="form-label">Photo de profil</label>
+        @if ($user->photo_path)
+            <div class="mb-2">
+                <img src="{{ asset('storage/'.$user->photo_path) }}" alt="Photo de profil" class="rounded-circle" style="width: 72px; height: 72px; object-fit: cover;">
+            </div>
+        @endif
+        <input id="photo" name="photo" type="file" class="form-control @error('photo') is-invalid @enderror" accept="image/*">
+        @error('photo')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 
     <div class="mb-3">
         <label for="name" class="form-label">Nom complet</label>
