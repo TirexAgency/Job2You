@@ -11,13 +11,13 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=Inter:wght@400,500,600,700&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="app-shell d-lg-flex min-vh-100 bg-body-tertiary">
+    <body class="antialiased">
+        <div class="app-shell d-lg-flex min-vh-100 bg-light">
             @include('layouts.navigation')
 
             <div class="app-content flex-grow-1">
