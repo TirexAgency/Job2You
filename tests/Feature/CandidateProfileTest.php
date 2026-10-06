@@ -12,7 +12,9 @@ use App\Models\SmsLog;
 use App\Models\Source;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\MatchingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class CandidateProfileTest extends TestCase
@@ -201,6 +203,53 @@ class CandidateProfileTest extends TestCase
         $this->actingAs($user)->delete(route('candidate.sms.destroy', $log))
             ->assertRedirect(route('candidate.sms'));
         $this->assertDatabaseMissing('sms_logs', ['id' => $log->id]);
+    }
+
+    public function test_free_plan_cannot_upload_cv(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('candidate.cv.upload'), [
+            'cv' => UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf'),
+        ])->assertForbidden();
+    }
+
+    public function test_premium_plan_can_upload_cv(): void
+    {
+        $user = User::factory()->create();
+        $plan = Plan::create(['name' => 'premium', 'price' => 15000, 'duration_days' => 30, 'sms_quota' => 50, 'cv_parsing_enabled' => true, 'active' => true]);
+        Subscription::create(['user_id' => $user->id, 'plan_id' => $plan->id, 'starts_at' => now(), 'status' => 'active', 'sms_remaining' => 50]);
+
+        $this->actingAs($user)->post(route('candidate.cv.upload'), [
+            'cv' => UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf'),
+        ])->assertRedirect(route('candidate.cv'));
+
+        $this->assertDatabaseHas('cv_parses', ['user_id' => $user->id, 'status' => 'pending']);
+    }
+
+    public function test_admin_can_toggle_source(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'status' => 'active']);
+        $source = Source::create(['name' => 'S', 'collector_key' => 's1', 'active' => true]);
+
+        $this->actingAs($admin)->patch(route('admin.sources.toggle', $source))->assertSessionHasNoErrors();
+        $this->assertFalse($source->fresh()->active);
+    }
+
+    public function test_matching_service_scores_profile_against_offer(): void
+    {
+        $user = User::factory()->create();
+        $profile = CandidateProfile::create(['user_id' => $user->id, 'desired_jobs' => 'Développeur', 'location' => 'Paris', 'contract_type' => 'cdi', 'experience_level' => 'junior']);
+        $source = Source::create(['name' => 'S', 'collector_key' => 's2', 'active' => true]);
+        $offer = Offer::create(['source_id' => $source->id, 'external_id' => '1', 'title' => 'Développeur PHP', 'location' => 'Paris', 'contract_type' => 'cdi', 'status' => 'active']);
+
+        $result = app(MatchingService::class)->scoreFor($profile, $offer);
+
+        $this->assertGreaterThan(0.5, $result['score']);
+        $this->assertDatabaseMissing('matches', ['user_id' => $user->id, 'offer_id' => $offer->id]);
+
+        app(MatchingService::class)->computeForProfile($profile);
+        $this->assertDatabaseHas('matches', ['user_id' => $user->id, 'offer_id' => $offer->id]);
     }
 
     public function test_guest_cannot_access_profile_page(): void

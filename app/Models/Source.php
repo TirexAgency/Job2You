@@ -15,10 +15,12 @@ class Source extends Model
         'base_url',
         'collector_key',
         'last_run_at',
+        'active',
     ];
 
     protected $casts = [
         'last_run_at' => 'datetime',
+        'active' => 'boolean',
     ];
 
     public function offers(): HasMany

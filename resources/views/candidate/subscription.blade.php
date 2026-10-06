@@ -27,11 +27,16 @@
                         <p class="small text-secondary">{{ $plan->sms_quota }} SMS / {{ $plan->duration_days }} jours</p>
                         @if ($subscription && $subscription->plan_id === $plan->id)
                             <span class="badge text-bg-success align-self-start mt-auto">Formule actuelle</span>
-                        @else
+                        @elseif ($plan->price <= 0)
                             <form method="POST" action="{{ route('candidate.subscription.change') }}" class="mt-auto">
                                 @csrf
                                 <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                                <button class="btn btn-primary w-100">Choisir</button>
+                                <button class="btn btn-primary w-100">Activer</button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('candidate.checkout', $plan) }}" class="mt-auto">
+                                @csrf
+                                <button class="btn btn-primary w-100">Souscrire</button>
                             </form>
                         @endif
                     </div>

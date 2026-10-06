@@ -40,6 +40,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(CandidateProfile::class);
     }
 
+    public function cvParses(): HasMany
+    {
+        return $this->hasMany(CvParse::class);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);

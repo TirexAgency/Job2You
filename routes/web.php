@@ -14,6 +14,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
+use App\Models\CvParse;
 use App\Models\JobMatch;
 use App\Models\Offer;
 use App\Models\Payment;
@@ -126,6 +127,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
     Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
     Route::get('/logs', fn () => view('admin.logs.index'))->name('logs.index');
+    Route::patch('/sources/{source}/toggle', function (Source $source) {
+        $source->update(['active' => ! $source->active]);
+
+        return redirect()->back();
+    })->name('sources.toggle');
+    Route::patch('/offers/{offer}/toggle', function (Offer $offer) {
+        $offer->update(['status' => $offer->status === 'active' ? 'archived' : 'active']);
+
+        return redirect()->back();
+    })->name('offers.toggle');
+    Route::patch('/plans/{plan}/toggle', function (Plan $plan) {
+        $plan->update(['active' => ! $plan->active]);
+
+        return redirect()->back();
+    })->name('plans.toggle');
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
@@ -148,6 +164,75 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::post('/educations', [EducationController::class, 'store'])->name('educations.store');
     Route::put('/educations/{education}', [EducationController::class, 'update'])->name('educations.update');
     Route::delete('/educations/{education}', [EducationController::class, 'destroy'])->name('educations.destroy');
+
+    Route::get('/cv', function (Request $request) {
+        $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
+        $cvParsingEnabled = $subscription?->plan?->cv_parsing_enabled ?? false;
+        $parses = $request->user()->cvParses()->latest()->get();
+
+        return view('candidate.cv', compact('parses', 'cvParsingEnabled'));
+    })->name('cv');
+    Route::post('/cv', function (Request $request) {
+        $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
+        abort_unless($subscription?->plan?->cv_parsing_enabled, 403, 'Votre plan n\'inclut pas l\'analyse de CV.');
+
+        $validated = $request->validate([
+            'cv' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
+        ]);
+
+        $path = $request->file('cv')->store('cvs', 'local');
+        CvParse::create(['user_id' => $request->user()->id, 'file_path' => $path, 'status' => 'pending']);
+
+        return redirect()->route('candidate.cv')->with('status', 'cv-uploaded');
+    })->name('cv.upload');
+    Route::post('/cv/{parse}/validate', function (Request $request, CvParse $parse) {
+        abort_unless($parse->user_id === $request->user()->id, 403);
+        $parse->update(['validated_at' => now(), 'status' => 'done']);
+
+        return redirect()->route('candidate.cv')->with('status', 'cv-validated');
+    })->name('cv.validate');
+
+    Route::post('/checkout/{plan}', function (Request $request, Plan $plan) {
+        $payment = Payment::create([
+            'user_id' => $request->user()->id,
+            'plan_id' => $plan->id,
+            'provider' => 'fiveonepay',
+            'provider_reference' => 'sandbox-'.str()->uuid(),
+            'amount' => $plan->price,
+            'status' => 'pending',
+            'payload_reference' => str()->uuid(),
+        ]);
+
+        return redirect()->route('candidate.payment.sandbox', $payment);
+    })->name('checkout');
+    Route::get('/payment/{payment}/sandbox', function (Request $request, Payment $payment) {
+        abort_unless($payment->user_id === $request->user()->id, 403);
+
+        return view('candidate.payment-sandbox', compact('payment'));
+    })->name('payment.sandbox');
+    Route::post('/payment/{payment}/sandbox/{outcome}', function (Request $request, Payment $payment, string $outcome) {
+        abort_unless($payment->user_id === $request->user()->id, 403);
+        abort_unless(in_array($outcome, ['success', 'failed'], true), 404);
+
+        $payment->update(['status' => $outcome === 'success' ? 'paid' : 'failed']);
+
+        if ($outcome === 'success') {
+            $plan = $payment->plan;
+            $user = $request->user();
+            $user->activeSubscriptions()->update(['status' => 'inactive', 'ends_at' => now()]);
+            Subscription::create([
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'starts_at' => now(),
+                'ends_at' => now()->addDays($plan->duration_days ?: 30),
+                'sms_remaining' => $plan->sms_quota,
+                'status' => 'active',
+            ]);
+            $user->update(['plan' => strtolower($plan->name), 'sms_quota' => $plan->sms_quota, 'sms_sent' => 0]);
+        }
+
+        return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
+    })->name('payment.sandbox.confirm');
 
     Route::get('/recommendations', function (Request $request) {
         $matches = JobMatch::with(['offer.source'])->where('user_id', $request->user()->id)->orderByDesc('score')->get();
