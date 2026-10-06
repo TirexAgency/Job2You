@@ -47,4 +47,16 @@ class CandidateSkillController extends Controller
 
         return redirect()->route('candidate.profile.edit')->with('status', 'skill-deleted');
     }
+
+    public function update(Request $request, CandidateSkill $candidateSkill): RedirectResponse
+    {
+        abort_unless($candidateSkill->candidateProfile->user_id === $request->user()->id, 403);
+        $validated = $request->validate(['level' => ['required', 'integer', 'between:1,5']]);
+
+        CandidateSkill::where('candidate_profile_id', $candidateSkill->candidate_profile_id)
+            ->where('skill_id', $candidateSkill->skill_id)
+            ->update(['level' => $validated['level']]);
+
+        return redirect()->route('candidate.profile.edit')->with('status', 'skill-updated');
+    }
 }

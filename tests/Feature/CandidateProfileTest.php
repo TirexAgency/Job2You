@@ -252,6 +252,44 @@ class CandidateProfileTest extends TestCase
         $this->assertDatabaseHas('matches', ['user_id' => $user->id, 'offer_id' => $offer->id]);
     }
 
+    public function test_skill_level_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+        $skill = Skill::create(['name' => 'Laravel', 'normalized_name' => 'laravel']);
+        $this->actingAs($user)->post(route('candidate.skills.store'), ['skill_id' => $skill->id, 'level' => 2]);
+
+        $this->actingAs($user)->put(route('candidate.skills.update', ['candidateSkill' => $skill->id]), ['level' => 5])
+            ->assertRedirect(route('candidate.profile.edit'));
+
+        $this->assertSame(5, $user->fresh()->candidateProfile->candidateSkills->first()->level);
+    }
+
+    public function test_experience_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+        $profile = CandidateProfile::create(['user_id' => $user->id, 'experience_level' => 'junior']);
+        $experience = Experience::create(['candidate_profile_id' => $profile->id, 'company' => 'ACME', 'position' => 'Dev', 'start_date' => '2020-01-01']);
+
+        $this->actingAs($user)->put(route('candidate.experiences.update', $experience), [
+            'company' => 'ACME Corp', 'position' => 'Lead', 'start_date' => '2020-01-01', 'end_date' => null,
+        ])->assertRedirect(route('candidate.profile.edit'));
+
+        $this->assertSame('ACME Corp', $experience->fresh()->company);
+    }
+
+    public function test_education_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+        $profile = CandidateProfile::create(['user_id' => $user->id, 'experience_level' => 'junior']);
+        $education = Education::create(['candidate_profile_id' => $profile->id, 'school' => 'Univ A', 'degree' => 'Licence', 'start_date' => '2018-09-01']);
+
+        $this->actingAs($user)->put(route('candidate.educations.update', $education), [
+            'school' => 'Univ B', 'degree' => 'Master', 'start_date' => '2020-09-01', 'end_date' => null,
+        ])->assertRedirect(route('candidate.profile.edit'));
+
+        $this->assertSame('Master', $education->fresh()->degree);
+    }
+
     public function test_guest_cannot_access_profile_page(): void
     {
         $this->get(route('candidate.profile.edit'))->assertRedirect(route('login'));

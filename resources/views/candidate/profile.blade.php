@@ -135,12 +135,25 @@
 
             <ul class="list-group">
                 @forelse ($profile->candidateSkills as $candidateSkill)
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ $candidateSkill->skill->name }} <span class="badge text-bg-secondary">Niveau {{ $candidateSkill->level }}</span></span>
-                        <form method="POST" action="{{ route('candidate.skills.destroy', ['candidateSkill' => $candidateSkill->skill_id]) }}">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-outline-danger">Supprimer</button>
-                        </form>
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>{{ $candidateSkill->skill->name }}</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <form method="POST" action="{{ route('candidate.skills.update', ['candidateSkill' => $candidateSkill->skill_id]) }}" class="d-flex align-items-center gap-1">
+                                    @csrf @method('PUT')
+                                    <select name="level" class="form-select form-select-sm" style="width: auto;">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <option value="{{ $i }}" @selected($candidateSkill->level === $i)>Niveau {{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                    <button class="btn btn-sm btn-outline-primary" title="Enregistrer le niveau"><i class="bi bi-check-lg"></i></button>
+                                </form>
+                                <form method="POST" action="{{ route('candidate.skills.destroy', ['candidateSkill' => $candidateSkill->skill_id]) }}">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
                     </li>
                 @empty
                     <li class="list-group-item text-secondary">Aucune compétence.</li>
@@ -163,12 +176,28 @@
             </form>
             <ul class="list-group">
                 @forelse ($profile->experiences as $experience)
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><strong>{{ $experience->position }}</strong> — {{ $experience->company }} ({{ $experience->start_date->format('Y-m') }} → {{ $experience->end_date?->format('Y-m') ?? 'auj.' }})</span>
-                        <form method="POST" action="{{ route('candidate.experiences.destroy', $experience) }}">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-outline-danger">Supprimer</button>
-                        </form>
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>{{ $experience->position }}</strong> — {{ $experience->company }} ({{ $experience->start_date->format('Y-m') }} → {{ $experience->end_date?->format('Y-m') ?? 'auj.' }})</span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#exp-edit-{{ $experience->id }}" title="Modifier"><i class="bi bi-pencil"></i></button>
+                                <form method="POST" action="{{ route('candidate.experiences.destroy', $experience) }}">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="collapse mt-2" id="exp-edit-{{ $experience->id }}">
+                            <form method="POST" action="{{ route('candidate.experiences.update', $experience) }}" class="row g-2">
+                                @csrf @method('PUT')
+                                <div class="col-md-4"><input type="text" name="company" class="form-control" value="{{ $experience->company }}" required></div>
+                                <div class="col-md-4"><input type="text" name="position" class="form-control" value="{{ $experience->position }}" required></div>
+                                <div class="col-md-2"><input type="date" name="start_date" class="form-control" value="{{ $experience->start_date->format('Y-m-d') }}" required></div>
+                                <div class="col-md-2"><input type="date" name="end_date" class="form-control" value="{{ $experience->end_date?->format('Y-m-d') }}"></div>
+                                <div class="col-12"><textarea name="description" class="form-control">{{ $experience->description }}</textarea></div>
+                                <div class="col-12"><button class="btn btn-sm btn-primary"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+                            </form>
+                        </div>
                     </li>
                 @empty
                     <li class="list-group-item text-secondary">Aucune expérience.</li>
@@ -191,12 +220,28 @@
             </form>
             <ul class="list-group">
                 @forelse ($profile->educations as $education)
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><strong>{{ $education->degree }}</strong> — {{ $education->school }} ({{ $education->start_date->format('Y-m') }} → {{ $education->end_date?->format('Y-m') ?? 'auj.' }})</span>
-                        <form method="POST" action="{{ route('candidate.educations.destroy', $education) }}">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-outline-danger">Supprimer</button>
-                        </form>
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>{{ $education->degree }}</strong> — {{ $education->school }} ({{ $education->start_date->format('Y-m') }} → {{ $education->end_date?->format('Y-m') ?? 'auj.' }})</span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#edu-edit-{{ $education->id }}" title="Modifier"><i class="bi bi-pencil"></i></button>
+                                <form method="POST" action="{{ route('candidate.educations.destroy', $education) }}">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="collapse mt-2" id="edu-edit-{{ $education->id }}">
+                            <form method="POST" action="{{ route('candidate.educations.update', $education) }}" class="row g-2">
+                                @csrf @method('PUT')
+                                <div class="col-md-4"><input type="text" name="school" class="form-control" value="{{ $education->school }}" required></div>
+                                <div class="col-md-4"><input type="text" name="degree" class="form-control" value="{{ $education->degree }}" required></div>
+                                <div class="col-md-4"><input type="text" name="field" class="form-control" value="{{ $education->field }}"></div>
+                                <div class="col-md-3"><input type="date" name="start_date" class="form-control" value="{{ $education->start_date->format('Y-m-d') }}" required></div>
+                                <div class="col-md-3"><input type="date" name="end_date" class="form-control" value="{{ $education->end_date?->format('Y-m-d') }}"></div>
+                                <div class="col-12"><button class="btn btn-sm btn-primary"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+                            </form>
+                        </div>
                     </li>
                 @empty
                     <li class="list-group-item text-secondary">Aucune formation.</li>

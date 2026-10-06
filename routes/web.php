@@ -290,6 +290,7 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     })->name('subscription.change');
 
     Route::post('/skills', [CandidateSkillController::class, 'store'])->name('skills.store');
+    Route::put('/skills/{candidateSkill:skill_id}', [CandidateSkillController::class, 'update'])->name('skills.update');
     Route::delete('/skills/{candidateSkill:skill_id}', [CandidateSkillController::class, 'destroy'])->name('skills.destroy');
 });
 
