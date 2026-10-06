@@ -1,13 +1,21 @@
 <section class="bg-white border rounded-3 p-4 p-md-5 mb-4">
-    <div class="text-center border-bottom pb-3 mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-center gap-4 border-bottom pb-4 mb-4">
         @if (auth()->user()->photo_path)
-            <img src="{{ asset('storage/'.auth()->user()->photo_path) }}" alt="Photo de {{ auth()->user()->name }}" class="rounded-circle mb-2" style="width: 96px; height: 96px; object-fit: cover;">
+            <img src="{{ asset('storage/'.auth()->user()->photo_path) }}" alt="Photo de {{ auth()->user()->name }}" class="rounded-circle shadow-sm border border-3 border-white" style="width: 120px; height: 120px; object-fit: cover;">
+        @else
+            <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 120px; height: 120px; font-size: 3rem;">{{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
         @endif
-        <h2 class="h3 fw-bold mb-1">{{ auth()->user()->name }}</h2>
-        <p class="text-secondary mb-1">{{ $profile->desired_jobs ?: 'Candidat' }} · {{ ucfirst($profile->experience_level) }}</p>
-        <p class="small text-secondary mb-0">
-            {{ $profile->city }}{{ $profile->region ? ', '.$profile->region : '' }} · {{ auth()->user()->email }}{{ auth()->user()->phone ? ' · '.auth()->user()->phone : '' }}
-        </p>
+        <div class="text-center text-md-start flex-grow-1">
+            <h2 class="h3 fw-bold mb-1">{{ auth()->user()->name }}</h2>
+            <p class="text-primary fw-semibold mb-2">{{ $profile->desired_jobs ?: 'Candidat' }} · {{ ucfirst($profile->experience_level) }}</p>
+            <p class="small text-secondary mb-0">
+                <i class="bi bi-geo-alt me-1"></i>{{ $profile->city }}{{ $profile->region ? ', '.$profile->region : '' }}
+                <i class="bi bi-envelope ms-3 me-1"></i>{{ auth()->user()->email }}
+                @if (auth()->user()->phone)
+                    <i class="bi bi-telephone ms-3 me-1"></i>{{ auth()->user()->phone }}
+                @endif
+            </p>
+        </div>
     </div>
 
     <h3 class="h6 fw-bold text-uppercase text-primary">Compétences</h3>
