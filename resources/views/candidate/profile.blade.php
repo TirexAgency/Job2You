@@ -102,7 +102,23 @@
 
         <div class="tab-pane fade" id="t-skills" role="tabpanel">
         <section class="bg-white border rounded-3 p-4 mb-4">
-            <h2 class="h5 fw-bold mb-3">Compétences</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 fw-bold mb-0">Compétences</h2>
+                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#cvPreviewModal"><i class="bi bi-eye me-1"></i>Aperçu CV</button>
+            </div>
+            <div class="modal fade" id="cvPreviewModal" tabindex="-1" aria-labelledby="cvPreviewLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cvPreviewLabel">Aperçu de votre CV</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        <div class="modal-body">
+                            @include('candidate._cv', ['profile' => $profile])
+                        </div>
+                    </div>
+                </div>
+            </div>
             <form method="GET" action="{{ route('candidate.profile.edit') }}" class="row g-2 mb-3">
                 <div class="col-md-6">
                     <input type="text" name="q" class="form-control" placeholder="Rechercher une compétence" value="{{ $skillSearch }}">
