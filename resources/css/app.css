@@ -140,3 +140,37 @@ body {
 .collapsing {
 	visibility: visible;
 }
+
+/* --- Pages d'authentification (connexion / inscription) --- */
+
+/* Pleine hauteur : la carte reste centrée verticalement sans header ni footer. */
+.job2you-public-body {
+	min-height: 100vh;
+}
+
+.job2you-public-main {
+	flex: 1 1 auto;
+	min-height: 100vh;
+	padding-top: 1.5rem;
+	padding-bottom: 1.5rem;
+}
+
+.job2you-auth-wrapper {
+	max-width: 30rem;
+}
+
+.job2you-back-link {
+	transition: color 0.2s ease;
+}
+
+.job2you-back-link:hover {
+	color: #004ac6 !important;
+}
+
+.job2you-back-link:hover i {
+	transform: translateX(-0.125rem);
+}
+
+.job2you-back-link i {
+	transition: transform 0.2s ease;
+}

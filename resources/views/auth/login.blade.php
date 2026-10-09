@@ -16,10 +16,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-light job2you-public-body">
-    @include('partials.header-public')
-
     <main class="job2you-public-main d-flex flex-column justify-content-center align-items-center px-3 px-md-4">
         <div class="position-relative w-100 job2you-auth-wrapper">
+
+            <!-- Retour à l'accueil -->
+            <a href="{{ route('home') }}" class="job2you-back-link d-inline-flex align-items-center gap-1 small text-secondary text-decoration-none mb-3">
+                <i class="bi bi-arrow-left"></i>
+                <span>Retour à l'accueil</span>
+            </a>
 
             <!-- Carte principale -->
             <div class="card border-0 shadow-sm rounded-4">
@@ -149,8 +153,6 @@
             </div>
         </div>
     </main>
-
-    @include('partials.footer-public')
 
     <script>
         (function () {
