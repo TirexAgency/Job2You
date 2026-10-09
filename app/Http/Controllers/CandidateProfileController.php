@@ -20,9 +20,12 @@ class CandidateProfileController extends Controller
             ['experience_level' => 'junior']
         );
 
-        $skillSearch = $request->string('q')->trim();
+        $skillSearch = trim((string) $request->query('q', ''));
         $skills = Skill::query()
-            ->when($skillSearch !== '', fn ($query) => $query->where('name', 'like', '%'.$skillSearch.'%'))
+            ->when($skillSearch !== '', fn ($query) => $query->where(function ($sub) use ($skillSearch) {
+                $sub->where('name', 'like', '%'.$skillSearch.'%')
+                    ->orWhere('normalized_name', 'like', '%'.mb_strtolower($skillSearch).'%');
+            }))
             ->orderBy('name')
             ->limit(20)
             ->get();

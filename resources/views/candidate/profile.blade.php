@@ -120,10 +120,16 @@
         <section class="bg-white border rounded-3 p-4 mb-4">
             <h2 class="h5 fw-bold mb-3">Compétences</h2>
             <form method="GET" action="{{ route('candidate.profile.edit') }}" class="row g-2 mb-3">
+                <input type="hidden" name="tab" value="skills">
                 <div class="col-md-6">
                     <input type="text" name="q" class="form-control" placeholder="Rechercher une compétence" value="{{ $skillSearch }}">
                 </div>
-                <div class="col-md-2"><button class="btn btn-outline-secondary">Rechercher</button></div>
+                <div class="col-md-2"><button class="btn btn-outline-secondary"><i class="bi bi-search me-1"></i>Rechercher</button></div>
+                @if ($skillSearch !== '')
+                    <div class="col-md-2">
+                        <a href="{{ route('candidate.profile.edit', ['tab' => 'skills']) }}" class="btn btn-link text-decoration-none">Réinitialiser</a>
+                    </div>
+                @endif
             </form>
 
             <form method="POST" action="{{ route('candidate.skills.store') }}" class="row g-2 mb-3">
@@ -131,9 +137,11 @@
                 <div class="col-md-5">
                     <select name="skill_id" class="form-select">
                         <option value="">Choisir une compétence…</option>
-                        @foreach ($skills as $skill)
+                        @forelse ($skills as $skill)
                             <option value="{{ $skill->id }}">{{ $skill->name }}</option>
-                        @endforeach
+                        @empty
+                            <option value="" disabled>Aucune compétence trouvée</option>
+                        @endforelse
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -148,6 +156,13 @@
                 </div>
                 <div class="col-md-2"><button class="btn btn-primary">Ajouter</button></div>
             </form>
+
+            @if ($skillSearch !== '')
+                <p class="small text-secondary">
+                    {{ $skills->count() }} résultat(s) pour « {{ $skillSearch }} ».
+                    Vous pouvez aussi créer une nouvelle compétence avec le champ « Ou créer (nom) ».
+                </p>
+            @endif
 
             <ul class="list-group">
                 @forelse ($profile->candidateSkills as $candidateSkill)
@@ -269,14 +284,47 @@
     </div>
     <script>
         (function () {
-            const tab = new URLSearchParams(window.location.search).get('tab');
-            const map = { skills: '#t-skills', exp: '#t-exp', education: '#t-edu', preferences: '#t-info' };
-            if (tab && map[tab]) {
-                const el = document.querySelector('[data-bs-target="' + map[tab] + '"]');
-                if (el) { new bootstrap.Tab(el).show(); }
-                if (tab === 'preferences') {
+            const params = new URLSearchParams(window.location.search);
+            const map = {
+                '#t-info': '#t-info',
+                '#t-skills': '#t-skills',
+                '#t-exp': '#t-exp',
+                '#t-edu': '#t-edu',
+                skills: '#t-skills',
+                exp: '#t-exp',
+                education: '#t-edu',
+                preferences: '#t-info',
+            };
+
+            const key = window.location.hash || params.get('tab');
+            const target = map[key];
+
+            if (!target) { return; }
+
+            const activateTab = function () {
+                const trigger = document.querySelector('[data-bs-toggle="tab"][data-bs-target="' + target + '"]');
+
+                if (!trigger) { return; }
+
+                // On réutilise le déclencheur natif de Bootstrap : cliquer dessus
+                // active l'onglet sans dépendre de window.bootstrap (non exposé
+                // par le bundle Vite).
+                if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                    new bootstrap.Tab(trigger).show();
+                } else {
+                    trigger.click();
+                }
+
+                if (key === 'preferences') {
                     document.querySelector('#t-info form h3')?.scrollIntoView({ behavior: 'smooth' });
                 }
+            };
+
+            // Bootstrap peut ne pas être encore prêt si le script s'exécute tôt.
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', activateTab);
+            } else {
+                activateTab();
             }
         })();
     </script>

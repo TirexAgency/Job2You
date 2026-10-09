@@ -252,6 +252,32 @@ class CandidateProfileTest extends TestCase
         $this->assertDatabaseHas('matches', ['user_id' => $user->id, 'offer_id' => $offer->id]);
     }
 
+    public function test_skill_search_filters_the_available_skills(): void
+    {
+        $user = User::factory()->create();
+        Skill::create(['name' => 'Laravel', 'normalized_name' => 'laravel']);
+        Skill::create(['name' => 'Symfony', 'normalized_name' => 'symfony']);
+
+        $response = $this->actingAs($user)->get(route('candidate.profile.edit', ['q' => 'laravel']));
+
+        $response->assertOk();
+        $response->assertSee('Laravel');
+        $response->assertDontSee('Symfony');
+    }
+
+    public function test_skill_search_matches_normalized_names(): void
+    {
+        $user = User::factory()->create();
+        Skill::create(['name' => 'Vue.js', 'normalized_name' => 'vue.js']);
+        Skill::create(['name' => 'React', 'normalized_name' => 'react']);
+
+        $response = $this->actingAs($user)->get(route('candidate.profile.edit', ['q' => 'Vue']));
+
+        $response->assertOk();
+        $response->assertSee('Vue.js');
+        $response->assertDontSee('React');
+    }
+
     public function test_skill_level_can_be_updated(): void
     {
         $user = User::factory()->create();
