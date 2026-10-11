@@ -6,7 +6,7 @@ use App\DTO\RawOfferDTO;
 use App\Models\Offer;
 use App\Models\Source;
 use App\Services\ActivityLogger;
-use App\Services\Scraping\Collectors\ApiCollector;
+use App\Services\Scraping\Collectors\AsakoCollector;
 use App\Services\Scraping\Collectors\RssCollector;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +24,16 @@ class ScrapingService
      */
     protected array $collectors = [
         RssCollector::COLLECTOR_KEY => RssCollector::class,
-        ApiCollector::COLLECTOR_KEY => ApiCollector::class,
+        // Collecteurs RSS Madagascar
+        'rss_emploi_mg' => RssCollector::class,
+        'rss_madacareers' => RssCollector::class,
+        'rss_jobmada' => RssCollector::class,
+        'rss_tanitjobs' => RssCollector::class,
+        'rss_miarakajobs' => RssCollector::class,
+        'rss_fb_mg_it' => RssCollector::class,
+        // Nouveaux sites Madagascar (asako, portaljob) - collecteur HTML/JSON-LD
+        'rss_asako_mg' => AsakoCollector::class,
+        'rss_portaljob_mg' => AsakoCollector::class,
     ];
 
     /**

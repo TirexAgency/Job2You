@@ -14,10 +14,10 @@ class ActivityLogController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $logFile = storage_path('logs/activity.log');
+        $logFile = $this->getActivityLogFile();
         $lines = [];
 
-        if (File::exists($logFile)) {
+        if ($logFile && File::exists($logFile)) {
             $content = File::get($logFile);
             $lines = array_reverse(array_filter(explode("\n", $content)));
         }
@@ -54,10 +54,10 @@ class ActivityLogController extends Controller
      */
     public function rawLogs(Request $request)
     {
-        $logFile = storage_path('logs/activity.log');
+        $logFile = $this->getActivityLogFile();
         $linesCount = (int) ($request->get('lines', 100));
 
-        if (! File::exists($logFile)) {
+        if (! $logFile || ! File::exists($logFile)) {
             return view('admin.logs.index', ['logContent' => 'Fichier de log introuvable.']);
         }
 
@@ -106,5 +106,25 @@ class ActivityLogController extends Controller
             'message' => $data['message'] ?? '',
             'context' => $data['context'] ?? [],
         ];
+    }
+
+    /**
+     * Retourne le fichier de log d'activité le plus récent (rotation quotidienne).
+     */
+    private function getActivityLogFile(): ?string
+    {
+        $logDir = storage_path('logs');
+        $files = glob($logDir . '/activity-*.log');
+
+        if (empty($files)) {
+            // Fallback sur activity.log (sans date)
+            $fallback = storage_path('logs/activity.log');
+            return File::exists($fallback) ? $fallback : null;
+        }
+
+        // Trier par date de modification (le plus récent en premier)
+        usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
+
+        return $files[0];
     }
 }
