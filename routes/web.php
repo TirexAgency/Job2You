@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SourceController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
@@ -20,7 +21,6 @@ use App\Models\Offer;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\SmsLog;
-use App\Models\Source;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -121,27 +121,23 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
 
     Route::get('/offers', fn () => view('admin.offers.index', ['offers' => Offer::latest()->paginate(10)]))->name('offers.index');
-    Route::get('/sources', fn () => view('admin.sources.index', ['sources' => Source::latest()->paginate(10)]))->name('sources.index');
+    Route::resource('sources', SourceController::class);
+    Route::patch('/sources/{source}/toggle', [SourceController::class, 'toggle'])->name('sources.toggle');
     Route::get('/plans', fn () => view('admin.plans.index', ['plans' => Plan::all()]))->name('plans.index');
-    Route::get('/subscriptions', fn () => view('admin.subscriptions.index', ['subscriptions' => Subscription::with(['user', 'plan'])->latest()->paginate(10)]))->name('subscriptions.index');
-    Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
-    Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
-    Route::get('/logs', fn () => view('admin.logs.index'))->name('logs.index');
-    Route::patch('/sources/{source}/toggle', function (Source $source) {
-        $source->update(['active' => ! $source->active]);
-
-        return redirect()->back();
-    })->name('sources.toggle');
-    Route::patch('/offers/{offer}/toggle', function (Offer $offer) {
-        $offer->update(['status' => $offer->status === 'active' ? 'archived' : 'active']);
-
-        return redirect()->back();
-    })->name('offers.toggle');
     Route::patch('/plans/{plan}/toggle', function (Plan $plan) {
         $plan->update(['active' => ! $plan->active]);
 
         return redirect()->back();
     })->name('plans.toggle');
+    Route::get('/subscriptions', fn () => view('admin.subscriptions.index', ['subscriptions' => Subscription::with(['user', 'plan'])->latest()->paginate(10)]))->name('subscriptions.index');
+    Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
+    Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
+    Route::get('/logs', fn () => view('admin.logs.index'))->name('logs.index');
+    Route::patch('/offers/{offer}/toggle', function (Offer $offer) {
+        $offer->update(['status' => $offer->status === 'active' ? 'archived' : 'active']);
+
+        return redirect()->back();
+    })->name('offers.toggle');
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
