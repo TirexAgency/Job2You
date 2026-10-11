@@ -116,4 +116,25 @@ class SourceController extends Controller
 
         return redirect()->back()->with('status', 'Statut de la source mis à jour.');
     }
+
+    /**
+     * Trigger manual scraping for a source.
+     */
+    public function scrape(Source $source)
+    {
+        if (! $source->active) {
+            return redirect()->back()->with('error', 'Cette source est inactive.');
+        }
+
+        if (! $source->base_url) {
+            return redirect()->back()->with('error', 'URL de base manquante pour cette source.');
+        }
+
+        // Dispatcher le job sur la queue
+        \App\Jobs\ScrapeSourceJob::dispatch($source->id);
+
+        $this->activityLogger->adminAction('Lancement collecte manuelle', "« {$source->name} »");
+
+        return redirect()->back()->with('status', "Collecte lancée en arrière-plan pour « {$source->name} ». Résultats dans quelques instants.");
+    }
 }

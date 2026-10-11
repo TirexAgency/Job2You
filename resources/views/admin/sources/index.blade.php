@@ -78,6 +78,14 @@
                                             <button type="button" class="btn btn-sm btn-outline-secondary" title="Modifier" data-bs-toggle="modal" data-bs-target="#editSourceModal{{ $source->id }}" data-auto-open="{{ $errors->any() && old('_source_id') == $source->id ? 'true' : 'false' }}">
                                                 <i class="bi bi-pencil" aria-hidden="true"></i>
                                             </button>
+                                            @if($source->active && $source->base_url)
+                                                <form method="POST" action="{{ route('admin.sources.scrape', $source) }}" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Lancer la collecte">
+                                                        <i class="bi bi-play-circle-fill"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                             <form method="POST" action="{{ route('admin.sources.toggle', $source) }}" class="d-inline">
                                                 @csrf @method('PATCH')
                                                 <button type="submit" class="btn btn-sm btn-outline-{{ $source->active ? 'warning' : 'success' }}" title="{{ $source->active ? 'Désactiver' : 'Activer' }}">

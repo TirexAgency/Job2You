@@ -124,6 +124,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // CRUD Sources (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('sources', SourceController::class)->except(['create', 'show', 'edit']);
     Route::patch('/sources/{source}/toggle', [SourceController::class, 'toggle'])->name('sources.toggle');
+    Route::post('/sources/{source}/scrape', [SourceController::class, 'scrape'])->name('sources.scrape');
 
     // Journal d'activité (logs métier lisibles)
     Route::get('/activity-log', ActivityLogController::class)->name('activity-log.index');
