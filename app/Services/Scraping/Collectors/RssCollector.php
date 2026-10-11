@@ -145,12 +145,26 @@ class RssCollector implements SourceCollectorInterface
         $description = $this->cleanHtml($description);
 
         // Extraction des champs via mapping ou défaut
-        $company = $this->extractField($item, $mapping['company'] ?? ['company', 'author', 'dc:creator']);
-        $location = $this->extractField($item, $mapping['location'] ?? ['location', 'city', 'geo:lat']);
-        $contractType = $this->extractField($item, $mapping['contract_type'] ?? ['contract_type', 'category', 'job_type']);
+        $company = $this->extractField($item, $mapping['company'] ?? ['company', 'author', 'dc:creator', 'company_name']);
+        $location = $this->extractField($item, $mapping['location'] ?? ['location', 'city', 'region', 'geo:lat']);
+        $contractType = $this->extractField($item, $mapping['contract_type'] ?? ['contract_type', 'job_type', 'category', 'employment_type']);
         $sourceUrl = (string) ($item->link ?? '');
-        $publishedAt = $this->parseDate($item, $mapping['published_at'] ?? ['pubDate', 'published', 'dc:date']);
-        $expiresAt = $this->parseDate($item, $mapping['expires_at'] ?? ['expires', 'expirationDate']);
+        $publishedAt = $this->parseDate($item, $mapping['published_at'] ?? ['pubDate', 'published', 'dc:date', 'pub_date']);
+        $expiresAt = $this->parseDate($item, $mapping['expires_at'] ?? ['expires', 'expirationDate', 'validThrough']);
+
+        // Fallback: extraire location, contract_type et company depuis la description si non trouvés
+        if (blank($location) || blank($contractType) || blank($company)) {
+            $extracted = $this->extractFromDescription($description);
+            if (blank($location) && ! blank($extracted['location'])) {
+                $location = $extracted['location'];
+            }
+            if (blank($contractType) && ! blank($extracted['contract_type'])) {
+                $contractType = $extracted['contract_type'];
+            }
+            if (blank($company) && ! blank($extracted['company'])) {
+                $company = $extracted['company'];
+            }
+        }
 
         return new RawOfferDTO(
             externalId: $externalId,
@@ -258,6 +272,69 @@ class RssCollector implements SourceCollectorInterface
         }
 
         return $categories;
+    }
+
+    /**
+     * Extrait location et contract_type depuis la description textuelle.
+     * Utilisé en fallback quand les champs RSS standards sont vides.
+     */
+    protected function extractFromDescription(?string $description): array
+    {
+        $result = ['location' => null, 'contract_type' => null, 'company' => null];
+
+        if (blank($description)) {
+            return $result;
+        }
+
+        $text = $description;
+
+        // Patterns pour location (villes Madagascar/Tunisie, pays, etc.)
+        $locationPatterns = [
+            '/\b(Antananarivo|Toamasina|Antsirabe|Fianarantsoa|Mahajanga|Toliara|Toliary|Morondava|Fort\s*Dauphin|Sambava|Vohemar|Andapa|Maroantsetra|Mananara|Vangaindrano|Farafangana|Midongy|Befotaka|Vondrozo)\b/i',
+            '/\b(Tunis|Sfax|Sousse|Kairouan|Gabès|Bizerte|Nabeul|Monastir|Mahdia|Gafsa|Tozeur|Kebili|Tataouine|Mednine|Ben\s*Guerdane|Zarzis|Djerba)\b/i',
+            '/\b(Paris|Lyon|Marseille|Toulouse|Bordeaux|Lille|Nantes|Strasbourg|Montpellier|Rennes)\b/i',
+            '/\b(Remote|Télétravail|Remote\s*possible|Full\s*remote|Hybride)\b/i',
+        ];
+
+        foreach ($locationPatterns as $pattern) {
+            if (preg_match($pattern, $description, $matches)) {
+                $result['location'] = $matches[0];
+                break;
+            }
+        }
+
+        // Patterns pour contract type
+        $contractPatterns = [
+            '/\b(CDI|CDD|Freelance|Stage|Alternance|Apprentissage|Intérim|Temps\s*partiel|Temps\s*plein|CDI\s*temps\s*partiel|CDD\s*temps\s*partiel)\b/i',
+            '/\b(Full\s*time|Part\s*time|Contract|Permanent|Temporary|Internship)\b/i',
+        ];
+
+        foreach ($contractPatterns as $pattern) {
+            if (preg_match($pattern, $description, $matches)) {
+                $result['contract_type'] = $matches[0];
+                break;
+            }
+        }
+
+        // Patterns pour company (souvent après <br/> ou au début de la description)
+        $companyPatterns = [
+            '/<br\s*\/?>\s*([A-Z][A-Za-z0-9\s&\-\.]{2,50})<br\s*\/?>/i',
+            '/^([A-Z][A-Za-z0-9\s&\-\.]{2,50})\s*<br\s*\/?>/i',
+            '/(?:société|entreprise|company|startup)\s*:?\s*([A-Z][A-Za-z0-9\s&\-\.]{2,50})/i',
+        ];
+
+        foreach ($companyPatterns as $pattern) {
+            if (preg_match($pattern, $description, $matches)) {
+                $company = trim($matches[1] ?? $matches[0]);
+                // Filtrer les faux positifs
+                if (strlen($company) > 2 && ! preg_match('/^\d+$/', $company) && ! in_array(mb_strtolower($company), ['tunis', 'sousse', 'tunis et sousse', 'remote', 'hybride'])) {
+                    $result['company'] = $company;
+                    break;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
