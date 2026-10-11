@@ -120,9 +120,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // CRUD Utilisateurs (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
 
-    Route::get('/offers', fn () => view('admin.offers.index', ['offers' => Offer::latest()->paginate(10)]))->name('offers.index');
-    Route::resource('sources', SourceController::class);
+    // CRUD Sources (resource sans create/show/edit - utilisés dans des modals)
+    Route::resource('sources', SourceController::class)->except(['create', 'show', 'edit']);
     Route::patch('/sources/{source}/toggle', [SourceController::class, 'toggle'])->name('sources.toggle');
+    Route::get('/offers', fn () => view('admin.offers.index', ['offers' => Offer::latest()->paginate(10)]))->name('offers.index');
     Route::get('/plans', fn () => view('admin.plans.index', ['plans' => Plan::all()]))->name('plans.index');
     Route::patch('/plans/{plan}/toggle', function (Plan $plan) {
         $plan->update(['active' => ! $plan->active]);

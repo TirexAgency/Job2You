@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Source;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SourceController extends Controller
 {
@@ -20,10 +21,11 @@ class SourceController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     * Not used - modal is used instead.
      */
     public function create()
     {
-        return view('admin.sources.create');
+        throw new NotFoundHttpException;
     }
 
     /**
@@ -45,18 +47,20 @@ class SourceController extends Controller
 
     /**
      * Display the specified resource.
+     * Not used - modal is used instead.
      */
     public function show(Source $source)
     {
-        return view('admin.sources.show', compact('source'));
+        throw new NotFoundHttpException;
     }
 
     /**
      * Show the form for editing the specified resource.
+     * Not used - modal is used instead.
      */
     public function edit(Source $source)
     {
-        return view('admin.sources.edit', compact('source'));
+        throw new NotFoundHttpException;
     }
 
     /**
