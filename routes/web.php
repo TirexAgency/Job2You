@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SourceController;
 use App\Http\Controllers\Admin\UserController;
@@ -123,6 +124,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // CRUD Sources (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('sources', SourceController::class)->except(['create', 'show', 'edit']);
     Route::patch('/sources/{source}/toggle', [SourceController::class, 'toggle'])->name('sources.toggle');
+
+    // Journal d'activité (logs métier lisibles)
+    Route::get('/activity-log', ActivityLogController::class)->name('activity-log.index');
+
     Route::get('/offers', fn () => view('admin.offers.index', ['offers' => Offer::latest()->paginate(10)]))->name('offers.index');
     Route::get('/plans', fn () => view('admin.plans.index', ['plans' => Plan::all()]))->name('plans.index');
     Route::patch('/plans/{plan}/toggle', function (Plan $plan) {

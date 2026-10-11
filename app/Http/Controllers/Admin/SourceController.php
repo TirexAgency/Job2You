@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Source;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SourceController extends Controller
 {
+    public function __construct(
+        protected ActivityLogger $activityLogger,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -40,7 +45,9 @@ class SourceController extends Controller
             'active' => ['boolean'],
         ]);
 
-        Source::create($validated);
+        $source = Source::create($validated);
+
+        $this->activityLogger->adminAction('Création source', "« {$source->name} » (collecteur: {$source->collector_key})");
 
         return redirect()->route('admin.sources.index')->with('status', 'Source créée avec succès.');
     }
@@ -77,6 +84,8 @@ class SourceController extends Controller
 
         $source->update($validated);
 
+        $this->activityLogger->adminAction('Modification source', "« {$source->name} » (collecteur: {$source->collector_key})");
+
         return redirect()->route('admin.sources.index')->with('status', 'Source mise à jour avec succès.');
     }
 
@@ -85,7 +94,10 @@ class SourceController extends Controller
      */
     public function destroy(Source $source)
     {
+        $name = $source->name;
         $source->delete();
+
+        $this->activityLogger->adminAction('Suppression source', "« {$name} »");
 
         return redirect()->route('admin.sources.index')->with('status', 'Source supprimée avec succès.');
     }
@@ -96,6 +108,11 @@ class SourceController extends Controller
     public function toggle(Source $source)
     {
         $source->update(['active' => ! $source->active]);
+
+        $this->activityLogger->adminAction(
+            $source->active ? 'Activation source' : 'Désactivation source',
+            "« {$source->name} »"
+        );
 
         return redirect()->back()->with('status', 'Statut de la source mis à jour.');
     }

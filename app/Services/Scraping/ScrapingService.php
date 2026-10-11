@@ -5,6 +5,7 @@ namespace App\Services\Scraping;
 use App\DTO\RawOfferDTO;
 use App\Models\Offer;
 use App\Models\Source;
+use App\Services\ActivityLogger;
 use App\Services\Scraping\Collectors\ApiCollector;
 use App\Services\Scraping\Collectors\RssCollector;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,10 @@ class ScrapingService
         'api' => [],
     ];
 
+    public function __construct(
+        protected ActivityLogger $activityLogger,
+    ) {}
+
     /**
      * Exécute la collecte pour une source donnée.
      *
@@ -46,20 +51,17 @@ class ScrapingService
         $collector = $this->resolveCollector($source);
 
         if (! $collector) {
-            Log::error('ScrapingService: Aucun collecteur trouvé', [
-                'source_id' => $source->id,
-                'collector_key' => $source->collector_key,
-            ]);
+            $this->activityLogger->collectorMissing($source->name, $source->collector_key);
 
             return ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => 1];
         }
 
-        Log::info('ScrapingService: Début collecte', ['source_id' => $source->id]);
+        $this->activityLogger->scrapingStarted($source->name, $source->collector_key);
 
         $rawOffers = $collector->collect($source);
 
         if (empty($rawOffers)) {
-            Log::info('ScrapingService: Aucune offre récupérée', ['source_id' => $source->id]);
+            $this->activityLogger->scrapingEmpty($source->name);
             $source->update(['last_run_at' => now()]);
 
             return ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => 0];
@@ -83,10 +85,13 @@ class ScrapingService
 
         $source->update(['last_run_at' => now()]);
 
-        Log::info('ScrapingService: Fin collecte', [
-            'source_id' => $source->id,
-            'stats' => $stats,
-        ]);
+        $this->activityLogger->scrapingCompleted(
+            $source->name,
+            $stats['created'],
+            $stats['updated'],
+            $stats['skipped'],
+            $stats['errors']
+        );
 
         return $stats;
     }

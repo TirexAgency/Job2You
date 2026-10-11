@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\ActivityLogger;
 use App\Services\Scraping\ScrapingService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -11,7 +12,7 @@ use Illuminate\Console\Command;
 #[Description('Nettoie les offres (expiration, archivage, déduplication)')]
 class ScrapingCleanupCommand extends Command
 {
-    public function handle(ScrapingService $scrapingService): int
+    public function handle(ScrapingService $scrapingService, ActivityLogger $activityLogger): int
     {
         $expire = $this->option('expire');
         $archiveMonths = $this->option('archive');
@@ -28,6 +29,7 @@ class ScrapingCleanupCommand extends Command
         if ($expire) {
             $count = $scrapingService->markExpiredOffers();
             $this->info("Offres marquées comme expirées: {$count}");
+            $activityLogger->cleanupExpired($count);
             $totalAffected += $count;
         }
 
@@ -35,12 +37,14 @@ class ScrapingCleanupCommand extends Command
             $months = (int) $archiveMonths;
             $count = $scrapingService->archiveOldOffers($months > 0 ? $months : 6);
             $this->info("Offres archivées (> {$months} mois): {$count}");
+            $activityLogger->cleanupArchived($count, $months > 0 ? $months : 6);
             $totalAffected += $count;
         }
 
         if ($deduplicate) {
             $count = $scrapingService->deduplicateByFingerprint();
             $this->info("Doublons supprimés par fingerprint: {$count}");
+            $activityLogger->cleanupDeduplicated($count);
             $totalAffected += $count;
         }
 
