@@ -138,7 +138,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/subscriptions', fn () => view('admin.subscriptions.index', ['subscriptions' => Subscription::with(['user', 'plan'])->latest()->paginate(10)]))->name('subscriptions.index');
     Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
     Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
-    Route::get('/logs', fn () => view('admin.logs.index'))->name('logs.index');
+    Route::get('/logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'rawLogs'])->name('logs.index');
     Route::patch('/offers/{offer}/toggle', function (Offer $offer) {
         $offer->update(['status' => $offer->status === 'active' ? 'archived' : 'active']);
 

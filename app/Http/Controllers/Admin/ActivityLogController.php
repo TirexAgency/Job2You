@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class ActivityLogController extends Controller
 {
     /**
-     * Affiche les logs d'activité métier.
+     * Affiche les logs d'activité métier (format structuré avec filtres).
      */
     public function __invoke(Request $request)
     {
@@ -47,6 +47,41 @@ class ActivityLogController extends Controller
         }
 
         return view('admin.activity-log.index', compact('parsedLines', 'level', 'search'));
+    }
+
+    /**
+     * Affiche les logs bruts (admin/logs).
+     */
+    public function rawLogs(Request $request)
+    {
+        $logFile = storage_path('logs/activity.log');
+        $linesCount = (int) ($request->get('lines', 100));
+
+        if (! File::exists($logFile)) {
+            return view('admin.logs.index', ['logContent' => 'Fichier de log introuvable.']);
+        }
+
+        $content = File::get($logFile);
+        $lines = array_reverse(array_filter(explode("\n", $content)));
+
+        // Filtrage par niveau
+        $level = $request->get('level');
+        if ($level && in_array($level, ['info', 'warning', 'error'])) {
+            $lines = array_filter($lines, fn ($line) => str_contains($line, "\"level\":\"{$level}\""));
+        }
+
+        // Recherche
+        $search = $request->get('search');
+        if ($search) {
+            $lines = array_filter($lines, fn ($line) => stripos($line, $search) !== false);
+        }
+
+        // Limiter
+        $lines = array_slice($lines, 0, $linesCount);
+
+        $logContent = implode("\n", $lines);
+
+        return view('admin.logs.index', compact('logContent', 'linesCount', 'level', 'search'));
     }
 
     /**

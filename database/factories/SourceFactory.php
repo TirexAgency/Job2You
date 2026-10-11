@@ -22,6 +22,7 @@ class SourceFactory extends Factory
             ['name' => 'API Generic', 'key' => 'api', 'url' => 'https://api.example.com/jobs'],
             ['name' => 'France Travail', 'key' => 'api_ft', 'url' => 'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search'],
             ['name' => 'Indeed RSS', 'key' => 'rss_indeed', 'url' => 'https://rss.indeed.com/rss?q=developer&l=Paris'],
+            ['name' => 'LinkedIn RSS', 'key' => 'rss_linkedin', 'url' => 'https://www.linkedin.com/jobs/search/rss?keywords=developer&location=France'],
         ];
 
         $collector = fake()->randomElement($collectors);
