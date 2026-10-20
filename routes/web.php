@@ -16,6 +16,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
+use App\Jobs\ScrapeAllSourcesJob;
 use App\Models\CvParse;
 use App\Models\JobMatch;
 use App\Models\Offer;
@@ -320,4 +321,5 @@ Route::get('/privacy', function () {
 
 // Routes offres (publiques)
 Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
+Route::get('/offers/search', [OfferController::class, 'search'])->name('offers.search');
 Route::get('/offers/{offer}', [OfferController::class, 'show'])->name('offers.show');

@@ -20,7 +20,7 @@ class AdminSeeder extends Seeder
                 'email' => 'admin@job2you.com',
                 'email_verified_at' => now(),
                 'password' => Hash::make('password'),
-                'phone' => '+261 34 00 000 00',
+                'phone' => '+26134000000', // 13 caractères max
                 'role' => 'admin',
                 'status' => 'active',
                 'plan' => 'free',

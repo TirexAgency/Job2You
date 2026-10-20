@@ -3,6 +3,7 @@
 namespace App\Services\Scraping;
 
 use App\DTO\RawOfferDTO;
+use App\Jobs\MatchNewOfferJob;
 use App\Models\Offer;
 use App\Models\Source;
 use App\Services\ActivityLogger;
@@ -81,7 +82,13 @@ class ScrapingService
         foreach ($rawOffers as $rawOffer) {
             try {
                 $result = $this->persistOffer($rawOffer, $source, $collector);
-                $stats[$result]++;
+
+                // Si nouvelle offre créée, dispatcher le matching
+                if (is_array($result) && $result['status'] === 'created') {
+                    MatchNewOfferJob::dispatch($result['offer_id']);
+                }
+
+                $stats[$result['status'] ?? $result]++;
             } catch (\Throwable $e) {
                 $stats['errors']++;
                 Log::error('ScrapingService: Erreur persistance offre', [
@@ -123,8 +130,10 @@ class ScrapingService
 
     /**
      * Persiste une offre en base avec déduplication.
+     *
+     * @return array{status: string, offer_id?: int} | string (legacy)
      */
-    protected function persistOffer(RawOfferDTO $rawOffer, Source $source, SourceCollectorInterface $collector): string
+    protected function persistOffer(RawOfferDTO $rawOffer, Source $source, SourceCollectorInterface $collector): array|string
     {
         $normalizedData = $collector->normalize($rawOffer, $source);
         $fingerprint = $normalizedData['fingerprint'];
@@ -137,7 +146,7 @@ class ScrapingService
 
             if ($existingByFingerprint) {
                 // Mettre à jour last_seen_at si on veut tracker
-                return 'skipped';
+                return ['status' => 'skipped'];
             }
 
             // Vérifier si l'offre existe déjà pour cette source (clé unique source_id + external_id)
@@ -160,13 +169,13 @@ class ScrapingService
                     'status' => 'active',
                 ]);
 
-                return 'updated';
+                return ['status' => 'updated'];
             }
 
             // Créer nouvelle offre
-            Offer::create($normalizedData);
+            $offer = Offer::create($normalizedData);
 
-            return 'created';
+            return ['status' => 'created', 'offer_id' => $offer->id];
         });
     }
 

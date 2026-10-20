@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cron Token
+    |--------------------------------------------------------------------------
+    |
+    | Token used to authenticate external cron jobs (cron-job.org, EasyCron, etc.)
+    | that trigger scheduled tasks like scraping.
+    |
+    */
+
+    'cron_token' => env('CRON_TOKEN'),
+
 ];

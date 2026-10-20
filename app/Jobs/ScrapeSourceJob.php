@@ -36,15 +36,9 @@ class ScrapeSourceJob implements ShouldQueue
      */
     public int $timeout = 300;
 
-    /**
-     * Identifiant unique pour éviter les doublons dans la queue.
-     */
-    public string $uniqueKey;
-
     public function __construct(
         public int $sourceId,
     ) {
-        $this->uniqueKey = "scrape-source-{$sourceId}";
         $this->onQueue('scraping');
     }
 
@@ -108,13 +102,5 @@ class ScrapeSourceJob implements ShouldQueue
             'scraping',
             'source:'.$this->sourceId,
         ];
-    }
-
-    /**
-     * Identifiant unique pour éviter les jobs en double.
-     */
-    public function uniqueId(): string
-    {
-        return $this->uniqueKey;
     }
 }

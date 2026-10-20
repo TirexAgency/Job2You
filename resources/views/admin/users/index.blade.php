@@ -88,8 +88,14 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                <span class="fw-semibold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                            <div class="position-relative" style="width: 40px; height: 40px;">
+                                                @if ($user->photo_path)
+                                                    <img src="{{ asset('storage/' . $user->photo_path) }}" alt="Photo de {{ $user->name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                                @else
+                                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <span class="fw-semibold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div>
                                                 <div class="fw-semibold">{{ $user->name }}</div>

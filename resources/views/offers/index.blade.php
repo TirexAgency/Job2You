@@ -36,6 +36,10 @@
         }
 
         .navbar {
+            background: rgba(249, 249, 255, 0.9) !important;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+        }
 
         .navbar-toggler {
             border: none;
@@ -53,10 +57,6 @@
                 border-radius: 0.5rem;
                 margin-top: 0.5rem;
             }
-        }
-            background: rgba(249, 249, 255, 0.9) !important;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         }
 
         .navbar-brand img {
@@ -99,7 +99,7 @@
             background: var(--surface-container-lowest);
             border-radius: 0.75rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 0.75rem;
+            padding: 1rem;
         }
 
         .search-input-group {
@@ -236,6 +236,35 @@
             --bs-pagination-active-bg: var(--primary);
             --bs-pagination-active-border-color: var(--primary) !important;
         }
+
+        /* États de chargement AJAX */
+        .offers-loading .offer-card {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: 0.75rem;
+        }
+
+        /* Filtres avancés */
+        .filter-toggle {
+            cursor: pointer;
+        }
+
+        .filter-panel {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -288,24 +317,24 @@
             <p class="lead text-secondary mb-4">Toutes les opportunités tech réunies au même endroit.</p>
 
             <div class="search-bar mb-4">
-                <form action="{{ route('offers.index') }}" method="GET">
+                <form id="search-form" action="{{ route('offers.index') }}" method="GET">
                     <div class="row g-2 align-items-center">
                         <div class="col-md-4">
                             <div class="search-input-group">
                                 <i class="bi bi-briefcase"></i>
-                                <input type="text" name="search" class="form-control border-0 bg-transparent" placeholder="Métier, compétence..." value="{{ request('search') }}">
+                                <input type="text" name="search" id="search-input" class="form-control border-0 bg-transparent" placeholder="Métier, compétence..." value="{{ request('search') }}">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="search-input-group">
                                 <i class="bi bi-geo-alt"></i>
-                                <input type="text" name="location" class="form-control border-0 bg-transparent" placeholder="Localisation..." value="{{ request('location') }}">
+                                <input type="text" name="location" id="location-input" class="form-control border-0 bg-transparent" placeholder="Localisation..." value="{{ request('location') }}">
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="search-input-group">
                                 <i class="bi bi-file-text"></i>
-                                <select name="contract_type" class="form-select border-0 bg-transparent">
+                                <select name="contract_type" id="contract-type-input" class="form-select border-0 bg-transparent">
                                     <option value="">Type de contrat</option>
                                     @foreach($contractTypes as $type)
                                         <option value="{{ $type }}" {{ request('contract_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
@@ -314,11 +343,52 @@
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">
+                            <button type="submit" class="btn btn-primary w-100" id="search-submit">
                                 <i class="bi bi-search"></i>
                                 <span>Rechercher</span>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Filtres avancés (collapse) -->
+                    <div class="row g-2 align-items-center mt-3 filter-panel" id="advanced-filters" style="display: none;">
+                        <div class="col-md-3">
+                            <div class="search-input-group">
+                                <i class="bi bi-calendar"></i>
+                                <input type="date" name="date_from" id="date-from-input" class="form-control border-0 bg-transparent" placeholder="Date début" value="{{ request('date_from') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="search-input-group">
+                                <i class="bi bi-calendar"></i>
+                                <input type="date" name="date_to" id="date-to-input" class="form-control border-0 bg-transparent" placeholder="Date fin" value="{{ request('date_to') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="search-input-group">
+                                <i class="bi bi-funnel"></i>
+                                <select name="sort" id="sort-input" class="form-select border-0 bg-transparent">
+                                    <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Plus récentes</option>
+                                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Plus anciennes</option>
+                                    <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
+                                    <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-outline-secondary w-100" id="reset-filters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                <span>Réinitialiser</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bouton pour afficher/masquer filtres avancés -->
+                    <div class="text-center mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary filter-toggle" id="toggle-advanced-filters">
+                            <i class="bi bi-sliders"></i>
+                            <span>Filtres avancés</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -330,7 +400,7 @@
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <span class="badge mb-2">
+                    <span class="badge mb-2" id="total-offers-badge">
                         <span class="dot"></span>
                         {{ $offers->total() }} offres disponibles
                     </span>
@@ -338,54 +408,26 @@
                 </div>
             </div>
 
-            @if($offers->count() > 0)
-                <div class="row g-3">
-                    @foreach($offers as $offer)
-                        <div class="col-md-6 col-lg-4">
-                            <div class="offer-card">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <img src="{{ asset('images/placeholder-company.svg') }}" alt="{{ $offer->company }}" class="offer-logo">
-                                    <div>
-                                        <h3 class="h6 fw-semibold mb-0">{{ $offer->title }}</h3>
-                                        <p class="small text-secondary mb-0">{{ $offer->company }} — {{ $offer->location }}</p>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="offer-badge">{{ $offer->contract_type }}</span>
-                                </div>
-                                @if($offer->offerSkills->count() > 0)
-                                    <div class="d-flex flex-wrap gap-1 mb-2">
-                                        @foreach($offer->offerSkills->take(3) as $offerSkill)
-                                            <span class="skill-badge">{{ $offerSkill->skill->name }}</span>
-                                        @endforeach
-                                        @if($offer->offerSkills->count() > 3)
-                                            <span class="skill-badge">+{{ $offer->offerSkills->count() - 3 }}</span>
-                                        @endif
-                                    </div>
-                                @endif
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary small">
-                                        <i class="bi bi-calendar"></i>
-                                        {{ $offer->published_at->diffForHumans() }}
-                                    </span>
-                                    <a href="{{ route('offers.show', $offer) }}" class="offer-link">Voir l'offre</a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+            <div id="offers-container" class="offers-container">
+                @if($offers->count() > 0)
+                    <div class="row g-3" id="offers-grid">
+                        @foreach($offers as $offer)
+                            @include('offers._card', ['offer' => $offer])
+                        @endforeach
+                    </div>
 
-                <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-4">
-                    {{ $offers->withQueryString()->links() }}
-                </div>
-            @else
-                <div class="text-center py-5">
-                    <i class="bi bi-inbox display-1 text-secondary"></i>
-                    <h3 class="h5 fw-semibold mt-3">Aucune offre trouvée</h3>
-                    <p class="text-secondary">Essayez de modifier vos critères de recherche.</p>
-                </div>
-            @endif
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-center mt-4" id="pagination-container">
+                        {{ $offers->withQueryString()->links() }}
+                    </div>
+                @else
+                    <div class="text-center py-5" id="empty-state">
+                        <i class="bi bi-inbox display-1 text-secondary"></i>
+                        <h3 class="h5 fw-semibold mt-3">Aucune offre trouvée</h3>
+                        <p class="text-secondary">Essayez de modifier vos critères de recherche.</p>
+                    </div>
+                @endif
+            </div>
         </div>
     </section>
 
@@ -430,5 +472,17 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Configuration globale pour les offres
+        window.OffersConfig = {
+            searchUrl: '{{ route('offers.search') }}',
+            indexUrl: '{{ route('offers.index') }}',
+        };
+    </script>
+
+    @push('scripts')
+    <script src="{{ asset('js/offers-search.js') }}"></script>
+    @endpush
 </body>
 </html>
