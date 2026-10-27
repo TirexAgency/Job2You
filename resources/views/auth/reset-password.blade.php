@@ -236,7 +236,8 @@
                         <input type="password"
                                class="field-input @error('password') is-invalid @enderror"
                                id="password" name="password"
-                               placeholder="••••••••" required autocomplete="new-password">
+                               placeholder="••••••••" required autocomplete="new-password"
+                               oninput="updateResetPasswordStrength(this.value)">
                         <button type="button" class="password-toggle" id="togglePassword" aria-label="Afficher le mot de passe">
                             <i class="bi bi-eye-slash" id="passwordIcon"></i>
                         </button>
@@ -244,6 +245,17 @@
                     @error('password')
                         <div class="field-error">{{ $message }}</div>
                     @enderror
+
+                    <!-- Exigences mot de passe -->
+                    <div class="password-requirements" id="pwd-requirements" style="margin-top: 8px; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; color: #64748b; display: none;">
+                        <div style="font-weight: 600; color: #334155; margin-bottom: 6px;">Exigences :</div>
+                        <ul style="margin: 0; padding-left: 18px; line-height: 1.8;">
+                            <li id="req-length" class="text-muted">Minimum 8 caractères</li>
+                            <li id="req-uppercase" class="text-muted">Au moins 1 majuscule</li>
+                            <li id="req-number" class="text-muted">Au moins 1 chiffre</li>
+                            <li id="req-special" class="text-muted">Au moins 1 caractère spécial</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="field-group">
@@ -285,6 +297,88 @@
 
         setupToggle('togglePassword', 'password', 'passwordIcon');
         setupToggle('togglePasswordConfirmation', 'password_confirmation', 'passwordConfirmationIcon');
+
+        // Password strength indicator
+        function updateResetPasswordStrength(val) {
+            const bar = document.getElementById('strength-bar');
+            const label = document.getElementById('strength-label');
+            const requirements = document.getElementById('pwd-requirements');
+            if (!bar || !label) return;
+
+            let score = 0;
+            const checks = {
+                length: val.length >= 8,
+                uppercase: /[A-Z]/.test(val),
+                number: /[0-9]/.test(val),
+                special: /[^A-Za-z0-9]/.test(val),
+            };
+
+            if (checks.length) score += 25;
+            if (checks.uppercase) score += 25;
+            if (checks.number) score += 25;
+            if (checks.special) score += 25;
+
+            bar.style.width = score + '%';
+
+            // Mettre à jour les exigences visuellement
+            if (requirements) {
+                requirements.style.display = val.length > 0 ? 'block' : 'none';
+                updateRequirement('req-length', checks.length);
+                updateRequirement('req-uppercase', checks.uppercase);
+                updateRequirement('req-number', checks.number);
+                updateRequirement('req-special', checks.special);
+            }
+
+            if (score === 0) {
+                bar.style.background = '#e2e8f0';
+                label.textContent = 'Minimum 8 caractères';
+                label.style.color = '#94a3b8';
+            } else if (score <= 50) {
+                bar.style.background = '#ef4444';
+                label.textContent = 'Faible';
+                label.style.color = '#ef4444';
+            } else if (score === 75) {
+                bar.style.background = '#f59e0b';
+                label.textContent = 'Moyen';
+                label.style.color = '#f59e0b';
+            } else {
+                bar.style.background = '#10b981';
+                label.textContent = 'Robuste';
+                label.style.color = '#10b981';
+            }
+        }
+
+        function updateRequirement(id, met) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (met) {
+                el.classList.remove('text-muted');
+                el.classList.add('text-success');
+                el.style.color = '#10b981';
+            } else {
+                el.classList.remove('text-success');
+                el.classList.add('text-muted');
+                el.style.color = '#94a3b8';
+            }
+        }
+
+        // Add strength bar to reset password page
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                // Add strength bar and label after the password wrapper
+                const wrapper = passwordInput.closest('.password-wrapper');
+                if (wrapper && !document.getElementById('strength-bar')) {
+                    const strengthHtml = `
+                        <div class="strength-bar" style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-top: 0.5rem;">
+                            <div class="strength-fill" id="strength-bar" style="height: 100%; border-radius: 2px; transition: width 0.3s ease, background-color 0.3s ease; width: 0%;"></div>
+                        </div>
+                        <div class="strength-label" id="strength-label" style="font-size: 12px; color: #94a3b8; margin-top: 0.25rem;">Minimum 8 caractères</div>
+                    `;
+                    wrapper.insertAdjacentHTML('afterend', strengthHtml);
+                }
+            }
+        });
     </script>
 </body>
 </html>

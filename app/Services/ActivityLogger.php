@@ -133,6 +133,21 @@ class ActivityLogger
     }
 
     /**
+     * Log la suppression définitive des offres expirées.
+     */
+    public function cleanupDeleted(int $count): void
+    {
+        $logger = $this->getLogger();
+        if ($logger) {
+            $logger->info("🗑️ Suppression : {$count} offre(s) expirée(s) supprimée(s) de la base", [
+                'action' => 'cleanup_deleted',
+                'nombre' => $count,
+                'horodatage' => now()->format('d/m/Y H:i:s'),
+            ]);
+        }
+    }
+
+    /**
      * Log l'archivage des vieilles offres.
      */
     public function cleanupArchived(int $count, int $months): void

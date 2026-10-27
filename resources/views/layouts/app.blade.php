@@ -35,9 +35,15 @@
                 @endisset
 
                 <main class="app-main">
+                    <div class="app-container pb-0">
+                        @include('partials.flash-alerts')
+                    </div>
+
                     {{ $slot }}
                 </main>
             </div>
         </div>
+
+        @stack('scripts')
     </body>
 </html>

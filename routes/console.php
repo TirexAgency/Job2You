@@ -1,6 +1,5 @@
 <?php
 
-use App\Jobs\ScrapeAllSourcesJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -12,18 +11,22 @@ Artisan::command('inspire', function () {
 
 /**
  * Planification des tâches de scraping (CRON).
- * Exécute: php artisan schedule:run (via cron système toutes les minutes)
+ * Exécute: php artisan schedule:run (via cron système toutes les minutes),
+ * ou php artisan schedule:work en développement.
+ *
+ * La collecte est lancée en synchrone pour ne pas dépendre d'un worker de queue.
  */
-Schedule::job(new ScrapeAllSourcesJob)
+Schedule::command('scraping:run --all --sync')
     ->name('scrape-all-sources')
-    ->hourly()
-    ->withoutOverlapping(10 * 60) // Éviter le chevauchement (10 min max)
+    ->everyTwoHours()
+    ->withoutOverlapping(20)
+    ->runInBackground()
     ->onFailure(function () {
-        Log::error('Scheduler: Échec ScrapeAllSourcesJob');
+        Log::error('Scheduler: Échec de la collecte des offres');
     });
 
-// Nettoyage quotidien : expirer, archiver (> 6 mois), dédupliquer
-Schedule::command('scraping:cleanup --expire --archive=6 --deduplicate')
+// Nettoyage quotidien : supprimer les offres expirées, archiver (> 6 mois), dédupliquer
+Schedule::command('scraping:cleanup --delete-expired --archive=6 --deduplicate')
     ->name('scraping-cleanup')
     ->dailyAt('03:00')
     ->withoutOverlapping()
@@ -31,10 +34,8 @@ Schedule::command('scraping:cleanup --expire --archive=6 --deduplicate')
         Log::error('Scheduler: Échec scraping:cleanup');
     });
 
-// Optionnel: Recalcul des matchings après scraping (si MatchingService existe)
-/*
+// Recalcul quotidien des matchings après le scraping.
 Schedule::command('matches:compute')
     ->name('compute-matches')
     ->dailyAt('04:00')
     ->withoutOverlapping();
-*/

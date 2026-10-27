@@ -267,214 +267,147 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <img src="{{ asset('logo.png') }}" alt="Job2You">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('offers.index') }}">Offres</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pricing') }}">Tarifs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('how-it-works') }}">Comment ça marche</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Mon espace</span>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="nav-link px-3">Connexion</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i>
-                            <span>Créer un compte</span>
-                        </a>
-                    @endauth
+<body class="d-flex flex-column min-vh-100">
+    @include('partials.public-navbar')
+
+    <main class="flex-grow-1">
+        <!-- Hero -->
+        <section class="public-hero">
+            <div class="container">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <span class="public-eyebrow">
+                            <i class="bi bi-briefcase-fill" aria-hidden="true"></i>
+                            Le marché tech, en un seul endroit
+                        </span>
+                        <h1 class="public-hero-title">Des offres qui vous <span class="text-gradient">correspondent</span>.</h1>
+                        <p class="public-hero-lead mx-auto">Filtrez par métier, ville ou contrat et trouvez l'opportunité qui fera avancer votre carrière.</p>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center mt-2">
+                    <div class="col-xl-10">
+                        <div class="public-search-card">
+                            <form id="search-form" action="{{ route('offers.index') }}" method="GET">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-briefcase" aria-hidden="true"></i>
+                                            <input type="text" name="search" id="search-input" class="form-control" placeholder="Métier, compétence..." value="{{ request('search') }}" aria-label="Métier ou compétence">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                            <input type="text" name="location" id="location-input" class="form-control" placeholder="Localisation..." value="{{ request('location') }}" aria-label="Localisation">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-file-text" aria-hidden="true"></i>
+                                            <select name="contract_type" id="contract-type-input" class="form-select" aria-label="Type de contrat">
+                                                <option value="">Type de contrat</option>
+                                                @foreach($contractTypes as $type)
+                                                    <option value="{{ $type }}" {{ request('contract_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary public-search-submit w-100" id="search-submit">
+                                            <i class="bi bi-search me-1" aria-hidden="true"></i>Rechercher
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Filtres avancés -->
+                                <div class="row g-2 align-items-center mt-3 filter-panel" id="advanced-filters" style="display: none;">
+                                    <div class="col-md-3">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-calendar" aria-hidden="true"></i>
+                                            <input type="date" name="date_from" id="date-from-input" class="form-control" value="{{ request('date_from') }}" aria-label="Date de début">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                                            <input type="date" name="date_to" id="date-to-input" class="form-control" value="{{ request('date_to') }}" aria-label="Date de fin">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-sort-down" aria-hidden="true"></i>
+                                            <select name="sort" id="sort-input" class="form-select" aria-label="Trier les offres">
+                                                <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Plus récentes</option>
+                                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Plus anciennes</option>
+                                                <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
+                                                <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100" id="reset-filters" style="min-height: 3rem;">
+                                            <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Réinitialiser
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-2">
+                                    <button type="button" class="btn btn-sm btn-link text-decoration-none filter-toggle" id="toggle-advanced-filters">
+                                        <i class="bi bi-sliders me-1" aria-hidden="true"></i>Filtres avancés
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container text-center">
-            <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.025em;">Offres d'emploi</h1>
-            <p class="lead text-secondary mb-4">Toutes les opportunités tech réunies au même endroit.</p>
-
-            <div class="search-bar mb-4">
-                <form id="search-form" action="{{ route('offers.index') }}" method="GET">
-                    <div class="row g-2 align-items-center">
-                        <div class="col-md-4">
-                            <div class="search-input-group">
-                                <i class="bi bi-briefcase"></i>
-                                <input type="text" name="search" id="search-input" class="form-control border-0 bg-transparent" placeholder="Métier, compétence..." value="{{ request('search') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="search-input-group">
-                                <i class="bi bi-geo-alt"></i>
-                                <input type="text" name="location" id="location-input" class="form-control border-0 bg-transparent" placeholder="Localisation..." value="{{ request('location') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="search-input-group">
-                                <i class="bi bi-file-text"></i>
-                                <select name="contract_type" id="contract-type-input" class="form-select border-0 bg-transparent">
-                                    <option value="">Type de contrat</option>
-                                    @foreach($contractTypes as $type)
-                                        <option value="{{ $type }}" {{ request('contract_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100" id="search-submit">
-                                <i class="bi bi-search"></i>
-                                <span>Rechercher</span>
-                            </button>
-                        </div>
+        <!-- Offres -->
+        <section class="public-section">
+            <div class="container">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+                    <div>
+                        <span class="public-eyebrow mb-2" id="total-offers-badge">
+                            <i class="bi bi-collection" aria-hidden="true"></i>
+                            {{ $offers->total() }} offre{{ $offers->total() > 1 ? 's' : '' }} disponible{{ $offers->total() > 1 ? 's' : '' }}
+                        </span>
+                        <h2 class="h3 fw-bold mb-0">Toutes les offres</h2>
                     </div>
-
-                    <!-- Filtres avancés (collapse) -->
-                    <div class="row g-2 align-items-center mt-3 filter-panel" id="advanced-filters" style="display: none;">
-                        <div class="col-md-3">
-                            <div class="search-input-group">
-                                <i class="bi bi-calendar"></i>
-                                <input type="date" name="date_from" id="date-from-input" class="form-control border-0 bg-transparent" placeholder="Date début" value="{{ request('date_from') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="search-input-group">
-                                <i class="bi bi-calendar"></i>
-                                <input type="date" name="date_to" id="date-to-input" class="form-control border-0 bg-transparent" placeholder="Date fin" value="{{ request('date_to') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="search-input-group">
-                                <i class="bi bi-funnel"></i>
-                                <select name="sort" id="sort-input" class="form-select border-0 bg-transparent">
-                                    <option value="recent" {{ request('sort') == 'recent' ? 'selected' : '' }}>Plus récentes</option>
-                                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Plus anciennes</option>
-                                    <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Titre A-Z</option>
-                                    <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Titre Z-A</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-outline-secondary w-100" id="reset-filters">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                                <span>Réinitialiser</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Bouton pour afficher/masquer filtres avancés -->
-                    <div class="text-center mt-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary filter-toggle" id="toggle-advanced-filters">
-                            <i class="bi bi-sliders"></i>
-                            <span>Filtres avancés</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Offres -->
-    <section class="py-5">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <span class="badge mb-2" id="total-offers-badge">
-                        <span class="dot"></span>
-                        {{ $offers->total() }} offres disponibles
+                    <span class="text-secondary small">
+                        <i class="bi bi-lightning-charge me-1" aria-hidden="true"></i>
+                        Mise à jour en continu
                     </span>
-                    <h2 class="h3 fw-bold mb-0" style="letter-spacing: -0.02em;">Toutes les offres</h2>
                 </div>
-            </div>
 
-            <div id="offers-container" class="offers-container">
-                @if($offers->count() > 0)
-                    <div class="row g-3" id="offers-grid">
-                        @foreach($offers as $offer)
-                            @include('offers._card', ['offer' => $offer])
-                        @endforeach
-                    </div>
+                <div id="offers-container" class="offers-container">
+                    @if($offers->count() > 0)
+                        <div class="row g-3" id="offers-grid">
+                            @foreach($offers as $offer)
+                                @include('offers._card', ['offer' => $offer])
+                            @endforeach
+                        </div>
 
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-center mt-4" id="pagination-container">
-                        {{ $offers->withQueryString()->links() }}
-                    </div>
-                @else
-                    <div class="text-center py-5" id="empty-state">
-                        <i class="bi bi-inbox display-1 text-secondary"></i>
-                        <h3 class="h5 fw-semibold mt-3">Aucune offre trouvée</h3>
-                        <p class="text-secondary">Essayez de modifier vos critères de recherche.</p>
-                    </div>
-                @endif
+                        <div class="d-flex justify-content-center mt-4" id="pagination-container">
+                            {{ $offers->withQueryString()->links() }}
+                        </div>
+                    @else
+                        <div class="public-empty-state" id="empty-state">
+                            <span class="public-empty-icon"><i class="bi bi-inbox" aria-hidden="true"></i></span>
+                            <h3 class="h5 fw-semibold">Aucune offre trouvée</h3>
+                            <p class="text-secondary mb-3">Essayez de modifier vos critères de recherche.</p>
+                            <a href="{{ route('offers.index') }}" class="btn btn-outline-primary">Réinitialiser les filtres</a>
+                        </div>
+                    @endif
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
-                    </div>
-                    <p class="small text-secondary">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Plateforme</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('offers.index') }}" class="small">Offres d'emploi</a></li>
-                        <li><a href="{{ route('pricing') }}" class="small">Formules & Tarifs</a></li>
-                        <li><a href="{{ route('how-it-works') }}" class="small">Fonctionnement</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Assistance & Légal</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('contact') }}" class="small">Contact</a></li>
-                        <li><a href="{{ route('terms') }}" class="small">Conditions</a></li>
-                        <li><a href="{{ route('privacy') }}" class="small">Confidentialité</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h4 class="h6 fw-medium mb-2">Statut</h4>
-                    <div class="d-flex align-items-center gap-1 text-success small fw-semibold">
-                        <i class="bi bi-check-circle"></i>
-                        Système opérationnel
-                    </div>
-                    <p class="small text-secondary mt-1 mb-0">Alertes SMS & Matching instantané actifs</p>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                <p class="small text-secondary mb-0 fw-semibold">&copy; 2026 Job2You. Tous droits réservés.</p>
-                <p class="small text-secondary mb-0 fw-semibold">Conçu pour le recrutement tech à haute précision.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public-footer')
 
     <script>
-        // Configuration globale pour les offres
         window.OffersConfig = {
             searchUrl: '{{ route('offers.search') }}',
             indexUrl: '{{ route('offers.index') }}',
@@ -484,5 +417,6 @@
     @push('scripts')
     <script src="{{ asset('js/offers-search.js') }}"></script>
     @endpush
+    @stack('scripts')
 </body>
 </html>

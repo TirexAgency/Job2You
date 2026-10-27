@@ -167,13 +167,26 @@ class AuthSecurityTest extends TestCase
     public function test_verified_user_can_access_dashboard(): void
     {
         $user = User::factory()->create();
+        $user->candidateProfile()->create([
+            'desired_jobs' => 'Développeur',
+            'city' => 'Antananarivo',
+            'mobility' => 'local',
+            'experience_level' => 'senior',
+            'contract_type' => 'CDI',
+        ]);
 
         $this->actingAs($user)
             ->get('/dashboard')
+            ->assertRedirect(route('candidate.dashboard'))
+            ->assertStatus(302);
+
+        // Follow redirect to check final page
+        $this->actingAs($user)
+            ->get(route('candidate.dashboard'))
             ->assertOk()
-            ->assertSee('Espace candidat')
+            ->assertSee('Bonjour')
             ->assertSee($user->name)
-            ->assertSee('SMS disponibles');
+            ->assertSee('SMS restants');
     }
 
     public function test_admin_can_access_the_shared_dashboard_sidebar(): void
@@ -181,9 +194,15 @@ class AuthSecurityTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)
-            ->get('/dashboard')
+            ->get('/dashboard', ['headers' => ['Accept' => 'text/html']])
+            ->assertRedirect(route('admin.dashboard'))
+            ->assertStatus(302);
+
+        // Follow redirect to check final page
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('Espace administrateur')
+            ->assertSee('Administration')
             ->assertSee('Tableau de bord')
             ->assertSee('Utilisateurs')
             ->assertSee('Offres')

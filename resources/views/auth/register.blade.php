@@ -14,7 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
@@ -257,41 +258,6 @@
 
         .field-error { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; }
 
-        .password-wrapper { position: relative; }
-
-        .password-toggle {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #94a3b8;
-            font-size: 1rem;
-            transition: color 0.2s ease;
-            background: transparent;
-            border: none;
-            padding: 0.25rem;
-        }
-
-        .password-toggle:hover { color: #2563eb; }
-
-        .strength-bar {
-            height: 3px;
-            background: #e2e8f0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .strength-fill {
-            height: 100%;
-            border-radius: 2px;
-            transition: width 0.3s ease, background-color 0.3s ease;
-            width: 0%;
-        }
-
-        .strength-label { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
-
         .checkbox-custom {
             display: flex;
             align-items: flex-start;
@@ -364,6 +330,55 @@
             margin-bottom: 1rem;
         }
 
+        .password-wrapper { position: relative; }
+
+        .password-toggle {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1rem;
+            transition: color 0.2s ease;
+            background: transparent;
+            border: none;
+            padding: 0.25rem;
+        }
+
+        .password-toggle:hover { color: #2563eb; }
+
+        .strength-bar {
+            height: 3px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            width: 0%;
+        }
+
+        .strength-label { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+
+        .password-requirements {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #64748b;
+            display: none;
+        }
+
+        .password-requirements .text-success { color: #10b981 !important; }
+        .password-requirements .text-muted { color: #94a3b8 !important; }
+
         @media (max-width: 991.98px) {
             .auth-visual { display: none; }
             .auth-form-side { flex: 1 1 100%; padding: 2rem 1.5rem; min-height: 100vh; }
@@ -374,28 +389,92 @@
             .form-title { font-size: 1.5rem; }
             .auth-form-side { padding: 1.5rem 1.25rem; }
         }
+
+        /* Bootstrap form overrides */
+        .form-control,
+        .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #ef4444;
+        }
+
+        .form-control.is-invalid:focus,
+        .form-select.is-invalid:focus {
+            box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.15);
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #ef4444;
+        }
+
+        .form-text { margin-top: 0.25rem; font-size: 0.8rem; color: #6c757d; }
+
+        .form-label { font-weight: 500; margin-bottom: 0.375rem; color: #1e293b; }
+
+        .form-check-input:checked { background-color: #2563eb; border-color: #2563eb; }
+
+        .btn { font-weight: 600; letter-spacing: 0.025em; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border: none;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-outline-primary {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #2563eb;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="auth-fullscreen">
-        
+
         <!-- ===== SECTION GAUCHE : ILLUSTRATION ===== -->
         <div class="auth-visual">
             <div class="shape-circle c1"></div>
             <div class="shape-circle c2"></div>
             <div class="shape-circle c3"></div>
             <div class="shape-circle c4"></div>
-            
+
             <div class="visual-content">
                 <svg class="visual-illustration" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M50 200 Q 100 100 200 120 T 350 200 Q 320 320 200 340 T 50 200 Z" fill="rgba(255,255,255,0.08)"/>
                     <path d="M80 250 Q 120 180 200 190 T 320 260 Q 280 340 200 350 T 80 250 Z" fill="rgba(255,255,255,0.06)"/>
-                    
+
                     <rect x="140" y="80" width="120" height="220" rx="18" fill="#1e40af" stroke="#ffffff" stroke-width="3"/>
                     <rect x="148" y="88" width="104" height="204" rx="12" fill="#2563eb"/>
                     <rect x="180" y="94" width="40" height="4" rx="2" fill="#ffffff" opacity="0.6"/>
                     <rect x="155" y="105" width="90" height="170" rx="6" fill="rgba(255,255,255,0.15)"/>
-                    
+
                     <circle cx="200" cy="170" r="16" fill="#fbbf9e"/>
                     <path d="M184 168 Q 200 152 216 168 Q 216 158 200 156 Q 184 158 184 168 Z" fill="#3d2c1e"/>
                     <rect x="184" y="188" width="32" height="40" rx="4" fill="#ffffff"/>
@@ -408,12 +487,12 @@
                     <ellipse cx="209" cy="258" rx="7" ry="4" fill="#1f2937"/>
                     <path d="M148 88 L 180 88 L 148 180 Z" fill="rgba(255,255,255,0.08)"/>
                 </svg>
-                
+
                 <h2 class="visual-title">Rejoignez Job2You</h2>
                 <p class="visual-subtitle">
                     Créez votre profil en 2 minutes et activez vos alertes intelligentes
                 </p>
-                
+
                 <div class="visual-features">
                     <div class="visual-feature">
                         <i class="bi bi-person-plus-fill"></i>
@@ -428,7 +507,7 @@
                         <span>CV intégré, postulez en 1 clic</span>
                     </div>
                 </div>
-                
+
                 <div class="visual-steps">
                     <h6>3 étapes simples</h6>
                     <div class="visual-step">
@@ -450,23 +529,23 @@
         <!-- ===== SECTION DROITE : FORMULAIRE ===== -->
         <div class="auth-form-side">
             <div class="form-container">
-                
+
                 <div class="form-avatar">
                     <img src="{{ asset('logo.png') }}" alt="Job2You">
                 </div>
-                
+
                 <h1 class="form-title">INSCRIPTION</h1>
                 <p class="form-subtitle">Créez votre compte Job2You</p>
 
                 @if (session('success'))
-                    <div class="alert-custom success">
+                    <div class="alert alert-success alert-custom">
                         <i class="bi bi-check-circle-fill"></i>
                         <span>{{ session('success') }}</span>
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert-custom danger">
+                    <div class="alert alert-danger alert-custom">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                         <ul>
                             @foreach ($errors->all() as $error)
@@ -476,114 +555,30 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('register') }}" id="register-form" novalidate>
-                    @csrf
-
-                    <div class="field-group">
-                        <label for="name" class="field-label">
-                            <i class="bi bi-person-fill"></i>
-                            <span>Nom complet</span>
-                        </label>
-                        <input type="text"
-                               class="field-input @error('name') is-invalid @enderror"
-                               id="name" name="name" value="{{ old('name') }}"
-                               placeholder="Hery Randria" required autocomplete="name">
-                        @error('name')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="field-group">
-                        <label for="phone" class="field-label">
-                            <i class="bi bi-telephone-fill"></i>
-                            <span>Téléphone</span>
-                        </label>
-                        <input type="tel"
-                               class="field-input @error('phone') is-invalid @enderror"
-                               id="phone" name="phone" value="{{ old('phone') }}"
-                               placeholder="+261 34 00 000 00" required autocomplete="tel">
-                        @error('phone')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="info-box">
+                <x-forms.form action="{{ route('register') }}" id="register-form" class="needs-validation" novalidate>
+                    <x-forms.field name="name" label="Nom complet" type="text" placeholder="Hery Randria" required autocomplete="name" :error="$errors->first('name')" help="Votre nom complet tel qu'il apparaîtra sur votre profil" />
+                    <x-forms.field name="phone" label="Téléphone" type="tel" placeholder="+261 34 00 000 00" required autocomplete="tel" :error="$errors->first('phone')" />
+                    <div class="info-box mb-3">
                         <i class="bi bi-info-circle-fill"></i>
                         <span>Format Madagascar (ex : +261 34 12 345 67 ou 034 12 345 67)</span>
                     </div>
+                    <x-forms.field name="email" label="Email" type="email" placeholder="nom@exemple.com" required autocomplete="email" :error="$errors->first('email')" />
+                    <x-forms.field name="password" label="Mot de passe" type="password" placeholder="••••••••" required autocomplete="new-password" :error="$errors->first('password')" help="Min. 8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial" />
+                    <x-forms.field name="password_confirmation" label="Confirmation" type="password" placeholder="••••••••" required autocomplete="new-password" :error="$errors->first('password_confirmation')" />
 
-                    <div class="field-group">
-                        <label for="email" class="field-label">
-                            <i class="bi bi-envelope-fill"></i>
-                            <span>Email</span>
-                        </label>
-                        <input type="email"
-                               class="field-input @error('email') is-invalid @enderror"
-                               id="email" name="email" value="{{ old('email') }}"
-                               placeholder="nom@exemple.com" required autocomplete="email">
-                        @error('email')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="field-group">
-                        <label for="password" class="field-label">
-                            <i class="bi bi-lock-fill"></i>
-                            <span>Mot de passe</span>
-                        </label>
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   class="field-input @error('password') is-invalid @enderror"
-                                   id="password" name="password" minlength="8"
-                                   placeholder="••••••••" required autocomplete="new-password"
-                                   oninput="updatePasswordStrength(this.value)">
-                            <button type="button" class="password-toggle"
-                                    onclick="toggleVisibility('password', 'pwd-icon')"
-                                    aria-label="Afficher le mot de passe">
-                                <i class="bi bi-eye-slash" id="pwd-icon"></i>
-                            </button>
-                        </div>
-                        @error('password')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                        
-                        <div class="strength-bar">
-                            <div class="strength-fill" id="strength-bar"></div>
-                        </div>
-                        <div class="strength-label" id="strength-label">Minimum 8 caractères</div>
-                    </div>
-
-                    <div class="field-group">
-                        <label for="password_confirmation" class="field-label">
-                            <i class="bi bi-lock-fill"></i>
-                            <span>Confirmation</span>
-                        </label>
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   class="field-input"
-                                   id="password_confirmation" name="password_confirmation"
-                                   placeholder="••••••••" required autocomplete="new-password">
-                            <button type="button" class="password-toggle"
-                                    onclick="toggleVisibility('password_confirmation', 'conf-icon')"
-                                    aria-label="Afficher la confirmation">
-                                <i class="bi bi-eye-slash" id="conf-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <label class="checkbox-custom" for="terms">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <span>
+                    <div class="form-check mb-4">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required @checked(old('terms'))>
+                        <label class="form-check-label" for="terms">
                             J'accepte les <a href="{{ route('terms') }}" target="_blank">conditions d'utilisation</a>
-                            et la <a href="{{ route('privacy') }}" target="_blank">politique de confidentialité</a>
-                            de Job2You.
-                        </span>
-                    </label>
+                            et la <a href="{{ route('privacy') }}" target="_blank">politique de confidentialité</a> de Job2You.
+                        </label>
+                        @error('terms')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                    <button type="submit" id="submit-btn" class="btn-primary-full">
-                        Créer mon compte
-                    </button>
-                </form>
+                    <x-forms.button label="Créer mon compte" variant="primary" size="lg" block />
+                </x-forms.form>
 
                 <div class="switch-auth">
                     Vous avez déjà un compte ?
@@ -607,15 +602,31 @@
         function updatePasswordStrength(val) {
             const bar = document.getElementById('strength-bar');
             const label = document.getElementById('strength-label');
+            const requirements = document.getElementById('pwd-requirements');
             if (!bar || !label) return;
 
             let score = 0;
-            if (val.length >= 8) score += 25;
-            if (/[A-Z]/.test(val)) score += 25;
-            if (/[0-9]/.test(val)) score += 25;
-            if (/[^A-Za-z0-9]/.test(val)) score += 25;
+            const checks = {
+                length: val.length >= 8,
+                uppercase: /[A-Z]/.test(val),
+                number: /[0-9]/.test(val),
+                special: /[^A-Za-z0-9]/.test(val),
+            };
+
+            if (checks.length) score += 25;
+            if (checks.uppercase) score += 25;
+            if (checks.number) score += 25;
+            if (checks.special) score += 25;
 
             bar.style.width = score + '%';
+
+            if (requirements) {
+                requirements.style.display = val.length > 0 ? 'block' : 'none';
+                updateRequirement('req-length', checks.length);
+                updateRequirement('req-uppercase', checks.uppercase);
+                updateRequirement('req-number', checks.number);
+                updateRequirement('req-special', checks.special);
+            }
 
             if (score === 0) {
                 bar.style.background = '#e2e8f0';
@@ -633,6 +644,20 @@
                 bar.style.background = '#10b981';
                 label.textContent = 'Robuste';
                 label.style.color = '#10b981';
+            }
+        }
+
+        function updateRequirement(id, met) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (met) {
+                el.classList.remove('text-muted');
+                el.classList.add('text-success');
+                el.style.color = '#10b981';
+            } else {
+                el.classList.remove('text-success');
+                el.classList.add('text-muted');
+                el.style.color = '#94a3b8';
             }
         }
 

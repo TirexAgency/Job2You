@@ -348,12 +348,25 @@ class RssCollector implements SourceCollectorInterface
 
         // Supprimer les balises script/style
         $html = preg_replace('#<(script|style)[^>]*>.*?</\\1>#is', '', $html);
-        // Convertir <br>, <p>, <div> en sauts de ligne
-        $html = preg_replace('#</?(br|p|div|li)[^>]*>#i', "\n", $html);
+
+        // Les titres deviennent des sections explicites.
+        $html = preg_replace('#<h[1-6][^>]*>(.*?)</h[1-6]>#is', "\n## $1\n", $html);
+        $html = preg_replace('#<p[^>]*>[\s\x{00A0}]*<(?:strong|b)[^>]*>(.*?)</(?:strong|b)>[\s\x{00A0}]*</p>#isu', "\n## $1\n", $html);
+
+        // Les éléments de liste deviennent des puces.
+        $html = preg_replace('#<li[^>]*>\s*(?:<p[^>]*>)?(.*?)(?:</p>)?\s*</li>#is', "\n- $1\n", $html);
+
+        $html = preg_replace('#</?(br|p|div|li|ul|ol|h[1-6]|section|article|tr)[^>]*>#i', "\n", $html);
         // Supprimer les autres balises
         $html = strip_tags($html);
-        // Nettoyer les espaces
-        $html = preg_replace('/\s+/', ' ', $html);
+        $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $html = str_replace("\u{00A0}", ' ', $html);
+        $html = str_replace(["\r\n", "\r"], "\n", $html);
+        // Nettoyer les espaces sans supprimer les retours à la ligne
+        $html = preg_replace('/[ \t]+/u', ' ', $html);
+        $html = preg_replace('/ *\n */u', "\n", $html);
+        $html = preg_replace('/\n{3,}/u', "\n\n", $html);
+        $html = preg_replace('/\n{2,}(?=- )/u', "\n", $html);
         $html = trim($html);
 
         return $html !== '' ? $html : null;

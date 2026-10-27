@@ -139,28 +139,20 @@ class ScrapingService
         $fingerprint = $normalizedData['fingerprint'];
 
         return DB::transaction(function () use ($normalizedData, $fingerprint, $source) {
-            // Vérifier si une offre avec le même fingerprint existe déjà (toutes sources)
-            $existingByFingerprint = Offer::where('fingerprint', $fingerprint)
-                ->where('status', '!=', 'archived')
-                ->first();
-
-            if ($existingByFingerprint) {
-                // Mettre à jour last_seen_at si on veut tracker
-                return ['status' => 'skipped'];
-            }
-
-            // Vérifier si l'offre existe déjà pour cette source (clé unique source_id + external_id)
+            // Mettre à jour l'offre existante de cette source avant toute vérification de doublon.
             $existing = Offer::where('source_id', $source->id)
                 ->where('external_id', $normalizedData['external_id'])
                 ->first();
 
             if ($existing) {
-                // Mettre à jour les champs modifiables
+                // Ne pas écraser une description déjà présente par une valeur vide.
+                $description = $normalizedData['description'] ?: $existing->description;
+
                 $existing->update([
                     'title' => $normalizedData['title'],
                     'company' => $normalizedData['company'],
                     'location' => $normalizedData['location'],
-                    'description' => $normalizedData['description'],
+                    'description' => $description,
                     'contract_type' => $normalizedData['contract_type'],
                     'source_url' => $normalizedData['source_url'],
                     'published_at' => $normalizedData['published_at'],
@@ -170,6 +162,15 @@ class ScrapingService
                 ]);
 
                 return ['status' => 'updated'];
+            }
+
+            // Vérifier si une offre avec le même fingerprint existe déjà (toutes sources)
+            $existingByFingerprint = Offer::where('fingerprint', $fingerprint)
+                ->where('status', '!=', 'archived')
+                ->first();
+
+            if ($existingByFingerprint) {
+                return ['status' => 'skipped'];
             }
 
             // Créer nouvelle offre
@@ -223,6 +224,21 @@ class ScrapingService
         return Offer::where('status', 'active')
             ->where('expires_at', '<', now())
             ->update(['status' => 'expired']);
+    }
+
+    /**
+     * Supprime définitivement les offres expirées de la base de données.
+     * Les correspondances, compétences et logs SMS liés sont supprimés en cascade.
+     */
+    public function deleteExpiredOffers(): int
+    {
+        return Offer::where(function ($query) {
+            $query->where('status', 'expired')
+                ->orWhere(function ($query) {
+                    $query->whereNotNull('expires_at')
+                        ->where('expires_at', '<', now());
+                });
+        })->delete();
     }
 
     /**

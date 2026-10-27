@@ -93,6 +93,21 @@ XML;
         $this->assertEquals(1, Offer::where('status', 'expired')->count());
     }
 
+    public function test_scraping_cleanup_command_delete_expired(): void
+    {
+        $source = Source::factory()->create(['collector_key' => 'rss']);
+
+        Offer::factory()->active()->forSource($source)->create(['expires_at' => now()->subDay()]);
+        Offer::factory()->expired()->forSource($source)->create(['expires_at' => null]);
+        Offer::factory()->active()->forSource($source)->create(['expires_at' => now()->addDay()]);
+
+        $this->artisan('scraping:cleanup', ['--delete-expired' => true])
+            ->expectsOutputToContain('Offres expirées supprimées: 2')
+            ->assertExitCode(0);
+
+        $this->assertDatabaseCount('offers', 1);
+    }
+
     public function test_scraping_cleanup_command_archive(): void
     {
         $source = Source::factory()->create(['collector_key' => 'rss']);

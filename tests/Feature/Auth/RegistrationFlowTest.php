@@ -4,8 +4,8 @@ namespace Tests\Feature\Auth;
 
 use App\Models\Plan;
 use App\Models\User;
+use App\Notifications\VerifyEmailCustom;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -128,7 +128,7 @@ class RegistrationFlowTest extends TestCase
 
         $user = User::where('email', 'test@example.com')->first();
 
-        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertSentTo($user, VerifyEmailCustom::class);
     }
 
     // ============================================================
@@ -289,7 +289,7 @@ class RegistrationFlowTest extends TestCase
 
         $this->actingAs($user)->post('/email/verification-notification');
 
-        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertSentTo($user, VerifyEmailCustom::class);
     }
 
     public function test_verification_email_not_resent_if_already_verified(): void

@@ -94,6 +94,14 @@ class ScrapeSourceJob implements ShouldQueue
     }
 
     /**
+     * Identifiant unique pour éviter les scrapings simultanés d'une même source.
+     */
+    public function uniqueId(): string
+    {
+        return 'scrape-source-'.$this->sourceId;
+    }
+
+    /**
      * Tags pour le monitoring Horizon.
      */
     public function tags(): array

@@ -8,18 +8,19 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('scraping:cleanup {--expire : Marquer les offres expirées} {--archive= : Archiver les offres de plus de X mois} {--deduplicate : Dédupliquer par fingerprint}')]
-#[Description('Nettoie les offres (expiration, archivage, déduplication)')]
+#[Signature('scraping:cleanup {--expire : Marquer les offres expirées} {--delete-expired : Supprimer définitivement les offres expirées} {--archive= : Archiver les offres de plus de X mois} {--deduplicate : Dédupliquer par fingerprint}')]
+#[Description('Nettoie les offres (expiration, suppression, archivage, déduplication)')]
 class ScrapingCleanupCommand extends Command
 {
     public function handle(ScrapingService $scrapingService, ActivityLogger $activityLogger): int
     {
         $expire = $this->option('expire');
+        $deleteExpired = $this->option('delete-expired');
         $archiveMonths = $this->option('archive');
         $deduplicate = $this->option('deduplicate');
 
-        if (! $expire && $archiveMonths === null && ! $deduplicate) {
-            $this->error('Aucune action spécifiée. Utilisez --expire, --archive ou --deduplicate.');
+        if (! $expire && ! $deleteExpired && $archiveMonths === null && ! $deduplicate) {
+            $this->error('Aucune action spécifiée. Utilisez --expire, --delete-expired, --archive ou --deduplicate.');
 
             return self::FAILURE;
         }
@@ -30,6 +31,13 @@ class ScrapingCleanupCommand extends Command
             $count = $scrapingService->markExpiredOffers();
             $this->info("Offres marquées comme expirées: {$count}");
             $activityLogger->cleanupExpired($count);
+            $totalAffected += $count;
+        }
+
+        if ($deleteExpired) {
+            $count = $scrapingService->deleteExpiredOffers();
+            $this->info("Offres expirées supprimées: {$count}");
+            $activityLogger->cleanupDeleted($count);
             $totalAffected += $count;
         }
 

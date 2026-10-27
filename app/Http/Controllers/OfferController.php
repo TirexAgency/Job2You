@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Offer;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OfferController extends Controller
 {
@@ -68,7 +69,27 @@ class OfferController extends Controller
             ->limit(3)
             ->get();
 
-        return view('offers.show', compact('offer', 'similarOffers'));
+        $descriptionWordCount = filled($offer->description)
+            ? (int) preg_match_all('/[\p{L}\p{N}]+/u', strip_tags($offer->description))
+            : 0;
+
+        $readingMinutes = max(1, (int) ceil($descriptionWordCount / 200));
+
+        $descriptionExcerpt = null;
+
+        if (filled($offer->description)) {
+            $plainDescription = preg_replace('/^##\s+/m', '', $offer->description);
+            $plainDescription = preg_replace('/^-\s+/m', '', $plainDescription);
+            $descriptionExcerpt = Str::limit(preg_replace('/\s+/u', ' ', trim($plainDescription)), 300);
+        }
+
+        return view('offers.show', compact(
+            'offer',
+            'similarOffers',
+            'descriptionWordCount',
+            'readingMinutes',
+            'descriptionExcerpt'
+        ));
     }
 
     /**

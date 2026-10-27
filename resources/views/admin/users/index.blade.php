@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="container-fluid px-3 px-lg-5 py-4">
-        <div class="mx-auto" style="max-width: 1200px;">
-            <header class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div class="app-container">
+        <div>
+            <header class="app-page-header">
                 <div>
-                    <p class="text-uppercase small fw-semibold text-primary mb-1">Administration</p>
+                    <p class="app-eyebrow">Administration</p>
                     <h1 class="h2 fw-bold mb-1">Gestion des utilisateurs</h1>
                     <p class="text-secondary mb-0">Gérez les comptes utilisateurs de la plateforme.</p>
                 </div>
@@ -11,32 +11,6 @@
                     <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nouvel utilisateur
                 </button>
             </header>
-
-            <!-- Success Message -->
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            <!-- Error Message -->
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="alert alert-danger" role="alert">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             <!-- Filters -->
             <section class="bg-white border rounded-3 shadow-sm p-4 mb-4">
@@ -173,7 +147,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="name" class="form-label">Nom complet</label>
-                                <input type="text" class="form-control @error('name') is-invalid @endif" id="name" name="name" value="{{ old('name') }}" required>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -181,7 +155,7 @@
 
                             <div class="col-md-6">
                                 <label for="email" class="form-label">Adresse email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @endif" id="email" name="email" value="{{ old('email') }}" required>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -189,7 +163,7 @@
 
                             <div class="col-md-6">
                                 <label for="phone" class="form-label">Téléphone</label>
-                                <input type="tel" class="form-control @error('phone') is-invalid @endif" id="phone" name="phone" value="{{ old('phone') }}">
+                                <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}">
                                 @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -197,7 +171,7 @@
 
                             <div class="col-md-6">
                                 <label for="role" class="form-label">Rôle</label>
-                                <select class="form-select @error('role') is-invalid @endif" id="role" name="role" required>
+                                <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                                     <option value="">Sélectionner un rôle</option>
                                     @foreach($roles as $role)
                                         <option value="{{ $role }}" {{ old('role') === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
@@ -210,7 +184,7 @@
 
                             <div class="col-md-6">
                                 <label for="status" class="form-label">Statut</label>
-                                <select class="form-select @error('status') is-invalid @endif" id="status" name="status" required>
+                                <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
                                     <option value="">Sélectionner un statut</option>
                                     @foreach($statuses as $status)
                                         <option value="{{ $status }}" {{ old('status') === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
@@ -223,7 +197,7 @@
 
                             <div class="col-md-6">
                                 <label for="plan" class="form-label">Formule</label>
-                                <input type="text" class="form-control @error('plan') is-invalid @endif" id="plan" name="plan" value="{{ old('plan', 'free') }}" required>
+                                <input type="text" class="form-control @error('plan') is-invalid @enderror" id="plan" name="plan" value="{{ old('plan', 'free') }}" required>
                                 @error('plan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -231,7 +205,7 @@
 
                             <div class="col-md-6">
                                 <label for="sms_quota" class="form-label">Quota SMS</label>
-                                <input type="number" class="form-control @error('sms_quota') is-invalid @endif" id="sms_quota" name="sms_quota" value="{{ old('sms_quota', 2) }}" min="0" required>
+                                <input type="number" class="form-control @error('sms_quota') is-invalid @enderror" id="sms_quota" name="sms_quota" value="{{ old('sms_quota', 2) }}" min="0" required>
                                 @error('sms_quota')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -239,7 +213,7 @@
 
                             <div class="col-md-6">
                                 <label for="password" class="form-label">Mot de passe</label>
-                                <input type="password" class="form-control @error('password') is-invalid @endif" id="password" name="password" required>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

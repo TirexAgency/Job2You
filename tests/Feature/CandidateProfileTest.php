@@ -252,6 +252,53 @@ class CandidateProfileTest extends TestCase
         $this->assertDatabaseHas('matches', ['user_id' => $user->id, 'offer_id' => $offer->id]);
     }
 
+    public function test_dashboard_computes_missing_matches_and_renders_recommendations(): void
+    {
+        $user = User::factory()->create();
+        CandidateProfile::create([
+            'user_id' => $user->id,
+            'desired_jobs' => 'Développeur PHP',
+            'city' => 'Antananarivo',
+            'mobility' => 'national',
+            'experience_level' => 'junior',
+        ]);
+        $source = Source::create(['name' => 'Test', 'collector_key' => 'test-dashboard']);
+        Offer::create([
+            'source_id' => $source->id,
+            'external_id' => 'dashboard-1',
+            'title' => 'Développeur PHP',
+            'company' => 'ACME',
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('candidate.dashboard'));
+
+        $response->assertOk()->assertSee('Développeur PHP');
+        $this->assertDatabaseHas('matches', ['user_id' => $user->id, 'offer_id' => Offer::first()->id]);
+    }
+
+    public function test_profile_update_recomputes_matches(): void
+    {
+        $user = User::factory()->create();
+        $source = Source::create(['name' => 'Test', 'collector_key' => 'test-profile-update']);
+        $offer = Offer::create([
+            'source_id' => $source->id,
+            'external_id' => 'profile-update-1',
+            'title' => 'Développeur PHP',
+            'company' => 'ACME',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($user)->put(route('candidate.profile.update'), [
+            'desired_jobs' => 'Développeur PHP',
+            'experience_level' => 'junior',
+            'city' => 'Antananarivo',
+            'mobility' => 'national',
+        ])->assertRedirect(route('candidate.profile.edit'));
+
+        $this->assertDatabaseHas('matches', ['user_id' => $user->id, 'offer_id' => $offer->id]);
+    }
+
     public function test_skill_search_filters_the_available_skills(): void
     {
         $user = User::factory()->create();

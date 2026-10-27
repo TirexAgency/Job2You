@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="container-fluid px-3 px-lg-5 py-4">
-        <div class="mx-auto" style="max-width: 1200px;">
-            <header class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div class="app-container">
+        <div>
+            <header class="app-page-header">
                 <div>
-                    <p class="text-uppercase small fw-semibold text-primary mb-1">Administration</p>
+                    <p class="app-eyebrow">Administration</p>
                     <h1 class="h2 fw-bold mb-1">Sources de collecte</h1>
                     <p class="text-secondary mb-0">Gérez les sources de collecte d'offres d'emploi.</p>
                 </div>
@@ -11,32 +11,6 @@
                     <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Nouvelle source
                 </button>
             </header>
-
-            <!-- Success Message -->
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2" aria-hidden="true"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            <!-- Error Message -->
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="alert alert-danger" role="alert">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             <!-- Sources Table -->
             <section class="bg-white border rounded-3 shadow-sm overflow-hidden">
@@ -135,7 +109,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="name" class="form-label">Nom <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @endif" id="name" name="name" value="{{ old('name') }}" required maxlength="100">
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required maxlength="100">
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -143,7 +117,7 @@
 
                             <div class="col-md-6">
                                 <label for="base_url" class="form-label">URL de base (flux RSS ou API)</label>
-                                <input type="url" class="form-control @error('base_url') is-invalid @endif" id="base_url" name="base_url" value="{{ old('base_url') }}" maxlength="255" placeholder="https://example.com/feed.rss">
+                                <input type="url" class="form-control @error('base_url') is-invalid @enderror" id="base_url" name="base_url" value="{{ old('base_url') }}" maxlength="255" placeholder="https://example.com/feed.rss">
                                 @error('base_url')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -152,7 +126,7 @@
 
                             <div class="col-md-6">
                                 <label for="collector_key" class="form-label">Clé collecteur <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('collector_key') is-invalid @endif" id="collector_key" name="collector_key" value="{{ old('collector_key') }}" required maxlength="100" placeholder="rss, api, rss_indeed, api_francetravail...">
+                                <input type="text" class="form-control @error('collector_key') is-invalid @enderror" id="collector_key" name="collector_key" value="{{ old('collector_key') }}" required maxlength="100" placeholder="rss, api, rss_indeed, api_francetravail...">
                                 @error('collector_key')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

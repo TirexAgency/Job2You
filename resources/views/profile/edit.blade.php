@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="container-fluid px-3 px-lg-5 py-4">
-        <div class="mx-auto" style="max-width: 1200px;">
-            <header class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div class="app-container">
+        <div>
+            <header class="app-page-header">
                 <div>
-                    <p class="text-uppercase small fw-semibold text-primary mb-1">Espace personnel</p>
+                    <p class="app-eyebrow">Espace personnel</p>
                     <h1 class="h2 fw-bold mb-1">Paramètres</h1>
                     <p class="text-secondary mb-0">Gérez vos informations personnelles et la sécurité de votre compte.</p>
                 </div>
@@ -11,10 +11,6 @@
                     {{ $user->status === 'active' ? 'Compte actif' : ucfirst($user->status) }}
                 </span>
             </header>
-
-            @if (session('status') === 'profile-updated')
-                <div class="alert alert-success" role="status">Votre profil a été mis à jour.</div>
-            @endif
 
             <div class="row g-4">
                 <aside class="col-lg-4">

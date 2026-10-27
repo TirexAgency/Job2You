@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CandidateProfileRequest;
 use App\Models\Skill;
+use App\Services\MatchingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -40,7 +41,7 @@ class CandidateProfileController extends Controller
     /**
      * Sauvegarde le profil, la localisation/mobilité et les préférences.
      */
-    public function update(CandidateProfileRequest $request): RedirectResponse
+    public function update(CandidateProfileRequest $request, MatchingService $matchingService): RedirectResponse
     {
         $profile = $request->user()->candidateProfile()->firstOrCreate(
             ['user_id' => $request->user()->id],
@@ -59,6 +60,10 @@ class CandidateProfileController extends Controller
             ->all();
         $profile->alerts_enabled = $request->boolean('alerts_enabled');
         $profile->save();
+
+        // Recalcule immédiatement les correspondances pour que les
+        // recommandations reflètent les nouveaux critères du candidat.
+        $matchingService->computeForProfile($profile);
 
         return redirect()->route('candidate.profile.edit')->with('status', 'profile-updated');
     }

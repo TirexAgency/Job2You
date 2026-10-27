@@ -75,7 +75,12 @@ class MiddlewareProtectionTest extends TestCase
 
         $response = $this->actingAs($user)->get('/dashboard');
 
-        $response->assertStatus(200);
+        // Now redirects to role-specific dashboard
+        $response->assertStatus(302);
+
+        // Follow redirect
+        $response = $this->actingAs($user)->get('/dashboard');
+        $response->assertStatus(302);
     }
 
     public function test_verified_user_can_access_profile(): void

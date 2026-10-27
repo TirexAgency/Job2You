@@ -65,4 +65,46 @@ class CandidateProfile extends Model
     {
         return $this->hasMany(Education::class)->orderByDesc('start_date');
     }
+
+    /**
+     * Calcule le pourcentage de complétion du profil.
+     */
+    public function completionPercentage(): int
+    {
+        $fields = [
+            'desired_jobs',
+            'city',
+            'mobility',
+            'experience_level',
+            'education_level',
+            'contract_type',
+            'desired_salary',
+        ];
+
+        $filled = 0;
+        foreach ($fields as $field) {
+            if (! empty($this->$field)) {
+                $filled++;
+            }
+        }
+
+        // Compétences
+        if ($this->skills()->exists()) {
+            $filled++;
+        }
+
+        // Expériences
+        if ($this->experiences()->exists()) {
+            $filled++;
+        }
+
+        // Formations
+        if ($this->educations()->exists()) {
+            $filled++;
+        }
+
+        $total = count($fields) + 3; // +3 pour skills, experiences, educations
+
+        return (int) round(($filled / $total) * 100);
+    }
 }

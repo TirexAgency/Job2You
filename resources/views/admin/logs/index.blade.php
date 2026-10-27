@@ -1,7 +1,11 @@
 <x-app-layout>
-    <div class="container py-4" style="max-width: 1200px;">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3 fw-bold mb-0">Logs & Supervision</h1>
+    <div class="app-container">
+        <header class="app-page-header">
+            <div>
+                <p class="app-eyebrow">Administration</p>
+                <h1 class="h2 fw-bold mb-0">Logs & supervision</h1>
+                <p class="text-secondary mb-0">Consultez le journal brut et les événements métier.</p>
+            </div>
             <div class="btn-group" role="group">
                 <a href="{{ route('admin.activity-log.index') }}" class="btn btn-outline-primary">
                     <i class="bi bi-journal-text me-1"></i> Journal d'activité (métier - filtres)

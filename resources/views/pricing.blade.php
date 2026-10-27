@@ -175,204 +175,153 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <img src="{{ asset('logo.png') }}" alt="Job2You">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Offres</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('pricing') }}">Tarifs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('how-it-works') }}">Comment ça marche</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Mon espace</span>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="nav-link px-3">Connexion</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i>
-                            <span>Créer un compte</span>
-                        </a>
-                    @endauth
+<body class="d-flex flex-column min-vh-100">
+    @include('partials.public-navbar')
+
+    <main class="flex-grow-1">
+        <!-- Hero -->
+        <section class="public-hero">
+            <div class="container text-center">
+                <span class="public-eyebrow"><i class="bi bi-tags-fill" aria-hidden="true"></i>Tarifs transparents</span>
+                <h1 class="public-hero-title">Investissez dans votre <span class="text-gradient">carrière</span>.</h1>
+                <p class="public-hero-lead mx-auto">Des formules simples, sans engagement, pour les candidats comme pour les recruteurs.</p>
+            </div>
+        </section>
+
+        <!-- Formules -->
+        <section class="public-section">
+            <div class="container">
+                <div class="row g-4 justify-content-center align-items-stretch">
+                    <!-- Gratuit -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="public-price-card">
+                            <span class="public-price-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
+                            <h3 class="h5 fw-bold mb-1">Gratuit</h3>
+                            <p class="text-secondary small mb-3">Pour découvrir la plateforme</p>
+                            <div class="public-price">0<small>Ar / mois</small></div>
+                            <ul class="public-feature-list">
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Accès à toutes les offres</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Recherche et filtres basiques</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Profil candidat complet</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>3 alertes SMS par mois</li>
+                            </ul>
+                            <a href="{{ route('register') }}" class="btn btn-outline-primary w-100">Commencer gratuitement</a>
+                        </div>
+                    </div>
+
+                    <!-- Pro -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="public-price-card popular">
+                            <span class="public-price-badge">Le plus choisi</span>
+                            <span class="public-price-icon"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i></span>
+                            <h3 class="h5 fw-bold mb-1">Pro</h3>
+                            <p class="text-secondary small mb-3">Pour les candidats actifs</p>
+                            <div class="public-price">85 000<small>Ar / mois</small></div>
+                            <ul class="public-feature-list">
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Tout le plan Gratuit</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Matching avancé et score détaillé</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Alertes SMS illimitées</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Recommandations prioritaires</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Support prioritaire</li>
+                            </ul>
+                            <a href="{{ route('register') }}" class="btn btn-primary w-100">Choisir Pro</a>
+                        </div>
+                    </div>
+
+                    <!-- Entreprise -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="public-price-card">
+                            <span class="public-price-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+                            <h3 class="h5 fw-bold mb-1">Entreprise</h3>
+                            <p class="text-secondary small mb-3">Pour les recruteurs</p>
+                            <div class="public-price">450 000<small>Ar / mois</small></div>
+                            <ul class="public-feature-list">
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Publication d'offres illimitée</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Accès à la CVthèque</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Matching candidats avancé</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Analytics et rapports</li>
+                                <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Accompagnement dédié</li>
+                            </ul>
+                            <a href="{{ route('contact') }}" class="btn btn-outline-primary w-100">Contacter l'équipe</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3 mt-4 text-secondary small">
+                    <span><i class="bi bi-shield-check me-1 text-success" aria-hidden="true"></i>Paiement sécurisé</span>
+                    <span><i class="bi bi-arrow-repeat me-1 text-success" aria-hidden="true"></i>Sans engagement</span>
+                    <span><i class="bi bi-headset me-1 text-success" aria-hidden="true"></i>Support réactif</span>
                 </div>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container text-center">
-            <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.025em;">Tarifs simples et transparents</h1>
-            <p class="lead text-secondary mb-0 mx-auto" style="max-width: 600px;">Choisissez la formule adaptée à vos besoins. Sans engagement, résiliable à tout moment.</p>
-        </div>
-    </section>
-
-    <!-- Pricing Cards -->
-    <section class="py-5">
-        <div class="container">
-            <div class="row g-4 justify-content-center">
-                <!-- Gratuit -->
-                <div class="col-md-4">
-                    <div class="pricing-card">
-                        <h3 class="h5 fw-semibold mb-1">Gratuit</h3>
-                        <p class="text-secondary small mb-3">Pour découvrir la plateforme</p>
-                        <div class="price mb-3">0<span>Ar/mois</span></div>
-                        <ul class="feature-list mb-4">
-                            <li><i class="bi bi-check-circle"></i> Accès aux offres</li>
-                            <li><i class="bi bi-check-circle"></i> Recherche basique</li>
-                            <li><i class="bi bi-check-circle"></i> Profil candidat</li>
-                            <li><i class="bi bi-check-circle"></i> 3 alertes SMS/mois</li>
-                        </ul>
-                        <a href="{{ route('register') }}" class="btn btn-outline w-100">Commencer gratuitement</a>
-                    </div>
+        <!-- FAQ -->
+        <section class="public-section public-section-alt">
+            <div class="container">
+                <div class="public-section-heading text-center">
+                    <span class="public-eyebrow"><i class="bi bi-question-circle-fill" aria-hidden="true"></i>FAQ</span>
+                    <h2>Questions fréquentes</h2>
+                    <p>Tout ce qu'il faut savoir avant de choisir votre formule.</p>
                 </div>
 
-                <!-- Pro -->
-                <div class="col-md-4">
-                    <div class="pricing-card popular">
-                        <span class="popular-badge">Populaire</span>
-                        <h3 class="h5 fw-semibold mb-1">Pro</h3>
-                        <p class="text-secondary small mb-3">Pour les candidats actifs</p>
-                        <div class="price mb-3">85 000<span>Ar/mois</span></div>
-                        <ul class="feature-list mb-4">
-                            <li><i class="bi bi-check-circle"></i> Tout le plan Gratuit</li>
-                            <li><i class="bi bi-check-circle"></i> Matching avancé</li>
-                            <li><i class="bi bi-check-circle"></i> Alertes SMS illimitées</li>
-                            <li><i class="bi bi-check-circle"></i> Score de compatibilité</li>
-                            <li><i class="bi bi-check-circle"></i> Support prioritaire</li>
-                        </ul>
-                        <a href="{{ route('register') }}" class="btn btn-primary w-100">Choisir Pro</a>
-                    </div>
-                </div>
-
-                <!-- Entreprise -->
-                <div class="col-md-4">
-                    <div class="pricing-card">
-                        <h3 class="h5 fw-semibold mb-1">Entreprise</h3>
-                        <p class="text-secondary small mb-3">Pour les recruteurs</p>
-                        <div class="price mb-3">450 000<span>Ar/mois</span></div>
-                        <ul class="feature-list mb-4">
-                            <li><i class="bi bi-check-circle"></i> Publication d'offres</li>
-                            <li><i class="bi bi-check-circle"></i> Accès à la CVthèque</li>
-                            <li><i class="bi bi-check-circle"></i> Matching candidats</li>
-                            <li><i class="bi bi-check-circle"></i> Analytics avancés</li>
-                            <li><i class="bi bi-check-circle"></i> Support dédié</li>
-                        </ul>
-                        <a href="{{ route('register') }}" class="btn btn-outline w-100">Contacter l'équipe</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="h3 fw-bold text-center mb-4">Questions fréquentes</h2>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="accordion" id="faqAccordion">
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                    Puis-je changer de formule à tout moment ?
-                                </button>
-                            </h3>
-                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Oui, vous pouvez passer à une formule supérieure ou inférieure à tout moment. Le changement est effectif immédiatement et nous ajustons la facturation au prorata.
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="accordion public-faq" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        Puis-je changer de formule à tout moment ?
+                                    </button>
+                                </h3>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Oui, vous pouvez passer à une formule supérieure ou inférieure à tout moment. Le changement est effectif immédiatement et nous ajustons la facturation au prorata.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                    Y a-t-il un engagement ?
-                                </button>
-                            </h3>
-                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Non, tous nos plans sont sans engagement. Vous pouvez résilier votre abonnement à tout moment depuis votre espace personnel.
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        Y a-t-il un engagement ?
+                                    </button>
+                                </h3>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Non, tous nos plans sont sans engagement. Vous pouvez résilier votre abonnement à tout moment depuis votre espace personnel.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                    Comment fonctionne le matching ?
-                                </button>
-                            </h3>
-                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Notre algorithme analyse votre profil (compétences, expérience, préférences) et le compare aux offres disponibles pour calculer un score de compatibilité en temps réel.
+                            <div class="accordion-item">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Comment fonctionne le matching ?
+                                    </button>
+                                </h3>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Notre algorithme analyse votre profil (compétences, expérience, préférences) et le compare aux offres disponibles pour calculer un score de compatibilité en temps réel.
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
-                    </div>
-                    <p class="small text-secondary">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Plateforme</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="#" class="small">Offres d'emploi</a></li>
-                        <li><a href="{{ route('pricing') }}" class="small">Formules & Tarifs</a></li>
-                        <li><a href="{{ route('how-it-works') }}" class="small">Fonctionnement</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Assistance & Légal</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('contact') }}" class="small">Contact</a></li>
-                        <li><a href="{{ route('terms') }}" class="small">Conditions</a></li>
-                        <li><a href="{{ route('privacy') }}" class="small">Confidentialité</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h4 class="h6 fw-medium mb-2">Statut</h4>
-                    <div class="d-flex align-items-center gap-1 text-success small fw-semibold">
-                        <i class="bi bi-check-circle"></i>
-                        Système opérationnel
-                    </div>
-                    <p class="small text-secondary mt-1 mb-0">Alertes SMS & Matching instantané actifs</p>
+        <section class="public-section pt-0">
+            <div class="container">
+                <div class="public-cta-band">
+                    <h2>Une question sur nos formules ?</h2>
+                    <p class="mb-4">Notre équipe vous aide à choisir le plan le plus adapté à votre projet.</p>
+                    <a href="{{ route('contact') }}" class="btn btn-light btn-lg fw-semibold">
+                        <i class="bi bi-envelope me-1" aria-hidden="true"></i>Nous contacter
+                    </a>
                 </div>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                <p class="small text-secondary mb-0 fw-semibold">&copy; 2026 Job2You. Tous droits réservés.</p>
-                <p class="small text-secondary mb-0 fw-semibold">Conçu pour le recrutement tech à haute précision.</p>
-            </div>
-        </div>
-    </footer>
+        </section>
+    </main>
+
+    @include('partials.public-footer')
 </body>
 </html>

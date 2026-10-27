@@ -346,232 +346,209 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <img src="{{ asset('logo.png') }}" alt="Job2You">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('offers.index') }}">Offres</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pricing') }}">Tarifs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('how-it-works') }}">Comment ça marche</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Mon espace</span>
+<body class="d-flex flex-column min-vh-100">
+    @include('partials.public-navbar')
+
+    <main class="flex-grow-1">
+        <!-- Hero -->
+        <section class="public-hero">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="public-eyebrow">
+                            <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
+                            Recrutement tech & métiers d'avenir
+                        </span>
+
+                        <h1 class="public-hero-title">
+                            Trouvez <span class="text-gradient">l'emploi</span> qui vous ressemble.
+                        </h1>
+
+                        <p class="public-hero-lead">
+                            Des offres sélectionnées pour votre profil, un score de compatibilité transparent et des alertes SMS dès qu'une opportunité vous correspond.
+                        </p>
+
+                        <div class="public-search-card">
+                            <form action="{{ route('offers.index') }}" method="GET">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-md-5">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-briefcase" aria-hidden="true"></i>
+                                            <input type="text" name="search" class="form-control" placeholder="Métier ou compétence" aria-label="Métier ou compétence">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="public-search-field">
+                                            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                                            <input type="text" name="location" class="form-control" placeholder="Ville ou télétravail" aria-label="Localisation">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-primary public-search-submit w-100">
+                                            <i class="bi bi-search me-1" aria-hidden="true"></i>Rechercher
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="public-quick-links">
+                                <span class="small fw-semibold text-secondary me-1">Populaires :</span>
+                                <a href="{{ route('offers.index', ['search' => 'Laravel']) }}">Laravel</a>
+                                <a href="{{ route('offers.index', ['search' => 'Vue.js']) }}">Vue.js</a>
+                                <a href="{{ route('offers.index', ['search' => 'AWS']) }}">Cloud AWS</a>
+                                <a href="{{ route('offers.index', ['location' => 'Télétravail']) }}">Full-remote</a>
+                            </div>
+                        </div>
+
+                        <div class="public-hero-stats">
+                            <div class="public-hero-stat">
+                                <strong>{{ $activeOffersCount }}</strong>
+                                <span>offres actives</span>
+                            </div>
+                            <div class="public-hero-stat">
+                                <strong>1 min</strong>
+                                <span>pour créer son profil</span>
+                            </div>
+                            <div class="public-hero-stat">
+                                <strong>SMS</strong>
+                                <span>alertes en temps réel</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="public-hero-preview">
+                            <div class="preview-kicker">
+                                <span><i class="bi bi-stars me-1" aria-hidden="true"></i>Votre matching</span>
+                                <span class="text-info">Temps réel</span>
+                            </div>
+
+                            <div class="preview-score">
+                                <span class="preview-score-ring">92%</span>
+                                <div>
+                                    <strong class="d-block text-white">Excellente correspondance</strong>
+                                    <small>Développeur Full Stack · Antananarivo</small>
+                                </div>
+                            </div>
+
+                            <div class="preview-offer">
+                                <span class="preview-offer-icon"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                                <div class="min-width-0">
+                                    <strong>Développeur Laravel Senior</strong>
+                                    <small>Fintech · CDI</small>
+                                </div>
+                                <span class="badge">96%</span>
+                            </div>
+
+                            <div class="preview-offer">
+                                <span class="preview-offer-icon"><i class="bi bi-code-slash" aria-hidden="true"></i></span>
+                                <div class="min-width-0">
+                                    <strong>Ingénieur Frontend Vue.js</strong>
+                                    <small>Éditeur SaaS · Remote</small>
+                                </div>
+                                <span class="badge">88%</span>
+                            </div>
+
+                            <div class="preview-offer">
+                                <span class="preview-offer-icon"><i class="bi bi-cloud" aria-hidden="true"></i></span>
+                                <div class="min-width-0">
+                                    <strong>DevOps & Cloud AWS</strong>
+                                    <small>E-commerce · Hybride</small>
+                                </div>
+                                <span class="badge">84%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Avantages -->
+        <section class="public-section">
+            <div class="container">
+                <div class="public-section-heading text-center">
+                    <span class="public-eyebrow"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>Pourquoi Job2You</span>
+                    <h2>Moins de candidatures, plus de bonnes rencontres.</h2>
+                    <p>Une plateforme pensée pour faire gagner du temps aux talents comme aux recruteurs.</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="public-feature-card">
+                            <div class="public-feature-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></div>
+                            <h3>Offres centralisées</h3>
+                            <p>Toutes les opportunités tech réunies au même endroit, avec des informations claires et à jour.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="public-feature-card">
+                            <div class="public-feature-icon"><i class="bi bi-bullseye" aria-hidden="true"></i></div>
+                            <h3>Matching intelligent</h3>
+                            <p>Un score de compatibilité concret, calculé à partir de vos compétences, de votre expérience et de vos préférences.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="public-feature-card">
+                            <div class="public-feature-icon"><i class="bi bi-chat-dots" aria-hidden="true"></i></div>
+                            <h3>Alertes SMS</h3>
+                            <p>Soyez prévenu immédiatement lorsqu'une offre fortement compatible est publiée. Plus besoin de veiller sur votre boîte mail.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Offres récentes -->
+        <section class="public-section public-section-alt">
+            <div class="container">
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+                    <div class="public-section-heading mb-0">
+                        <span class="public-eyebrow"><i class="bi bi-briefcase-fill" aria-hidden="true"></i>Offres récentes</span>
+                        <h2>Les dernières opportunités</h2>
+                        <p>Une sélection fraîchement publiée sur la plateforme.</p>
+                    </div>
+                    <a href="{{ route('offers.index') }}" class="btn btn-outline-primary">
+                        Voir toutes les offres
+                        <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                @if($recentOffers->count() > 0)
+                    <div class="row g-3">
+                        @foreach($recentOffers as $offer)
+                            @include('offers._card', ['offer' => $offer])
+                        @endforeach
+                    </div>
+                @else
+                    <div class="public-empty-state">
+                        <span class="public-empty-icon"><i class="bi bi-inbox" aria-hidden="true"></i></span>
+                        <h3 class="h5 fw-semibold">Aucune offre disponible</h3>
+                        <p class="text-secondary mb-0">Revenez bientôt pour découvrir de nouvelles opportunités.</p>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="public-section">
+            <div class="container">
+                <div class="public-cta-band">
+                    <span class="public-eyebrow"><i class="bi bi-rocket-takeoff-fill" aria-hidden="true"></i>Prêt à décoller ?</span>
+                    <h2>Votre prochain emploi commence ici.</h2>
+                    <p class="mb-4">Créez votre profil en quelques minutes et laissez le matching travailler pour vous.</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a href="{{ route('register') }}" class="btn btn-light btn-lg fw-semibold">
+                            <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Créer mon compte
                         </a>
-                    @else
-                        <a href="{{ route('login') }}" class="nav-link px-3">Connexion</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i>
-                            <span>Créer un compte</span>
+                        <a href="{{ route('offers.index') }}" class="btn btn-outline-light btn-lg">
+                            Explorer les offres
                         </a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-glow-1"></div>
-        <div class="hero-glow-2"></div>
-        <div class="container position-relative" style="z-index: 10;">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center">
-                    <div class="eyebrow mb-3">
-                        <i class="bi bi-patch-check"></i>
-                        <span>Recrutement Tech & Métiers d'Avenir</span>
-                    </div>
-                    <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.025em; line-height: 1.2;">Trouvez votre prochain emploi</h1>
-                    <p class="lead text-secondary mb-4">Des offres adaptées à votre profil, simplement.</p>
-
-                    <div class="search-bar mb-4">
-                        <form action="#" method="GET">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-md-5">
-                                    <div class="search-input-group">
-                                        <i class="bi bi-briefcase"></i>
-                                        <input type="text" class="form-control border-0 bg-transparent" placeholder="Métier ou compétence (ex: Développeur Laravel, DevOps...)">
-                                    </div>
-                                </div>
-                                <div class="col-md-1 d-none d-md-block">
-                                    <div class="search-divider mx-auto"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="search-input-group">
-                                        <i class="bi bi-geo-alt"></i>
-                                        <input type="text" class="form-control border-0 bg-transparent" placeholder="Localisation (ex: Abidjan, Télétravail, Paris...)">
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-search"></i>
-                                        <span>Rechercher</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="d-flex flex-wrap align-items-center gap-1 mt-2 px-1">
-                            <span class="fw-bold small text-secondary me-1">Populaires :</span>
-                            <a href="#">Laravel</a>
-                            <a href="#">Vue.js</a>
-                            <a href="#">Cloud AWS</a>
-                            <a href="#">Full-Remote</a>
-                        </div>
-                    </div>
-
-                    <div class="row g-4 mt-2">
-                        <div class="col-md-4">
-                            <div class="feature-card">
-                                <div class="feature-icon" style="background: #dbe1ff; color: var(--primary);">
-                                    <i class="bi bi-diagram-3"></i>
-                                </div>
-                                <h3 class="h5 fw-semibold">Offres centralisées</h3>
-                                <p class="text-secondary mb-0">Toutes les opportunités réunies au même endroit pour une visibilité exhaustive du marché tech.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card">
-                                <div class="feature-icon" style="background: var(--surface-container-high); color: var(--primary);">
-                                    <i class="bi bi-lightbulb"></i>
-                                </div>
-                                <h3 class="h5 fw-semibold">Matching intelligent</h3>
-                                <p class="text-secondary mb-0">Score de compatibilité précis calculé en temps réel sur la base concrète de votre stack et expérience.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card">
-                                <div class="feature-icon" style="background: var(--tertiary-fixed); color: var(--tertiary);">
-                                    <i class="bi bi-chat-dots"></i>
-                                </div>
-                                <h3 class="h5 fw-semibold">Alertes SMS</h3>
-                                <p class="text-secondary mb-0">Soyez notifié immédiatement dès qu'une offre hautement compatible paraît, sans vérifier vos courriels.</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Section offres récentes -->
-    <section class="py-5">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <span class="badge mb-2">
-                        <span class="dot"></span>
-                        Offres récentes
-                    </span>
-                    <h2 class="h3 fw-bold mb-0" style="letter-spacing: -0.02em;">Les dernières opportunités</h2>
-                </div>
-                <a href="{{ route('offers.index') }}" class="offer-link">
-                    Voir toutes les offres
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-
-            @if($recentOffers->count() > 0)
-                <div class="row g-3">
-                    @foreach($recentOffers as $offer)
-                        <div class="col-md-4">
-                            <div class="offer-card">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <img src="{{ asset('images/placeholder-company.svg') }}" alt="{{ $offer->company }}" class="offer-logo">
-                                    <div>
-                                        <h3 class="h6 fw-semibold mb-0">{{ $offer->title }}</h3>
-                                        <p class="small text-secondary mb-0">{{ $offer->company }} — {{ $offer->location }}</p>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="offer-badge">{{ $offer->contract_type }}</span>
-                                </div>
-                                @if($offer->offerSkills->count() > 0)
-                                    <div class="d-flex flex-wrap gap-1 mb-2">
-                                        @foreach($offer->offerSkills->take(3) as $offerSkill)
-                                            <span class="skill-badge">{{ $offerSkill->skill->name }}</span>
-                                        @endforeach
-                                    </div>
-                                @endif
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="text-secondary small">
-                                        <i class="bi bi-calendar"></i>
-                                        {{ $offer->published_at->diffForHumans() }}
-                                    </span>
-                                    <a href="{{ route('offers.show', $offer) }}" class="offer-link">Voir l'offre</a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="text-center py-5">
-                    <i class="bi bi-inbox display-1 text-secondary"></i>
-                    <h3 class="h5 fw-semibold mt-3">Aucune offre disponible</h3>
-                    <p class="text-secondary">Revenez bientôt pour découvrir de nouvelles opportunités.</p>
-                </div>
-            @endif
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
-                    </div>
-                    <p class="small text-secondary">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Plateforme</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('offers.index') }}" class="small">Offres d'emploi</a></li>
-                        <li><a href="{{ route('pricing') }}" class="small">Formules & Tarifs</a></li>
-                        <li><a href="{{ route('how-it-works') }}" class="small">Fonctionnement</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Assistance & Légal</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('contact') }}" class="small">Contact</a></li>
-                        <li><a href="{{ route('terms') }}" class="small">Conditions</a></li>
-                        <li><a href="{{ route('privacy') }}" class="small">Confidentialité</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h4 class="h6 fw-medium mb-2">Statut</h4>
-                    <div class="status">
-                        <i class="bi bi-check-circle"></i>
-                        Système opérationnel
-                    </div>
-                    <p class="small text-secondary mt-1 mb-0">Alertes SMS & Matching instantané actifs</p>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                <p class="small text-secondary mb-0 fw-semibold">&copy; 2026 Job2You. Tous droits réservés.</p>
-                <p class="small text-secondary mb-0 fw-semibold">Conçu pour le recrutement tech à haute précision.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public-footer')
 </body>
 </html>

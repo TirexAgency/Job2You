@@ -1,44 +1,90 @@
 <x-app-layout>
-    <div class="container py-4" style="max-width: 1100px;">
-        <h1 class="h3 fw-bold mb-4">Mes alertes SMS</h1>
-
-        @if (session('status') === 'alerts-updated')
-            <div class="alert alert-success">Vos alertes ont été mises à jour.</div>
-        @elseif (session('status') === 'sms-deleted')
-            <div class="alert alert-success">Notification supprimée.</div>
-        @endif
-
-        <div class="bg-white border rounded-3 p-4 mb-4 d-flex justify-content-between align-items-center">
+    <div class="app-container">
+        <header class="app-page-header">
             <div>
-                <h2 class="h6 fw-bold mb-1">Alertes SMS</h2>
-                <p class="small text-secondary mb-0">Recevez un SMS dès qu'une offre fortement compatible apparaît.</p>
+                <p class="app-eyebrow">Espace candidat</p>
+                <h1 class="h2 fw-bold mb-1">Mes alertes SMS</h1>
+                <p class="text-secondary mb-0">Soyez prévenu dès qu’une offre fortement compatible est publiée.</p>
             </div>
-            <form method="POST" action="{{ route('candidate.sms.alerts') }}">
-                @csrf
-                <input type="hidden" name="alerts_enabled" value="{{ $alertsEnabled ? 0 : 1 }}">
-                <button class="btn {{ $alertsEnabled ? 'btn-outline-danger' : 'btn-primary' }}">
-                    {{ $alertsEnabled ? 'Désactiver les alertes' : 'Activer les alertes' }}
-                </button>
-            </form>
-        </div>
+            <span class="badge {{ $alertsEnabled ? 'text-bg-success' : 'text-bg-secondary' }} align-self-start align-self-md-center px-3 py-2">
+                <i class="bi {{ $alertsEnabled ? 'bi-bell-fill' : 'bi-bell-slash' }} me-1" aria-hidden="true"></i>
+                Alertes {{ $alertsEnabled ? 'activées' : 'désactivées' }}
+            </span>
+        </header>
 
-        @forelse ($logs as $log)
-            <div class="bg-white border rounded-3 p-4 mb-3 d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="fw-semibold">{{ $log->offer->title ?? 'Notification' }}</div>
-                    <div class="small text-secondary">{{ $log->sent_at?->format('d/m/Y H:i') ?? 'En attente' }}</div>
+        <section class="app-card mb-4">
+            <div class="app-card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="app-icon {{ $alertsEnabled ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}" aria-hidden="true">
+                        <i class="bi {{ $alertsEnabled ? 'bi-bell-fill' : 'bi-bell-slash' }}"></i>
+                    </span>
+                    <div>
+                        <h2 class="app-section-title mb-1">Alertes SMS</h2>
+                        <p class="small text-secondary mb-0">Recevez un SMS dès qu’une offre dépasse votre seuil de compatibilité.</p>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge {{ $log->status === 'sent' ? 'text-bg-success' : ($log->status === 'failed' ? 'text-bg-danger' : 'text-bg-warning') }}">{{ ucfirst($log->status) }}</span>
-                    <form method="POST" action="{{ route('candidate.sms.destroy', $log) }}">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-outline-danger">Supprimer</button>
-                    </form>
-                </div>
+
+                <form method="POST" action="{{ route('candidate.sms.alerts') }}" class="flex-shrink-0">
+                    @csrf
+                    <input type="hidden" name="alerts_enabled" value="0">
+                    <div class="form-check form-switch mb-0">
+                        <input type="checkbox" name="alerts_enabled" value="1" class="form-check-input" id="alerts_enabled" role="switch" @checked($alertsEnabled) onchange="this.form.submit()">
+                        <label class="form-check-label" for="alerts_enabled">
+                            {{ $alertsEnabled ? 'Désactiver les alertes' : 'Activer les alertes' }}
+                        </label>
+                    </div>
+                    <noscript>
+                        <button type="submit" class="btn btn-sm btn-primary mt-2">Enregistrer</button>
+                    </noscript>
+                </form>
             </div>
-        @empty
-            <div class="alert alert-info">Aucune alerte SMS envoyée.</div>
-        @endforelse
+        </section>
+
+        <section class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <h2 class="app-section-title">Historique des notifications</h2>
+                    <p class="small text-secondary mb-0">Retrouvez les SMS envoyés pour vos correspondances.</p>
+                </div>
+                <span class="badge bg-primary-subtle text-primary-emphasis">{{ $logs->count() }} notification(s)</span>
+            </div>
+
+            <div class="app-card-body p-0">
+                @forelse ($logs as $log)
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 px-4 py-3 {{ ! $loop->last ? 'border-bottom' : '' }}">
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="app-icon bg-primary-subtle text-primary" aria-hidden="true"><i class="bi bi-chat-dots"></i></span>
+                            <div>
+                                <div class="fw-semibold">{{ $log->offer->title ?? 'Notification' }}</div>
+                                <div class="small text-secondary">
+                                    <i class="bi bi-clock me-1" aria-hidden="true"></i>{{ $log->sent_at?->format('d/m/Y H:i') ?? 'En attente d’envoi' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 ms-md-3">
+                            <span class="badge {{ $log->status === 'sent' ? 'text-bg-success' : ($log->status === 'failed' ? 'text-bg-danger' : 'text-bg-warning') }}">
+                                {{ ucfirst($log->status) }}
+                            </span>
+                            <form method="POST" action="{{ route('candidate.sms.destroy', $log) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger" title="Supprimer" aria-label="Supprimer la notification">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @empty
+                    <div class="app-empty-state">
+                        <span class="app-empty-icon" aria-hidden="true"><i class="bi bi-chat-dots"></i></span>
+                        <h3 class="h5 fw-bold mb-2">Aucune alerte SMS envoyée</h3>
+                        <p class="text-secondary mb-3">Dès qu’une offre correspondra à votre profil, vous recevrez une notification ici.</p>
+                        @unless ($alertsEnabled)
+                            <p class="small text-warning-emphasis mb-0"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>Activez les alertes pour être prévenu.</p>
+                        @endunless
+                    </div>
+                @endforelse
+            </div>
+        </section>
     </div>
 </x-app-layout>

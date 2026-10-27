@@ -140,51 +140,14 @@
         }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <img src="{{ asset('logo.png') }}" alt="Job2You">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Offres</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pricing') }}">Tarifs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('how-it-works') }}">Comment ça marche</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Mon espace</span>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="nav-link px-3">Connexion</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i>
-                            <span>Créer un compte</span>
-                        </a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+    @include('partials.public-navbar')
+
+    <main class="flex-grow-1">
 
     <!-- Hero -->
-    <section class="hero">
+    <section class="public-hero">
         <div class="container text-center">
             <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.025em;">Contactez-nous</h1>
             <p class="lead text-secondary mb-0 mx-auto" style="max-width: 600px;">Une question, une suggestion ou un partenariat ? Nous sommes à votre écoute.</p>
@@ -268,45 +231,8 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
-                    </div>
-                    <p class="small text-secondary">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Plateforme</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="#" class="small">Offres d'emploi</a></li>
-                        <li><a href="{{ route('pricing') }}" class="small">Formules & Tarifs</a></li>
-                        <li><a href="{{ route('how-it-works') }}" class="small">Fonctionnement</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Assistance & Légal</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('contact') }}" class="small">Contact</a></li>
-                        <li><a href="{{ route('terms') }}" class="small">Conditions</a></li>
-                        <li><a href="{{ route('privacy') }}" class="small">Confidentialité</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h4 class="h6 fw-medium mb-2">Statut</h4>
-                    <div class="d-flex align-items-center gap-1 text-success small fw-semibold">
-                        <i class="bi bi-check-circle"></i>
-                        Système opérationnel
-                    </div>
-                    <p class="small text-secondary mt-1 mb-0">Alertes SMS & Matching instantané actifs</p>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                <p class="small text-secondary mb-0 fw-semibold">&copy; 2026 Job2You. Tous droits réservés.</p>
-                <p class="small text-secondary mb-0 fw-semibold">Conçu pour le recrutement tech à haute précision.</p>
-            </div>
-        </div>
-    </footer>
+    </main>
+
+    @include('partials.public-footer')
 </body>
 </html>

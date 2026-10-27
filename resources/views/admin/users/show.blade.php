@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="container-fluid px-3 px-lg-5 py-4">
+    <div class="app-container">
         <div class="mx-auto" style="max-width: 800px;">
-            <header class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <header class="app-page-header">
                 <div>
-                    <p class="text-uppercase small fw-semibold text-primary mb-1">Administration</p>
+                    <p class="app-eyebrow">Administration</p>
                     <h1 class="h2 fw-bold mb-1">{{ $user->name }}</h1>
                     <p class="text-secondary mb-0">Détails du compte utilisateur.</p>
                 </div>

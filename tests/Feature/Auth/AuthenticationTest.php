@@ -70,7 +70,9 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ])->assertRedirect(route('admin.dashboard'));
 
-        $this->get(route('admin.dashboard'))->assertSee('Tableau de bord Administration');
+        $this->get(route('admin.dashboard'))
+            ->assertSee('Administration')
+            ->assertSee('Tableau de bord');
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

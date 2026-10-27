@@ -12,8 +12,7 @@
         @if(Auth::user() && Auth::user()->role === 'candidate')
             <div class="nav nav-pills flex-column gap-1">
                 <a href="{{ route('candidate.dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.dashboard') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span><span>Dashboard</span></a>
-                <a href="{{ route('candidate.profile.edit', ['#' => 't-info']) }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.profile.edit') && !request()->query('tab') ? '' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-person"></i></span><span>Mon profil</span></a>
-                <a href="{{ route('candidate.profile.edit', ['tab' => 'skills']) }}" class="nav-link dashboard-nav-link"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-tools"></i></span><span>Mes compétences</span></a>
+                <a href="{{ route('candidate.profile.edit') }}#t-info" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.profile.edit') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-person"></i></span><span>Mon profil</span></a>
                 <a href="{{ route('candidate.recommendations') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.recommendations') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-stars"></i></span><span>Mes recommandations</span></a>
                 <a href="{{ route('candidate.cv') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.cv') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span><span>Mon CV</span></a>
                 <a href="{{ route('candidate.sms') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.sms') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-chat-dots"></i></span><span>Mes alertes SMS</span></a>
@@ -44,11 +43,11 @@
         <div class="sidebar-account mt-auto">
             <div class="d-flex align-items-center gap-2">
                 @if (Auth::user()->photo_path)
-                    <img src="{{ asset('storage/'.Auth::user()->photo_path) }}" alt="Photo de {{ Auth::user()->name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                    <img src="{{ asset('storage/'.Auth::user()->photo_path) }}" alt="Photo de {{ Auth::user()->name }}" class="avatar-initial rounded-circle" style="object-fit: cover;">
                 @else
-                    <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">{{ strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}</span>
+                    <span class="avatar-initial rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold">{{ strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}</span>
                 @endif
-                <div class="small fw-semibold text-truncate">{{ Auth::user()->name }}</div>
+                <div class="small fw-semibold text-white text-truncate">{{ Auth::user()->name }}</div>
             </div>
             <div class="small text-secondary">{{ ucfirst(Auth::user()->role ?? 'Utilisateur') }}</div>
             <form method="POST" action="{{ route('logout') }}" class="mt-3">

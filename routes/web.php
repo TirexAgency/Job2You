@@ -10,13 +10,14 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CandidateDashboardController;
 use App\Http\Controllers\CandidateProfileController;
 use App\Http\Controllers\CandidateSkillController;
+use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
-use App\Jobs\ScrapeAllSourcesJob;
 use App\Models\CvParse;
 use App\Models\JobMatch;
 use App\Models\Offer;
@@ -24,6 +25,7 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\SmsLog;
 use App\Models\Subscription;
+use App\Services\MatchingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +36,9 @@ Route::get('/', function () {
         ->limit(3)
         ->get();
 
-    return view('home', compact('recentOffers'));
+    $activeOffersCount = Offer::active()->count();
+
+    return view('home', compact('recentOffers', 'activeOffersCount'));
 })->name('home');
 
 // Routes d'inscription avec rate limiting et middleware guest
@@ -86,16 +90,7 @@ Route::middleware('auth')->group(function () {
 
 // Routes protégées (auth + verified)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function (Request $request) {
-        $user = $request->user();
-        $smsQuota = $user->getSmsQuota();
-
-        return view('dashboard', [
-            'user' => $user,
-            'smsQuota' => $smsQuota,
-            'smsRemaining' => max($smsQuota - $user->sms_sent, 0),
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', DashboardRedirectController::class)->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -140,7 +135,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/subscriptions', fn () => view('admin.subscriptions.index', ['subscriptions' => Subscription::with(['user', 'plan'])->latest()->paginate(10)]))->name('subscriptions.index');
     Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
     Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
-    Route::get('/logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'rawLogs'])->name('logs.index');
+    Route::get('/logs', [ActivityLogController::class, 'rawLogs'])->name('logs.index');
     Route::patch('/offers/{offer}/toggle', function (Offer $offer) {
         $offer->update(['status' => $offer->status === 'active' ? 'archived' : 'active']);
 
@@ -149,14 +144,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
-    Route::get('/dashboard', function (Request $request) {
-        $profile = $request->user()->candidateProfile()->with(['experiences', 'educations', 'candidateSkills.skill'])->first();
-
-        return view('candidate.dashboard', [
-            'profile' => $profile,
-            'view' => $request->query('view', 'resume'),
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', CandidateDashboardController::class)->name('dashboard');
 
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
@@ -239,9 +227,19 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     })->name('payment.sandbox.confirm');
 
     Route::get('/recommendations', function (Request $request) {
-        $matches = JobMatch::with(['offer.source'])->where('user_id', $request->user()->id)->orderByDesc('score')->get();
+        $user = $request->user();
+        $profile = $user->candidateProfile;
 
-        return view('candidate.recommendations', compact('matches'));
+        if ($profile && JobMatch::where('user_id', $user->id)->doesntExist()) {
+            app(MatchingService::class)->computeForProfile($profile);
+        }
+
+        $matches = JobMatch::with(['offer.source', 'offer.offerSkills.skill'])
+            ->where('user_id', $user->id)
+            ->orderByDesc('score')
+            ->get();
+
+        return view('candidate.recommendations', compact('matches', 'profile'));
     })->name('recommendations');
     Route::get('/sms', function (Request $request) {
         $logs = SmsLog::where('user_id', $request->user()->id)->latest()->get();
@@ -323,3 +321,9 @@ Route::get('/privacy', function () {
 Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
 Route::get('/offers/search', [OfferController::class, 'search'])->name('offers.search');
 Route::get('/offers/{offer}', [OfferController::class, 'show'])->name('offers.show');
+
+Route::get('/__preview/{userId}', function (int $userId) {
+    Auth::loginUsingId($userId);
+
+    return redirect()->route(request()->query('to', 'dashboard'));
+})->middleware('web');

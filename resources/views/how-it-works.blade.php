@@ -146,151 +146,167 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <img src="{{ asset('logo.png') }}" alt="Job2You">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Offres</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pricing') }}">Tarifs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('how-it-works') }}">Comment ça marche</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Mon espace</span>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="nav-link px-3">Connexion</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i>
-                            <span>Créer un compte</span>
-                        </a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="d-flex flex-column min-vh-100">
+    @include('partials.public-navbar')
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container text-center">
-            <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.025em;">Comment ça marche</h1>
-            <p class="lead text-secondary mb-0 mx-auto" style="max-width: 600px;">Job2You connecte les talents aux opportunités grâce à un matching intelligent et des alertes en temps réel.</p>
-        </div>
-    </section>
+    <main class="flex-grow-1">
+        <!-- Hero -->
+        <section class="public-hero">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="public-eyebrow"><i class="bi bi-compass-fill" aria-hidden="true"></i>Le parcours Job2You</span>
+                        <h1 class="public-hero-title">De votre profil à <span class="text-gradient">l'opportunité</span>.</h1>
+                        <p class="public-hero-lead">Trois étapes simples pour recevoir des offres réellement adaptées à votre parcours, sans perdre de temps.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Créer mon profil
+                            </a>
+                            <a href="{{ route('offers.index') }}" class="btn btn-outline-primary btn-lg">Voir les offres</a>
+                        </div>
+                    </div>
 
-    <!-- Steps -->
-    <section class="py-5">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="step-card">
-                        <div class="step-number">1</div>
-                        <div class="step-icon">
-                            <i class="bi bi-person-plus"></i>
+                    <div class="col-lg-6">
+                        <div class="public-hero-preview">
+                            <div class="preview-kicker">
+                                <span><i class="bi bi-activity me-1" aria-hidden="true"></i>Votre parcours</span>
+                                <span class="text-info">Automatisé</span>
+                            </div>
+
+                            <div class="preview-score">
+                                <span class="preview-score-ring"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+                                <div>
+                                    <strong class="d-block text-white">Profil complété à 100%</strong>
+                                    <small>Le matching peut maintenant travailler.</small>
+                                </div>
+                            </div>
+
+                            <div class="preview-offer">
+                                <span class="preview-offer-icon"><i class="bi bi-person-check" aria-hidden="true"></i></span>
+                                <div class="min-width-0">
+                                    <strong>1 · Créez votre profil</strong>
+                                    <small>Compétences, expérience, préférences</small>
+                                </div>
+                            </div>
+                            <div class="preview-offer">
+                                <span class="preview-offer-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                                <div class="min-width-0">
+                                    <strong>2 · Le matching analyse</strong>
+                                    <small>Score calculé en temps réel</small>
+                                </div>
+                            </div>
+                            <div class="preview-offer">
+                                <span class="preview-offer-icon"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
+                                <div class="min-width-0">
+                                    <strong>3 · Vous recevez vos alertes</strong>
+                                    <small>SMS dès qu'une offre correspond</small>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="h5 fw-semibold mb-2">Créez votre profil</h3>
-                        <p class="text-secondary mb-0">Inscrivez-vous et complétez votre profil avec vos compétences, votre expérience et vos préférences.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="step-card">
-                        <div class="step-number">2</div>
-                        <div class="step-icon">
-                            <i class="bi bi-cpu"></i>
-                        </div>
-                        <h3 class="h5 fw-semibold mb-2">Matching intelligent</h3>
-                        <p class="text-secondary mb-0">Notre algorithme analyse votre profil et le compare aux offres pour trouver les meilleures correspondances.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="step-card">
-                        <div class="step-number">3</div>
-                        <div class="step-icon">
-                            <i class="bi bi-bell"></i>
-                        </div>
-                        <h3 class="h5 fw-semibold mb-2">Recevez des alertes</h3>
-                        <p class="text-secondary mb-0">Soyez notifié par SMS dès qu'une offre compatible est publiée. Ne manquez plus jamais une opportunité.</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA -->
-    <section class="py-5">
-        <div class="container text-center">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <h2 class="h3 fw-bold mb-3">Prêt à trouver votre prochain emploi ?</h2>
-                    <p class="text-secondary mb-4">Rejoignez Job2You et laissez notre algorithme travailler pour vous.</p>
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-rocket-takeoff"></i>
-                        <span>Commencer maintenant</span>
+        <!-- Étapes -->
+        <section class="public-section">
+            <div class="container">
+                <div class="public-section-heading text-center">
+                    <span class="public-eyebrow"><i class="bi bi-signpost-split-fill" aria-hidden="true"></i>Simple par design</span>
+                    <h2>Comment ça marche</h2>
+                    <p>Un parcours fluide, de l'inscription à votre prochaine opportunité.</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="public-step-card">
+                            <span class="public-step-number">01</span>
+                            <div class="public-step-icon"><i class="bi bi-person-plus" aria-hidden="true"></i></div>
+                            <h3 class="h5 fw-bold mb-2">Créez votre profil</h3>
+                            <p class="text-secondary mb-0">Inscrivez-vous et complétez vos compétences, votre expérience et vos préférences professionnelles.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="public-step-card">
+                            <span class="public-step-number">02</span>
+                            <div class="public-step-icon"><i class="bi bi-cpu" aria-hidden="true"></i></div>
+                            <h3 class="h5 fw-bold mb-2">Le matching analyse</h3>
+                            <p class="text-secondary mb-0">Notre algorithme compare votre profil aux offres disponibles et calcule un score de compatibilité transparent.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="public-step-card">
+                            <span class="public-step-number">03</span>
+                            <div class="public-step-icon"><i class="bi bi-bell" aria-hidden="true"></i></div>
+                            <h3 class="h5 fw-bold mb-2">Recevez vos alertes</h3>
+                            <p class="text-secondary mb-0">Soyez prévenu par SMS dès qu'une offre fortement compatible est publiée. Ne manquez plus une opportunité.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Avantages -->
+        <section class="public-section public-section-alt">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5">
+                        <div class="public-section-heading mb-0">
+                            <span class="public-eyebrow"><i class="bi bi-stars" aria-hidden="true"></i>Pensé pour vous</span>
+                            <h2>Votre temps mérite mieux que des candidatures à l'aveugle.</h2>
+                            <p>Job2You met la technologie au service de votre projet professionnel.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="public-feature-card">
+                                    <div class="public-feature-icon"><i class="bi bi-bullseye" aria-hidden="true"></i></div>
+                                    <h3>Score transparent</h3>
+                                    <p>Comprenez pourquoi une offre vous correspond grâce à un score détaillé.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="public-feature-card">
+                                    <div class="public-feature-icon"><i class="bi bi-lightning-charge" aria-hidden="true"></i></div>
+                                    <h3>Alertes instantanées</h3>
+                                    <p>Recevez les meilleures opportunités par SMS, sans actualiser votre boîte mail.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="public-feature-card">
+                                    <div class="public-feature-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></div>
+                                    <h3>Données maîtrisées</h3>
+                                    <p>Votre profil reste privé et vous contrôlez les informations partagées.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="public-feature-card">
+                                    <div class="public-feature-icon"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></div>
+                                    <h3>Recommandations utiles</h3>
+                                    <p>Des offres ciblées plutôt qu'une liste interminable à parcourir.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="public-section">
+            <div class="container">
+                <div class="public-cta-band">
+                    <h2>Prêt à trouver votre prochain emploi ?</h2>
+                    <p class="mb-4">Rejoignez Job2You et laissez notre algorithme travailler pour vous.</p>
+                    <a href="{{ route('register') }}" class="btn btn-light btn-lg fw-semibold">
+                        <i class="bi bi-rocket-takeoff me-1" aria-hidden="true"></i>Commencer maintenant
                     </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
-                    </div>
-                    <p class="small text-secondary">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Plateforme</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="#" class="small">Offres d'emploi</a></li>
-                        <li><a href="{{ route('pricing') }}" class="small">Formules & Tarifs</a></li>
-                        <li><a href="{{ route('how-it-works') }}" class="small">Fonctionnement</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Assistance & Légal</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('contact') }}" class="small">Contact</a></li>
-                        <li><a href="{{ route('terms') }}" class="small">Conditions</a></li>
-                        <li><a href="{{ route('privacy') }}" class="small">Confidentialité</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h4 class="h6 fw-medium mb-2">Statut</h4>
-                    <div class="d-flex align-items-center gap-1 text-success small fw-semibold">
-                        <i class="bi bi-check-circle"></i>
-                        Système opérationnel
-                    </div>
-                    <p class="small text-secondary mt-1 mb-0">Alertes SMS & Matching instantané actifs</p>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                <p class="small text-secondary mb-0 fw-semibold">&copy; 2026 Job2You. Tous droits réservés.</p>
-                <p class="small text-secondary mb-0 fw-semibold">Conçu pour le recrutement tech à haute précision.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public-footer')
 </body>
 </html>

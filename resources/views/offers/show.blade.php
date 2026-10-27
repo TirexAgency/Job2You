@@ -36,6 +36,10 @@
         }
 
         .navbar {
+            background: rgba(249, 249, 255, 0.9) !important;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+        }
 
         .navbar-toggler {
             border: none;
@@ -53,10 +57,6 @@
                 border-radius: 0.5rem;
                 margin-top: 0.5rem;
             }
-        }
-            background: rgba(249, 249, 255, 0.9) !important;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         }
 
         .navbar-brand img {
@@ -173,218 +173,235 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}">
-                <img src="{{ asset('logo.png') }}" alt="Job2You">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('offers.index') }}">Offres</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pricing') }}">Tarifs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('how-it-works') }}">Comment ça marche</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-2">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>Mon espace</span>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="nav-link px-3">Connexion</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">
-                            <i class="bi bi-person-plus"></i>
-                            <span>Créer un compte</span>
-                        </a>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="d-flex flex-column min-vh-100">
+    @include('partials.public-navbar')
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <a href="{{ route('offers.index') }}" class="text-decoration-none text-secondary mb-3 d-inline-flex align-items-center gap-1">
-                        <i class="bi bi-arrow-left"></i>
-                        <span>Retour aux offres</span>
-                    </a>
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <img src="{{ asset('images/placeholder-company.svg') }}" alt="{{ $offer->company }}" class="offer-logo">
-                        <div>
-                            <h1 class="h3 fw-bold mb-1">{{ $offer->title }}</h1>
-                            <p class="text-secondary mb-0">{{ $offer->company }}</p>
+    <main class="flex-grow-1">
+        <!-- En-tête de l'offre -->
+        <section class="public-hero pb-4">
+            <div class="container">
+                <a href="{{ route('offers.index') }}" class="d-inline-flex align-items-center gap-1 mb-3 text-decoration-none text-secondary">
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                    <span>Retour aux offres</span>
+                </a>
+
+                <div class="row align-items-end g-4">
+                    <div class="col-lg-8">
+                        <div class="d-flex align-items-start gap-3">
+                            <x-company-avatar :name="$offer->company" />
+
+                            <div class="min-width-0">
+                                <h1 class="public-hero-title fs-2 mb-2">{{ $offer->title }}</h1>
+                                <p class="mb-0 text-secondary">
+                                    <i class="bi bi-building me-1" aria-hidden="true"></i>{{ $offer->company }}
+                                    @if($offer->source)
+                                        <span class="mx-2">·</span>{{ $offer->source->name }}
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            @if($offer->contract_type)
+                                <span class="public-offer-type">{{ $offer->contract_type }}</span>
+                            @endif
+                            <span class="public-skill"><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ $offer->location ?: 'Localisation non précisée' }}</span>
+                            <span class="public-skill"><i class="bi bi-calendar me-1" aria-hidden="true"></i>Publié {{ $offer->published_at?->locale('fr')->diffForHumans() }}</span>
                         </div>
                     </div>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="offer-badge">{{ $offer->contract_type }}</span>
-                        <span class="offer-badge"><i class="bi bi-geo-alt"></i> {{ $offer->location }}</span>
-                        <span class="offer-badge"><i class="bi bi-calendar"></i> Publié {{ $offer->published_at->diffForHumans() }}</span>
+
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="{{ $offer->source_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Postuler
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Contenu -->
-    <section class="py-5">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="offer-card">
-                        <h2 class="h4 fw-bold mb-3">Description du poste</h2>
-                        <p class="text-secondary" style="line-height: 1.8;">{{ $offer->description }}</p>
+        <!-- Contenu -->
+        <section class="public-section pt-4">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="app-card">
+                            <div class="app-card-body">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="app-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                                        <h2 class="h4 fw-bold mb-0">Description du poste</h2>
+                                    </div>
+                                    @if(filled($offer->description))
+                                        <span class="badge rounded-pill bg-light text-secondary border">
+                                            <i class="bi bi-clock me-1" aria-hidden="true"></i>{{ $readingMinutes }} min de lecture
+                                        </span>
+                                    @endif
+                                </div>
 
-                        @if($offer->offerSkills->count() > 0)
-                            <h3 class="h5 fw-semibold mt-4 mb-3">Compétences requises</h3>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($offer->offerSkills as $offerSkill)
-                                    <span class="skill-badge {{ $offerSkill->required ? 'bg-danger text-white' : '' }}">
-                                        {{ $offerSkill->skill->name }}
-                                        @if($offerSkill->required)
-                                            <i class="bi bi-asterisk ms-1"></i>
-                                        @endif
+                                @if(filled($offer->description))
+                                    <div class="offer-description-preview">
+                                        <p class="offer-description-excerpt text-secondary">{{ $descriptionExcerpt }}</p>
+                                    </div>
+                                    <div class="d-flex flex-wrap align-items-center gap-3">
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#offerDescriptionModal">
+                                            <i class="bi bi-arrows-angle-expand me-1" aria-hidden="true"></i>Voir la description complète
+                                        </button>
+                                        <span class="small text-secondary">
+                                            <i class="bi bi-list-check me-1" aria-hidden="true"></i>{{ $descriptionWordCount }} mots
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="app-empty-state py-4">
+                                        <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                                        <p class="mb-2">La description détaillée n'est pas disponible pour cette offre.</p>
+                                        <a href="{{ $offer->source_url }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Consulter l'annonce originale
+                                        </a>
+                                    </div>
+                                @endif
+
+                                @if($offer->offerSkills->count() > 0)
+                                    <h3 class="h5 fw-bold mt-4 mb-3">Compétences requises</h3>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($offer->offerSkills as $offerSkill)
+                                            <span class="public-skill {{ $offerSkill->required ? 'border-primary text-primary' : '' }}">
+                                                {{ $offerSkill->skill->name }}
+                                                @if($offerSkill->required)
+                                                    <i class="bi bi-asterisk ms-1" aria-hidden="true"></i>
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                <div class="d-flex flex-wrap align-items-center gap-3 mt-4 pt-3 border-top">
+                                    <a href="{{ $offer->source_url }}" target="_blank" rel="noopener" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Postuler sur le site de l'entreprise
+                                    </a>
+                                    <span class="small text-secondary">
+                                        <i class="bi bi-shield-check me-1" aria-hidden="true"></i>Vous serez redirigé vers le site source.
                                     </span>
-                                @endforeach
+                                </div>
                             </div>
-                        @endif
+                        </div>
+                    </div>
 
-                        <div class="mt-4 pt-3 border-top">
-                            <a href="{{ $offer->source_url }}" target="_blank" class="btn btn-primary">
-                                <i class="bi bi-box-arrow-up-right"></i>
-                                <span>Postuler sur le site de l'entreprise</span>
+                    <div class="col-lg-4">
+                        <div class="app-card">
+                            <div class="app-card-header">
+                                <h3 class="app-section-title">Informations</h3>
+                            </div>
+                            <div class="app-card-body">
+                                <div class="d-flex flex-column gap-3">
+                                    <div class="d-flex gap-3">
+                                        <span class="app-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-building" aria-hidden="true"></i></span>
+                                        <div>
+                                            <small class="text-secondary d-block">Entreprise</small>
+                                            <span class="fw-semibold">{{ $offer->company }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-3">
+                                        <span class="app-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-geo-alt" aria-hidden="true"></i></span>
+                                        <div>
+                                            <small class="text-secondary d-block">Localisation</small>
+                                            <span class="fw-semibold">{{ $offer->location ?: 'Non précisée' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-3">
+                                        <span class="app-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-file-text" aria-hidden="true"></i></span>
+                                        <div>
+                                            <small class="text-secondary d-block">Type de contrat</small>
+                                            <span class="fw-semibold">{{ $offer->contract_type ?: 'Non précisé' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-3">
+                                        <span class="app-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-calendar" aria-hidden="true"></i></span>
+                                        <div>
+                                            <small class="text-secondary d-block">Publié le</small>
+                                            <span class="fw-semibold">{{ $offer->published_at?->format('d/m/Y') }}</span>
+                                        </div>
+                                    </div>
+                                    @if($offer->source)
+                                        <div class="d-flex gap-3">
+                                            <span class="app-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-globe" aria-hidden="true"></i></span>
+                                            <div>
+                                                <small class="text-secondary d-block">Source</small>
+                                                <span class="fw-semibold">{{ $offer->source->name }}</span>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offres similaires -->
+                @if($similarOffers->count() > 0)
+                    <div class="mt-5">
+                        <div class="public-section-heading">
+                            <span class="public-eyebrow"><i class="bi bi-stars" aria-hidden="true"></i>À découvrir aussi</span>
+                            <h2>Offres similaires</h2>
+                        </div>
+                        <div class="row g-3">
+                            @foreach($similarOffers as $similarOffer)
+                                @include('offers._card', ['offer' => $similarOffer])
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        @if(filled($offer->description))
+            <div class="modal fade offer-description-modal" id="offerDescriptionModal" tabindex="-1" aria-labelledby="offerDescriptionModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header align-items-start gap-3">
+                            <x-company-avatar :name="$offer->company" />
+
+                            <div class="flex-grow-1 min-width-0">
+                                <span class="public-eyebrow mb-1"><i class="bi bi-file-earmark-text" aria-hidden="true"></i>Description du poste</span>
+                                <h2 class="modal-title h5 mb-1" id="offerDescriptionModalLabel">{{ $offer->title }}</h2>
+                                <div class="d-flex flex-wrap gap-2 small text-secondary">
+                                    <span><i class="bi bi-building me-1" aria-hidden="true"></i>{{ $offer->company }}</span>
+                                    <span><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ $offer->location ?: 'Non précisée' }}</span>
+                                    @if($offer->contract_type)
+                                        <span><i class="bi bi-file-text me-1" aria-hidden="true"></i>{{ $offer->contract_type }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="offer-description-modal-meta">
+                                <span><i class="bi bi-clock" aria-hidden="true"></i>{{ $readingMinutes }} min de lecture</span>
+                                <span><i class="bi bi-list-check" aria-hidden="true"></i>{{ $descriptionWordCount }} mots</span>
+                                @if($offer->source)
+                                    <span><i class="bi bi-globe" aria-hidden="true"></i>{{ $offer->source->name }}</span>
+                                @endif
+                            </div>
+
+                            @include('offers._description', ['description' => $offer->description])
+                        </div>
+
+                        <div class="modal-footer">
+                            <span class="small text-secondary me-auto d-none d-sm-inline">
+                                <i class="bi bi-shield-check me-1" aria-hidden="true"></i>Vous serez redirigé vers le site source.
+                            </span>
+                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Fermer</button>
+                            <a href="{{ $offer->source_url }}" target="_blank" rel="noopener" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-up-right me-1" aria-hidden="true"></i>Postuler
                             </a>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="offer-card">
-                        <h3 class="h5 fw-semibold mb-3">Informations</h3>
-                        <div class="info-item">
-                            <i class="bi bi-building"></i>
-                            <div>
-                                <small class="text-secondary">Entreprise</small>
-                                <p class="mb-0 fw-medium">{{ $offer->company }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="bi bi-geo-alt"></i>
-                            <div>
-                                <small class="text-secondary">Localisation</small>
-                                <p class="mb-0 fw-medium">{{ $offer->location }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="bi bi-file-text"></i>
-                            <div>
-                                <small class="text-secondary">Type de contrat</small>
-                                <p class="mb-0 fw-medium">{{ $offer->contract_type }}</p>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="bi bi-calendar"></i>
-                            <div>
-                                <small class="text-secondary">Publié le</small>
-                                <p class="mb-0 fw-medium">{{ $offer->published_at->format('d/m/Y') }}</p>
-                            </div>
-                        </div>
-                        @if($offer->source)
-                            <div class="info-item">
-                                <i class="bi bi-globe"></i>
-                                <div>
-                                    <small class="text-secondary">Source</small>
-                                    <p class="mb-0 fw-medium">{{ $offer->source->name }}</p>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
             </div>
+        @endif
+    </main>
 
-            <!-- Offres similaires -->
-            @if($similarOffers->count() > 0)
-                <div class="mt-5">
-                    <h2 class="h4 fw-bold mb-4">Offres similaires</h2>
-                    <div class="row g-3">
-                        @foreach($similarOffers as $similarOffer)
-                            <div class="col-md-4">
-                                <div class="similar-offer-card">
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <img src="{{ asset('images/placeholder-company.svg') }}" alt="{{ $similarOffer->company }}" style="width: 2rem; height: 2rem; border-radius: 0.5rem; object-fit: cover;">
-                                        <div>
-                                            <h3 class="h6 fw-semibold mb-0">{{ $similarOffer->title }}</h3>
-                                            <p class="small text-secondary mb-0">{{ $similarOffer->company }} — {{ $similarOffer->location }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="offer-badge">{{ $similarOffer->contract_type }}</span>
-                                    </div>
-                                    <a href="{{ route('offers.show', $similarOffer) }}" class="offer-link">Voir l'offre</a>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer mt-5">
-        <div class="container py-4">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <img src="{{ asset('logo.png') }}" alt="Job2You" style="height: 2.5rem; width: 10rem; object-fit: cover; object-position: center 46%;">
-                    </div>
-                    <p class="small text-secondary">Plateforme intelligente de matching et recrutement automatisé pour les talents et entreprises de la tech.</p>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Plateforme</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('offers.index') }}" class="small">Offres d'emploi</a></li>
-                        <li><a href="{{ route('pricing') }}" class="small">Formules & Tarifs</a></li>
-                        <li><a href="{{ route('how-it-works') }}" class="small">Fonctionnement</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-2">
-                    <h4 class="h6 fw-medium mb-2">Assistance & Légal</h4>
-                    <ul class="list-unstyled d-flex flex-column gap-1">
-                        <li><a href="{{ route('contact') }}" class="small">Contact</a></li>
-                        <li><a href="{{ route('terms') }}" class="small">Conditions</a></li>
-                        <li><a href="{{ route('privacy') }}" class="small">Confidentialité</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h4 class="h6 fw-medium mb-2">Statut</h4>
-                    <div class="d-flex align-items-center gap-1 text-success small fw-semibold">
-                        <i class="bi bi-check-circle"></i>
-                        Système opérationnel
-                    </div>
-                    <p class="small text-secondary mt-1 mb-0">Alertes SMS & Matching instantané actifs</p>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                <p class="small text-secondary mb-0 fw-semibold">&copy; 2026 Job2You. Tous droits réservés.</p>
-                <p class="small text-secondary mb-0 fw-semibold">Conçu pour le recrutement tech à haute précision.</p>
-            </div>
-        </div>
-    </footer>
+    @include('partials.public-footer')
 </body>
 </html>

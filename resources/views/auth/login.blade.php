@@ -14,7 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; overflow-x: hidden; }
@@ -26,7 +27,6 @@
             width: 100%;
         }
 
-        /* ===== SECTION GAUCHE : ILLUSTRATION ===== */
         .auth-visual {
             flex: 1;
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
@@ -154,7 +154,6 @@
         .visual-feature i { font-size: 1.25rem; flex-shrink: 0; }
         .visual-feature span { font-size: 0.9rem; color: rgba(255, 255, 255, 0.95); font-weight: 500; }
 
-        /* ===== SECTION DROITE : FORMULAIRE ===== */
         .auth-form-side {
             flex: 1;
             background: #ffffff;
@@ -337,28 +336,92 @@
             .form-avatar { width: 80px; height: 80px; }
             .auth-form-side { padding: 2rem 1.25rem; }
         }
+
+        /* Bootstrap form overrides */
+        .form-control,
+        .form-select {
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+        }
+
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #ef4444;
+        }
+
+        .form-control.is-invalid:focus,
+        .form-select.is-invalid:focus {
+            box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.15);
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #ef4444;
+        }
+
+        .form-text { margin-top: 0.25rem; font-size: 0.8rem; color: #6c757d; }
+
+        .form-label { font-weight: 500; margin-bottom: 0.375rem; color: #1e293b; }
+
+        .form-check-input:checked { background-color: #2563eb; border-color: #2563eb; }
+
+        .btn { font-weight: 600; letter-spacing: 0.025em; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border: none;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-outline-primary {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #2563eb;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="auth-fullscreen">
-        
+
         <!-- ===== SECTION GAUCHE : ILLUSTRATION ===== -->
         <div class="auth-visual">
             <div class="shape-circle c1"></div>
             <div class="shape-circle c2"></div>
             <div class="shape-circle c3"></div>
             <div class="shape-circle c4"></div>
-            
+
             <div class="visual-content">
                 <svg class="visual-illustration" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M50 200 Q 100 100 200 120 T 350 200 Q 320 320 200 340 T 50 200 Z" fill="rgba(255,255,255,0.08)"/>
                     <path d="M80 250 Q 120 180 200 190 T 320 260 Q 280 340 200 350 T 80 250 Z" fill="rgba(255,255,255,0.06)"/>
-                    
+
                     <rect x="140" y="80" width="120" height="220" rx="18" fill="#1e40af" stroke="#ffffff" stroke-width="3"/>
                     <rect x="148" y="88" width="104" height="204" rx="12" fill="#2563eb"/>
                     <rect x="180" y="94" width="40" height="4" rx="2" fill="#ffffff" opacity="0.6"/>
                     <rect x="155" y="105" width="90" height="170" rx="6" fill="rgba(255,255,255,0.15)"/>
-                    
+
                     <circle cx="200" cy="170" r="16" fill="#fbbf9e"/>
                     <path d="M184 168 Q 200 152 216 168 Q 216 158 200 156 Q 184 158 184 168 Z" fill="#3d2c1e"/>
                     <rect x="184" y="188" width="32" height="40" rx="4" fill="#ffffff"/>
@@ -371,12 +434,12 @@
                     <ellipse cx="209" cy="258" rx="7" ry="4" fill="#1f2937"/>
                     <path d="M148 88 L 180 88 L 148 180 Z" fill="rgba(255,255,255,0.08)"/>
                 </svg>
-                
+
                 <h2 class="visual-title">Bienvenue sur Job2You</h2>
                 <p class="visual-subtitle">
                     La plateforme qui connecte talents et opportunités à Madagascar
                 </p>
-                
+
                 <div class="visual-features">
                     <div class="visual-feature">
                         <i class="bi bi-check-circle-fill"></i>
@@ -397,30 +460,30 @@
         <!-- ===== SECTION DROITE : FORMULAIRE ===== -->
         <div class="auth-form-side">
             <div class="form-container">
-                
+
                 <div class="form-avatar">
                     <img src="{{ asset('logo.png') }}" alt="Job2You">
                 </div>
-                
+
                 <h1 class="form-title">CONNEXION</h1>
                 <p class="form-subtitle">Accédez à votre espace Job2You</p>
 
                 @if (session('success'))
-                    <div class="alert-custom success">
+                    <div class="alert alert-success alert-custom">
                         <i class="bi bi-check-circle-fill"></i>
                         <span>{{ session('success') }}</span>
                     </div>
                 @endif
 
                 @if (session('status'))
-                    <div class="alert-custom success">
+                    <div class="alert alert-success alert-custom">
                         <i class="bi bi-info-circle-fill"></i>
                         <span>{{ session('status') }}</span>
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert-custom danger">
+                    <div class="alert alert-danger alert-custom">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                         <div>
                             @foreach ($errors->all() as $error)
@@ -430,57 +493,21 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-
-                    <div class="field-group">
-                        <label for="identifier" class="field-label">
-                            <i class="bi bi-person-fill"></i>
-                            <span>Email ou téléphone</span>
-                        </label>
-                        <input type="text"
-                               class="field-input @error('email') is-invalid @enderror"
-                               id="identifier" name="email" value="{{ old('email') }}"
-                               placeholder="nom@exemple.com ou +261 34 00 000 00"
-                               required autofocus autocomplete="username">
-                        @error('email')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="field-group">
-                        <label for="password" class="field-label">
-                            <i class="bi bi-lock-fill"></i>
-                            <span>Mot de passe</span>
-                        </label>
-                        <div class="password-wrapper">
-                            <input type="password"
-                                   class="field-input @error('password') is-invalid @enderror"
-                                   id="password" name="password"
-                                   placeholder="••••••••"
-                                   required autocomplete="current-password">
-                            <button type="button" class="password-toggle" id="togglePassword" aria-label="Afficher le mot de passe">
-                                <i class="bi bi-eye-slash" id="passwordIcon"></i>
-                            </button>
-                        </div>
-                        @error('password')
-                            <div class="field-error">{{ $message }}</div>
-                        @enderror
-                    </div>
+                <x-forms.form action="{{ route('login') }}" class="needs-validation" novalidate>
+                    <x-forms.field name="email" label="Email ou téléphone" type="text" placeholder="nom@exemple.com ou +261 34 00 000 00" required autofocus autocomplete="username" :error="$errors->first('email')" />
+                    <x-forms.field name="password" label="Mot de passe" type="password" placeholder="••••••••" required autocomplete="current-password" :error="$errors->first('password')" help="Min. 8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial" />
 
                     <a href="{{ route('password.request') }}" class="forgot-link">
                         Mot de passe oublié ?
                     </a>
 
-                    <label class="checkbox-custom">
-                        <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
-                        <span>Se souvenir de moi</span>
-                    </label>
+                    <div class="form-check mb-4">
+                        <input type="checkbox" class="form-check-input" name="remember" value="1" id="remember" @checked(old('remember'))>
+                        <label class="form-check-label" for="remember">Se souvenir de moi</label>
+                    </div>
 
-                    <button type="submit" class="btn-primary-full">
-                        Se connecter
-                    </button>
-                </form>
+                    <x-forms.button label="Se connecter" variant="primary" size="lg" block />
+                </x-forms.form>
 
                 <div class="switch-auth">
                     Pas encore de compte ?
