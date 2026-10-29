@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Scraping;
 
+use App\Jobs\ScrapeAllSourcesJob;
 use App\Models\Offer;
 use App\Models\Source;
 use App\Services\Scraping\ScrapingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class ScrapingCommandsTest extends TestCase
@@ -60,6 +62,17 @@ XML;
             'source_id' => $source->id,
             'title' => 'Développeur Laravel',
         ]);
+    }
+
+    public function test_scraping_run_all_dispatches_job_asynchronously(): void
+    {
+        Queue::fake();
+
+        $this->artisan('scraping:run', ['--all' => true])
+            ->expectsOutputToContain('Job de collecte globale dispatché')
+            ->assertExitCode(0);
+
+        Queue::assertPushedOn('scraping', ScrapeAllSourcesJob::class);
     }
 
     public function test_scraping_run_command_by_collector_key(): void
