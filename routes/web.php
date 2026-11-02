@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SourceController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -117,6 +118,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // CRUD Utilisateurs (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
+
+    // Paramètres de matching (pondérations et seuil d'alerte)
+    Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // CRUD Sources (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('sources', SourceController::class)->except(['create', 'show', 'edit']);

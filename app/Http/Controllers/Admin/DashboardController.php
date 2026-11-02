@@ -7,6 +7,7 @@ use App\Models\JobMatch;
 use App\Models\Offer;
 use App\Models\Payment;
 use App\Models\Plan;
+use App\Models\Setting;
 use App\Models\Source;
 use App\Models\Subscription;
 use App\Models\User;
@@ -38,7 +39,7 @@ class DashboardController extends Controller
             ],
             'matches' => [
                 'total' => JobMatch::count(),
-                'above_threshold' => JobMatch::where('score', '>=', config('settings.matching.alert_threshold', 0.7))->count(),
+                'above_threshold' => JobMatch::where('score', '>=', (float) Setting::get('matching.alert_threshold', 0.7))->count(),
                 'recent' => JobMatch::where('created_at', '>=', now()->subDay())->count(),
             ],
             'subscriptions' => [
