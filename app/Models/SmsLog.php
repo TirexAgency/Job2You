@@ -10,16 +10,33 @@ class SmsLog extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_SENT = 'sent';
+
+    public const STATUS_FAILED = 'failed';
+
     protected $fillable = [
         'user_id',
         'offer_id',
         'subscription_id',
+        'recipient',
+        'message',
+        'idempotency_key',
+        'quota_source',
         'status',
+        'provider',
         'provider_reference',
+        'provider_status',
+        'error_message',
+        'quota_consumed',
+        'attempts',
         'sent_at',
     ];
 
     protected $casts = [
+        'quota_consumed' => 'boolean',
+        'attempts' => 'integer',
         'sent_at' => 'datetime',
     ];
 

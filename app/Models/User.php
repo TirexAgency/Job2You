@@ -134,6 +134,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasFreeSmsRemaining(): bool
     {
-        return $this->sms_sent < $this->sms_quota;
+        return $this->getSmsRemaining() > 0;
     }
 }

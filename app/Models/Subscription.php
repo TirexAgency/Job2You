@@ -16,12 +16,14 @@ class Subscription extends Model
         'starts_at',
         'ends_at',
         'sms_remaining',
+        'sms_reset_at',
         'status',
     ];
 
     protected $casts = [
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'sms_reset_at' => 'datetime',
     ];
 
     /**

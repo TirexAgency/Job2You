@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'sms' => [
+        'url' => env('SMS_API_URL', 'https://sms.tirex-agency.site/api/v1/send-sms'),
+        'key' => env('SMS_API_KEY'),
+        'sender' => env('SMS_SENDER', 'Job2You'),
+        'timeout' => (int) env('SMS_API_TIMEOUT', 15),
+    ],
+
 ];

@@ -6,11 +6,28 @@
                 <h1 class="h2 fw-bold mb-1">Mes alertes SMS</h1>
                 <p class="text-secondary mb-0">Soyez prévenu dès qu’une offre fortement compatible est publiée.</p>
             </div>
-            <span class="badge {{ $alertsEnabled ? 'text-bg-success' : 'text-bg-secondary' }} align-self-start align-self-md-center px-3 py-2">
-                <i class="bi {{ $alertsEnabled ? 'bi-bell-fill' : 'bi-bell-slash' }} me-1" aria-hidden="true"></i>
-                Alertes {{ $alertsEnabled ? 'activées' : 'désactivées' }}
-            </span>
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 align-self-start align-self-md-center">
+                <span class="badge bg-primary-subtle text-primary-emphasis px-3 py-2">
+                    <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>
+                    {{ $smsRemaining }} / {{ $smsQuotaLimit }} SMS
+                </span>
+                <span class="badge {{ $alertsEnabled ? 'text-bg-success' : 'text-bg-secondary' }} px-3 py-2">
+                    <i class="bi {{ $alertsEnabled ? 'bi-bell-fill' : 'bi-bell-slash' }} me-1" aria-hidden="true"></i>
+                    Alertes {{ $alertsEnabled ? 'activées' : 'désactivées' }}
+                </span>
+            </div>
         </header>
+
+        @if ($smsRemaining <= 0)
+            <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill alert-icon mt-1" aria-hidden="true"></i>
+                <div>
+                    <strong>Quota SMS épuisé.</strong>
+                    Vous avez utilisé vos {{ $smsQuotaLimit }} SMS disponibles. Passez à une formule supérieure pour continuer à recevoir vos alertes.
+                    <a href="{{ route('candidate.subscription') }}" class="alert-link">Voir les formules</a>.
+                </div>
+            </div>
+        @endif
 
         <section class="app-card mb-4">
             <div class="app-card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
@@ -55,10 +72,20 @@
                         <div class="d-flex align-items-start gap-3">
                             <span class="app-icon bg-primary-subtle text-primary" aria-hidden="true"><i class="bi bi-chat-dots"></i></span>
                             <div>
-                                <div class="fw-semibold">{{ $log->offer->title ?? 'Notification' }}</div>
+                                <div class="fw-semibold">{{ $log->offer->title ?? \Illuminate\Support\Str::limit($log->message ?? 'Notification', 80) }}</div>
                                 <div class="small text-secondary">
                                     <i class="bi bi-clock me-1" aria-hidden="true"></i>{{ $log->sent_at?->format('d/m/Y H:i') ?? 'En attente d’envoi' }}
                                 </div>
+                                @if ($log->status === 'failed' && $log->error_message)
+                                    <div class="small text-danger mt-1">
+                                        <i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>{{ $log->error_message }}
+                                    </div>
+                                @endif
+                                @if ($log->recipient)
+                                    <div class="small text-secondary mt-1">
+                                        <i class="bi bi-phone me-1" aria-hidden="true"></i>{{ $log->recipient }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2 ms-md-3">

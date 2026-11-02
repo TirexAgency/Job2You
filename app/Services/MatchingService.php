@@ -6,7 +6,8 @@ use App\Models\CandidateProfile;
 use App\Models\JobMatch;
 use App\Models\Offer;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Log;
+use App\Services\Sms\SmsAlertService;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Service de calcul du score de correspondance entre un profil candidat et une offre.
@@ -23,6 +24,10 @@ use Illuminate\Support\Facades\Log;
  */
 class MatchingService
 {
+    public function __construct(
+        private readonly SmsAlertService $smsAlertService,
+    ) {}
+
     /**
      * Calcule le score de correspondance pour un couple profil/offre.
      *
@@ -74,9 +79,8 @@ class MatchingService
     public function computeForProfile(CandidateProfile $profile): int
     {
         $count = 0;
-        $threshold = $this->getAlertThreshold();
 
-        Offer::where('status', 'active')->each(function (Offer $offer) use ($profile, &$count, $threshold) {
+        Offer::where('status', 'active')->each(function (Offer $offer) use ($profile, &$count) {
             $result = $this->scoreFor($profile, $offer);
 
             JobMatch::updateOrCreate(
@@ -101,9 +105,8 @@ class MatchingService
     public function computeForOffer(Offer $offer): int
     {
         $count = 0;
-        $threshold = $this->getAlertThreshold();
 
-        CandidateProfile::with('skills', 'experiences')->each(function (CandidateProfile $profile) use ($offer, &$count, $threshold) {
+        CandidateProfile::with('skills', 'experiences', 'user')->each(function (CandidateProfile $profile) use ($offer, &$count) {
             $result = $this->scoreFor($profile, $offer);
 
             JobMatch::updateOrCreate(
@@ -113,6 +116,11 @@ class MatchingService
                     'details_json' => $result['details'],
                 ]
             );
+
+            if ($result['meets_threshold']) {
+                $this->smsAlertService->dispatchOfferAlert($profile, $offer, $result['score']);
+            }
+
             $count++;
         });
 
@@ -122,8 +130,8 @@ class MatchingService
     /**
      * Récupère les recommandations pour un candidat (matchings au-dessus du seuil).
      *
-     * @param int $limit Nombre max de recommandations
-     * @return \Illuminate\Database\Eloquent\Collection<\App\Models\JobMatch>
+     * @param  int  $limit  Nombre max de recommandations
+     * @return Collection<JobMatch>
      */
     public function getRecommendations(int $userId, int $limit = 10)
     {

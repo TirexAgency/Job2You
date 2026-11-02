@@ -25,7 +25,7 @@
                     <div class="row g-3 text-center text-md-start">
                         <div class="col-6">
                             <div class="small text-secondary">SMS restants</div>
-                            <div class="h5 fw-bold mb-0">{{ $subscription->sms_remaining }}</div>
+                            <div class="h5 fw-bold mb-0">{{ $smsRemaining }} / {{ $smsQuotaLimit }}</div>
                         </div>
                         <div class="col-6">
                             <div class="small text-secondary">Expire le</div>

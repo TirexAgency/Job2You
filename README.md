@@ -166,8 +166,10 @@ MAIL_FROM_NAME="${APP_NAME}"
 CRON_TOKEN=votre_token_64_caracteres_hex
 
 # SMS / Paiement / IA (optionnel)
-SMS_API_URL=
+SMS_API_URL=https://sms.tirex-agency.site/api/v1/send-sms
 SMS_API_KEY=
+SMS_SENDER=Job2You
+SMS_API_TIMEOUT=15
 FIVEONEPAY_API_URL=
 CV_PARSER_API_URL=
 ```

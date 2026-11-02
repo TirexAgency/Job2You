@@ -26,6 +26,7 @@ use App\Models\Plan;
 use App\Models\SmsLog;
 use App\Models\Subscription;
 use App\Services\MatchingService;
+use App\Services\Sms\SmsQuotaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -218,6 +219,7 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
                 'starts_at' => now(),
                 'ends_at' => now()->addDays($plan->duration_days ?: 30),
                 'sms_remaining' => $plan->sms_quota,
+                'sms_reset_at' => $plan->price > 0 ? now() : null,
                 'status' => 'active',
             ]);
             $user->update(['plan' => strtolower($plan->name), 'sms_quota' => $plan->sms_quota, 'sms_sent' => 0]);
@@ -241,11 +243,14 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
         return view('candidate.recommendations', compact('matches', 'profile'));
     })->name('recommendations');
-    Route::get('/sms', function (Request $request) {
-        $logs = SmsLog::where('user_id', $request->user()->id)->latest()->get();
-        $alertsEnabled = $request->user()->candidateProfile?->alerts_enabled ?? false;
+    Route::get('/sms', function (Request $request, SmsQuotaService $smsQuotaService) {
+        $user = $request->user();
+        $logs = SmsLog::where('user_id', $user->id)->latest()->get();
+        $alertsEnabled = $user->candidateProfile?->alerts_enabled ?? false;
+        $smsRemaining = $smsQuotaService->remaining($user);
+        $smsQuotaLimit = $smsQuotaService->quotaLimit($user);
 
-        return view('candidate.sms', compact('logs', 'alertsEnabled'));
+        return view('candidate.sms', compact('logs', 'alertsEnabled', 'smsRemaining', 'smsQuotaLimit'));
     })->name('sms');
     Route::post('/sms/alerts', function (Request $request) {
         $profile = $request->user()->candidateProfile()->firstOrCreate(['user_id' => $request->user()->id]);
@@ -259,11 +264,14 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
         return redirect()->route('candidate.sms')->with('status', 'sms-deleted');
     })->name('sms.destroy');
-    Route::get('/subscription', function (Request $request) {
-        $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
+    Route::get('/subscription', function (Request $request, SmsQuotaService $smsQuotaService) {
+        $user = $request->user();
+        $subscription = $user->activeSubscriptions()->with('plan')->first();
         $plans = Plan::where('active', true)->orderBy('price')->get();
+        $smsRemaining = $smsQuotaService->remaining($user);
+        $smsQuotaLimit = $smsQuotaService->quotaLimit($user);
 
-        return view('candidate.subscription', compact('subscription', 'plans'));
+        return view('candidate.subscription', compact('subscription', 'plans', 'smsRemaining', 'smsQuotaLimit'));
     })->name('subscription');
     Route::post('/subscription/change', function (Request $request) {
         $validated = $request->validate(['plan_id' => ['required', 'exists:plans,id']]);
@@ -279,6 +287,7 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
             'starts_at' => now(),
             'ends_at' => now()->addDays($plan->duration_days),
             'sms_remaining' => $plan->sms_quota,
+            'sms_reset_at' => $plan->price > 0 ? now() : null,
             'status' => 'active',
         ]);
 

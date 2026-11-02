@@ -16,6 +16,7 @@
                         <tr>
                             <th>Utilisateur</th>
                             <th>Statut</th>
+                            <th>Message</th>
                             <th>Référence</th>
                             <th>Envoyé le</th>
                         </tr>
@@ -23,18 +24,30 @@
                     <tbody>
                         @forelse ($logs as $log)
                             <tr>
-                                <td class="fw-semibold">{{ $log->user->name ?? '—' }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ $log->user->name ?? '—' }}</div>
+                                    <div class="small text-secondary">{{ $log->recipient ?? '—' }}</div>
+                                </td>
                                 <td>
                                     <span class="badge {{ $log->status === 'sent' ? 'text-bg-success' : ($log->status === 'failed' ? 'text-bg-danger' : 'text-bg-warning') }}">
                                         {{ ucfirst($log->status) }}
                                     </span>
+                                    @if ($log->status === 'failed' && $log->error_message)
+                                        <div class="small text-danger mt-1">{{ \Illuminate\Support\Str::limit($log->error_message, 80) }}</div>
+                                    @endif
                                 </td>
-                                <td class="small text-secondary">{{ $log->provider_reference ?? '—' }}</td>
+                                <td class="small text-secondary">{{ \Illuminate\Support\Str::limit($log->message ?? '—', 80) }}</td>
+                                <td class="small text-secondary">
+                                    <div>{{ $log->provider_reference ?? '—' }}</div>
+                                    @if ($log->provider_status)
+                                        <div>{{ $log->provider_status }}</div>
+                                    @endif
+                                </td>
                                 <td class="small text-secondary">{{ $log->sent_at?->format('d/m/Y H:i') ?? '—' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4">
+                                <td colspan="5">
                                     <div class="app-empty-state">
                                         <span class="app-empty-icon" aria-hidden="true"><i class="bi bi-chat-dots"></i></span>
                                         <h2 class="h5 fw-bold mb-1">Aucun SMS</h2>

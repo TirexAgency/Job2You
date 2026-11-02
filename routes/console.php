@@ -40,3 +40,9 @@ Schedule::command('matches:compute')
     ->name('compute-matches')
     ->dailyAt('04:00')
     ->withoutOverlapping();
+
+// Réinitialisation mensuelle des quotas SMS des formules payantes.
+Schedule::command('sms:reset-quotas')
+    ->name('sms-reset-quotas')
+    ->dailyAt('00:05')
+    ->withoutOverlapping();
