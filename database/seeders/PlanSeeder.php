@@ -13,8 +13,7 @@ class PlanSeeder extends Seeder
     public function run(): void
     {
         // Plan gratuit (RG01 : 2 SMS gratuits)
-        Plan::create([
-            'name' => 'free',
+        Plan::updateOrCreate(['name' => 'free'], [
             'price' => 0,
             'duration_days' => 0,
             'sms_quota' => 2,
@@ -23,8 +22,7 @@ class PlanSeeder extends Seeder
         ]);
 
         // Plan premium (exemple)
-        Plan::create([
-            'name' => 'premium',
+        Plan::updateOrCreate(['name' => 'premium'], [
             'price' => 15000,
             'duration_days' => 30,
             'sms_quota' => 50,

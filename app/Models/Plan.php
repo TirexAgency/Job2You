@@ -20,6 +20,7 @@ class Plan extends Model
     ];
 
     protected $casts = [
+        'price' => 'decimal:2',
         'active' => 'boolean',
         'cv_parsing_enabled' => 'boolean',
     ];
@@ -30,5 +31,21 @@ class Plan extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Relation avec les paiements.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Indique si le plan est gratuit.
+     */
+    public function isFree(): bool
+    {
+        return (float) $this->price <= 0;
     }
 }
