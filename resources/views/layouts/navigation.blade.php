@@ -8,7 +8,7 @@
             <x-application-logo />
         </a>
 
-        <p class="sidebar-label">{{ Auth::user()->isAdmin() ? 'Espace administration' : (Auth::user()->role === 'candidate' ? 'Espace Candidat' : 'Espace personnel') }}</p>
+        <p class="sidebar-label">{{ Auth::user()->isAdmin() ? 'Espace administration' : (Auth::user()->role === 'candidate' ? 'Espace candidat' : 'Espace personnel') }}</p>
         @if(Auth::user() && Auth::user()->role === 'candidate')
             <div class="nav flex-column gap-1">
                 <a href="{{ route('candidate.dashboard') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('candidate.dashboard') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-speedometer2"></i></span><span>Tableau de bord</span></a>
@@ -25,7 +25,7 @@
                 <a href="{{ route('admin.users.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-people"></i></span><span>Utilisateurs</span></a>
                 <a href="{{ route('admin.offers.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.offers.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-briefcase"></i></span><span>Offres</span></a>
                 <a href="{{ route('admin.sources.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.sources.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-collection"></i></span><span>Sources</span></a>
-                <a href="{{ route('admin.plans.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.plans.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-tags"></i></span><span>Plans</span></a>
+                <a href="{{ route('admin.plans.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.plans.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-tags"></i></span><span>Formules</span></a>
                 <a href="{{ route('admin.subscriptions.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-repeat"></i></span><span>Abonnements</span></a>
                 <a href="{{ route('admin.payments.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-cash-coin"></i></span><span>Paiements</span></a>
                 <a href="{{ route('admin.sms.index') }}" class="nav-link dashboard-nav-link {{ request()->routeIs('admin.sms.*') ? 'active' : '' }}"><span class="sidebar-nav-mark" aria-hidden="true"><i class="bi bi-chat-dots"></i></span><span>SMS</span></a>

@@ -2636,3 +2636,148 @@ textarea.form-control {
 .app-content > header {
 	background: var(--j2y-surface);
 }
+
+/* --------------------------------------------------------------------------
+   Alignement des couleurs Bootstrap sur la palette.
+   Les variables « subtle » restaient bleues par défaut, ce qui faisait
+   apparaître des pastilles et des icônes hors palette dans les espaces
+   candidat et administration.
+   -------------------------------------------------------------------------- */
+
+:root {
+	--bs-primary-bg-subtle: var(--j2y-accent-soft);
+	--bs-primary-border-subtle: rgba(20, 96, 63, 0.24);
+	--bs-primary-text-emphasis: var(--j2y-accent-ink);
+	--bs-secondary-bg-subtle: var(--j2y-paper);
+	--bs-secondary-border-subtle: var(--j2y-line);
+	--bs-secondary-text-emphasis: var(--j2y-ink-2);
+	--bs-success-bg-subtle: var(--j2y-success-soft);
+	--bs-success-border-subtle: rgba(20, 96, 63, 0.22);
+	--bs-success-text-emphasis: var(--j2y-accent-ink);
+	--bs-info-bg-subtle: var(--j2y-paper);
+	--bs-info-border-subtle: var(--j2y-line);
+	--bs-info-text-emphasis: var(--j2y-ink-2);
+	--bs-warning-bg-subtle: var(--j2y-warning-soft);
+	--bs-warning-border-subtle: rgba(138, 90, 18, 0.24);
+	--bs-warning-text-emphasis: var(--j2y-warning);
+	--bs-danger-bg-subtle: var(--j2y-danger-soft);
+	--bs-danger-border-subtle: rgba(156, 58, 42, 0.24);
+	--bs-danger-text-emphasis: var(--j2y-danger);
+	--bs-light-bg-subtle: var(--j2y-surface);
+	--bs-light-border-subtle: var(--j2y-line);
+	--bs-dark-bg-subtle: var(--j2y-ink);
+	--bs-info: var(--j2y-accent);
+	--bs-info-rgb: 20, 96, 63;
+	--bs-success: var(--j2y-success);
+	--bs-success-rgb: 20, 96, 63;
+	--bs-warning: var(--j2y-warning);
+	--bs-warning-rgb: 138, 90, 18;
+	--bs-danger: var(--j2y-danger);
+	--bs-danger-rgb: 156, 58, 42;
+	--bs-secondary-color: var(--j2y-ink-3);
+	--bs-tertiary-color: var(--j2y-ink-3);
+	--bs-secondary-bg: var(--j2y-paper-deep);
+	--bs-tertiary-bg: var(--j2y-paper);
+	--bs-emphasis-color: var(--j2y-ink);
+}
+
+/* Le gras Bootstrap reste dans la plage 400–600 du système. */
+.fw-bold,
+.fw-bolder {
+	font-weight: 600 !important;
+}
+
+strong,
+b {
+	font-weight: 600;
+}
+
+code {
+	padding: 0.1em 0.3em;
+	color: var(--j2y-ink-2);
+	font-size: 0.85em;
+	background: var(--j2y-paper);
+	border-radius: 4px;
+}
+
+pre code {
+	padding: 0;
+	color: inherit;
+	background: transparent;
+}
+
+/* Les statuts sont des pastilles sourdes, jamais des aplats saturés. */
+.text-bg-success {
+	color: var(--j2y-accent-ink) !important;
+	background-color: var(--j2y-success-soft) !important;
+}
+
+.text-bg-danger {
+	color: var(--j2y-danger) !important;
+	background-color: var(--j2y-danger-soft) !important;
+}
+
+.text-bg-warning {
+	color: var(--j2y-warning) !important;
+	background-color: var(--j2y-warning-soft) !important;
+}
+
+.text-bg-info {
+	color: var(--j2y-ink-2) !important;
+	background-color: var(--j2y-paper) !important;
+}
+
+.text-bg-secondary,
+.text-bg-light {
+	color: var(--j2y-ink-2) !important;
+	background-color: var(--j2y-paper) !important;
+}
+
+.text-bg-light {
+	border: 1px solid var(--j2y-line);
+}
+
+.badge.bg-danger,
+.badge.bg-warning,
+.badge.bg-info,
+.badge.bg-success {
+	color: var(--j2y-ink-2) !important;
+	background-color: var(--j2y-paper) !important;
+	border: 1px solid var(--j2y-line);
+}
+
+.table > tbody > tr.table-danger > * {
+	--bs-table-bg: var(--j2y-danger-soft);
+	--bs-table-color: var(--j2y-ink);
+}
+
+.table > tbody > tr.table-warning > * {
+	--bs-table-bg: var(--j2y-warning-soft);
+	--bs-table-color: var(--j2y-ink);
+}
+
+/* Champ fichier natif, aligné sur les contrôles du système. */
+input[type='file']::file-selector-button {
+	margin: -0.5rem 0.7rem -0.5rem -0.7rem;
+	padding: 0.5rem 0.8rem;
+	color: var(--j2y-ink);
+	font-family: var(--j2y-font);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	background: var(--j2y-paper);
+	border: 0;
+	border-right: 1px solid var(--j2y-line);
+	cursor: pointer;
+}
+
+input[type='file']::file-selector-button:hover {
+	background: var(--j2y-paper-deep);
+}
+
+/* Les liens d'action dans les tableaux restent des contrôles discrets. */
+.table .btn-icon {
+	width: 2rem;
+	height: 2rem;
+	min-height: 2rem;
+	padding: 0;
+}

@@ -3,8 +3,8 @@
         <header class="app-page-header">
             <div>
                 <p class="app-eyebrow">Espace candidat</p>
-                <h1>Bonjour {{ auth()->user()->name }}</h1>
-                <p class="text-secondary mb-0">Vos correspondances et vos alertes du jour.</p>
+                <h1>Tableau de bord</h1>
+                <p>Vos correspondances et vos alertes du jour.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a href="{{ route('candidate.cv') }}" class="btn btn-outline-primary"><i class="bi bi-file-earmark-text" aria-hidden="true"></i>Mon CV</a>
@@ -105,44 +105,7 @@
                         <div class="row g-3">
                             @foreach($recommendations as $match)
                                 <div class="col-md-6 col-lg-4">
-                                    <article class="card offer-card h-100">
-                                        <div class="card-body d-flex flex-column">
-                                            <div class="d-flex align-items-start gap-3 mb-2">
-                                                <x-company-avatar :name="$match->offer->company ?? 'Job2You'" size="sm" />
-                                                <div class="flex-grow-1 min-width-0">
-                                                    <h2 class="public-offer-title">{{ $match->offer->title ?? 'Offre sans titre' }}</h2>
-                                                    <p class="public-offer-company">{{ $match->offer->company ?? 'Entreprise' }}</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="public-offer-meta">
-                                                <span><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ $match->offer->location ?? 'Localisation' }}</span>
-                                                @if($match->offer->contract_type)
-                                                    <span><i class="bi bi-file-text" aria-hidden="true"></i>{{ $match->offer->contract_type }}</span>
-                                                @endif
-                                            </div>
-
-                                            @if($match->offer->offerSkills->count() > 0)
-                                                <div class="d-flex flex-wrap gap-1 mb-3">
-                                                    @foreach($match->offer->offerSkills->take(3) as $offerSkill)
-                                                        <span class="public-skill">{{ $offerSkill->skill->name }}</span>
-                                                    @endforeach
-                                                    @if($match->offer->offerSkills->count() > 3)
-                                                        <span class="public-skill">+{{ $match->offer->offerSkills->count() - 3 }}</span>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
-                                                @php($scorePercent = (int) round($match->score * 100))
-                                                <span class="badge text-bg-success">{{ $scorePercent }} % compatible</span>
-                                                <a href="{{ route('offers.show', $match->offer) }}" class="public-offer-link">
-                                                    Voir l'offre
-                                                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </article>
+                                    @include('candidate._match-card', ['offer' => $match->offer, 'score' => $match->score])
                                 </div>
                             @endforeach
                         </div>
@@ -163,43 +126,7 @@
                         <div class="row g-3">
                             @foreach($allOffers as $offer)
                                 <div class="col-md-6 col-lg-4">
-                                    <article class="card offer-card h-100">
-                                        <div class="card-body d-flex flex-column">
-                                            <div class="d-flex align-items-start gap-3 mb-2">
-                                                <x-company-avatar :name="$offer->company ?? 'Job2You'" size="sm" />
-                                                <div class="flex-grow-1 min-width-0">
-                                                    <h2 class="public-offer-title">{{ $offer->title }}</h2>
-                                                    <p class="public-offer-company">{{ $offer->company }}</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="public-offer-meta">
-                                                <span><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ $offer->location }}</span>
-                                                @if($offer->contract_type)
-                                                    <span><i class="bi bi-file-text" aria-hidden="true"></i>{{ $offer->contract_type }}</span>
-                                                @endif
-                                            </div>
-
-                                            @if($offer->offerSkills->count() > 0)
-                                                <div class="d-flex flex-wrap gap-1 mb-3">
-                                                    @foreach($offer->offerSkills->take(3) as $offerSkill)
-                                                        <span class="public-skill">{{ $offerSkill->skill->name }}</span>
-                                                    @endforeach
-                                                    @if($offer->offerSkills->count() > 3)
-                                                        <span class="public-skill">+{{ $offer->offerSkills->count() - 3 }}</span>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
-                                                <span class="text-secondary small">{{ $offer->contract_type ?: 'Offre d\'emploi' }}</span>
-                                                <a href="{{ route('offers.show', $offer) }}" class="public-offer-link">
-                                                    Voir l'offre
-                                                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </article>
+                                    @include('candidate._match-card', ['offer' => $offer, 'score' => null])
                                 </div>
                             @endforeach
                         </div>
@@ -220,43 +147,7 @@
                         <div class="row g-3">
                             @foreach($similarOffers as $offer)
                                 <div class="col-md-6 col-lg-4">
-                                    <article class="card offer-card h-100">
-                                        <div class="card-body d-flex flex-column">
-                                            <div class="d-flex align-items-start gap-3 mb-2">
-                                                <x-company-avatar :name="$offer->company ?? 'Job2You'" size="sm" />
-                                                <div class="flex-grow-1 min-width-0">
-                                                    <h2 class="public-offer-title">{{ $offer->title }}</h2>
-                                                    <p class="public-offer-company">{{ $offer->company }}</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="public-offer-meta">
-                                                <span><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ $offer->location }}</span>
-                                                @if($offer->contract_type)
-                                                    <span><i class="bi bi-file-text" aria-hidden="true"></i>{{ $offer->contract_type }}</span>
-                                                @endif
-                                            </div>
-
-                                            @if($offer->offerSkills->count() > 0)
-                                                <div class="d-flex flex-wrap gap-1 mb-3">
-                                                    @foreach($offer->offerSkills->take(3) as $offerSkill)
-                                                        <span class="public-skill">{{ $offerSkill->skill->name }}</span>
-                                                    @endforeach
-                                                    @if($offer->offerSkills->count() > 3)
-                                                        <span class="public-skill">+{{ $offer->offerSkills->count() - 3 }}</span>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
-                                                <span class="text-secondary small">Suggéré pour votre profil</span>
-                                                <a href="{{ route('offers.show', $offer) }}" class="public-offer-link">
-                                                    Voir l'offre
-                                                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </article>
+                                    @include('candidate._match-card', ['offer' => $offer, 'score' => null, 'footnote' => 'Suggéré pour votre profil'])
                                 </div>
                             @endforeach
                         </div>
