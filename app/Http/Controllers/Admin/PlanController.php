@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
+use App\Models\Subscription;
 use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -60,7 +62,29 @@ class PlanController extends Controller
      */
     public function update(Request $request, Plan $plan): RedirectResponse
     {
-        $plan->update($this->validatedData($request, $plan));
+        $validated = $this->validatedData($request, $plan);
+
+        DB::transaction(function () use ($plan, $validated): void {
+            $previousQuota = (int) $plan->sms_quota;
+            $plan->update($validated);
+            $newQuota = (int) $plan->sms_quota;
+
+            if ($newQuota === $previousQuota) {
+                return;
+            }
+
+            $plan->subscriptions()
+                ->where('status', 'active')
+                ->get()
+                ->each(function (Subscription $subscription) use ($previousQuota, $newQuota): void {
+                    $subscription->update([
+                        'sms_remaining' => max(
+                            0,
+                            min((int) $subscription->sms_remaining + ($newQuota - $previousQuota), $newQuota)
+                        ),
+                    ]);
+                });
+        });
 
         $this->activityLogger->adminAction(
             'Modification plan',

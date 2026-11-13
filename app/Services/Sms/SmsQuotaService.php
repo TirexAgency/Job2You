@@ -27,7 +27,7 @@ class SmsQuotaService
         if ($subscriptions->isNotEmpty()) {
             $subscriptions->each(fn (Subscription $subscription) => $this->resetIfDue($subscription));
 
-            return max((int) $subscriptions->sum('sms_remaining'), 0);
+            return max($subscriptions->sum(fn (Subscription $subscription) => $subscription->smsRemaining()), 0);
         }
 
         return max($this->freeLimit($user) - (int) $user->sms_sent, 0);
@@ -41,7 +41,7 @@ class SmsQuotaService
         $subscriptions = $user->activeSubscriptions()->with('plan')->get();
 
         if ($subscriptions->isNotEmpty()) {
-            return max((int) $subscriptions->sum(fn (Subscription $subscription) => $subscription->plan?->sms_quota ?? 0), 0);
+            return max($subscriptions->sum(fn (Subscription $subscription) => $subscription->smsQuota()), 0);
         }
 
         return $this->freeLimit($user);
@@ -69,9 +69,13 @@ class SmsQuotaService
 
             foreach ($subscriptions as $subscription) {
                 $this->resetIfDue($subscription);
+
+                if ((int) $subscription->sms_remaining > $subscription->smsQuota()) {
+                    $subscription->update(['sms_remaining' => $subscription->smsQuota()]);
+                }
             }
 
-            $subscription = $subscriptions->first(fn (Subscription $subscription) => $subscription->sms_remaining > 0);
+            $subscription = $subscriptions->first(fn (Subscription $subscription) => $subscription->smsRemaining() > 0);
 
             if ($subscription) {
                 $subscription->decrement('sms_remaining');

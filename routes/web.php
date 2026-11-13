@@ -327,8 +327,10 @@ Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
 Route::get('/offers/search', [OfferController::class, 'search'])->name('offers.search');
 Route::get('/offers/{offer}', [OfferController::class, 'show'])->name('offers.show');
 
-Route::get('/__preview/{userId}', function (int $userId) {
-    Auth::loginUsingId($userId);
+if (app()->isLocal()) {
+    Route::get('/__preview/{userId}', function (int $userId) {
+        Auth::loginUsingId($userId);
 
-    return redirect()->route(request()->query('to', 'dashboard'));
-})->middleware('web');
+        return redirect()->route(request()->query('to', 'dashboard'));
+    })->middleware('web');
+}

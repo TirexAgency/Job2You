@@ -62,13 +62,27 @@ class Subscription extends Model
     }
 
     /**
+     * Quota SMS défini par la formule.
+     */
+    public function smsQuota(): int
+    {
+        return max((int) ($this->plan?->sms_quota ?? 0), 0);
+    }
+
+    /**
+     * Solde SMS effectif, borné par le quota de la formule.
+     */
+    public function smsRemaining(): int
+    {
+        return min(max((int) $this->sms_remaining, 0), $this->smsQuota());
+    }
+
+    /**
      * Nombre de SMS consommés sur le quota de la formule.
      */
     public function smsUsed(): int
     {
-        $quota = (int) ($this->plan?->sms_quota ?? 0);
-
-        return max($quota - (int) $this->sms_remaining, 0);
+        return max($this->smsQuota() - $this->smsRemaining(), 0);
     }
 
     /**
@@ -76,7 +90,7 @@ class Subscription extends Model
      */
     public function smsUsagePercentage(): int
     {
-        $quota = (int) ($this->plan?->sms_quota ?? 0);
+        $quota = $this->smsQuota();
 
         if ($quota <= 0) {
             return 0;

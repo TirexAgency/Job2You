@@ -135,6 +135,50 @@ class PlanCrudTest extends TestCase
         ]);
     }
 
+    public function test_updating_plan_quota_realigns_active_subscriptions(): void
+    {
+        $plan = Plan::factory()->create([
+            'name' => 'Premium',
+            'price' => 15000,
+            'duration_days' => 30,
+            'sms_quota' => 50,
+            'active' => true,
+        ]);
+
+        $user = User::factory()->create();
+        $subscription = $plan->subscriptions()->create([
+            'user_id' => $user->id,
+            'starts_at' => now(),
+            'ends_at' => now()->addDays(30),
+            'sms_remaining' => 30,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($this->admin)->put("/admin/plans/{$plan->id}", [
+            'name' => 'Premium',
+            'price' => 15000,
+            'duration_days' => 30,
+            'sms_quota' => 100,
+            'cv_parsing_enabled' => 0,
+            'active' => 1,
+        ])->assertRedirect('/admin/plans');
+
+        // La consommation de 20 SMS reste tracée quand le quota passe de 50 à 100.
+        $this->assertSame(80, $subscription->fresh()->sms_remaining);
+
+        $this->actingAs($this->admin)->put("/admin/plans/{$plan->id}", [
+            'name' => 'Premium',
+            'price' => 15000,
+            'duration_days' => 30,
+            'sms_quota' => 10,
+            'cv_parsing_enabled' => 0,
+            'active' => 1,
+        ])->assertRedirect('/admin/plans');
+
+        // La consommation déjà effectuée reste prioritaire sur une baisse de quota.
+        $this->assertSame(0, $subscription->fresh()->sms_remaining);
+    }
+
     public function test_admin_can_toggle_plan_status(): void
     {
         $plan = Plan::factory()->create(['active' => true]);

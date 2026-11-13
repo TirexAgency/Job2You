@@ -113,7 +113,7 @@ class UserTest extends TestCase
     // Test unitaire : getSmsQuota
     // ============================================================
 
-    public function test_get_sms_quota_returns_subscription_quota(): void
+    public function test_get_sms_quota_is_capped_by_the_subscription_plan(): void
     {
         $plan = $this->createFreePlan();
         $user = User::factory()->create();
@@ -126,7 +126,8 @@ class UserTest extends TestCase
             'status' => 'active',
         ]);
 
-        $this->assertEquals(5, $user->getSmsQuota());
+        // Le solde est toujours borné par le quota de la formule (2 SMS).
+        $this->assertEquals(2, $user->getSmsQuota());
     }
 
     public function test_get_sms_quota_returns_zero_without_active_subscription(): void

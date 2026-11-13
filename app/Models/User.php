@@ -146,35 +146,29 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getSmsQuota(): int
     {
-        $subscriptions = $this->activeSubscriptions;
-
-        if ($subscriptions->isNotEmpty()) {
-            return $subscriptions->sum('sms_remaining');
-        }
-
-        return $this->sms_quota;
+        return $this->getSmsRemaining();
     }
 
     public function getSmsRemaining(): int
     {
-        $subscriptions = $this->activeSubscriptions;
+        $subscriptions = $this->activeSubscriptions()->with('plan')->get();
 
         if ($subscriptions->isNotEmpty()) {
-            return $subscriptions->sum('sms_remaining');
+            return max($subscriptions->sum(fn (Subscription $subscription) => $subscription->smsRemaining()), 0);
         }
 
-        return max($this->sms_quota - $this->sms_sent, 0);
+        return max((int) $this->sms_quota - (int) $this->sms_sent, 0);
     }
 
     public function getSmsQuotaLimit(): int
     {
-        $subscriptions = $this->activeSubscriptions;
+        $subscriptions = $this->activeSubscriptions()->with('plan')->get();
 
         if ($subscriptions->isNotEmpty()) {
-            return $subscriptions->sum(fn (Subscription $subscription) => $subscription->plan?->sms_quota ?? 0);
+            return max($subscriptions->sum(fn (Subscription $subscription) => $subscription->smsQuota()), 0);
         }
 
-        return $this->sms_quota;
+        return max((int) $this->sms_quota, 0);
     }
 
     /**

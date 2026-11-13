@@ -4,7 +4,6 @@ namespace Tests\Feature\Sms;
 
 use App\Models\Plan;
 use App\Models\SmsLog;
-use App\Models\Subscription;
 use App\Models\User;
 use App\Services\Sms\SmsQuotaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,6 +77,36 @@ class SmsQuotaServiceTest extends TestCase
 
         $this->assertTrue($service->reserve($user, $this->logFor($user)));
         $this->assertSame(49, $subscription->fresh()->sms_remaining);
+    }
+
+    public function test_stale_balance_cannot_exceed_the_plan_quota(): void
+    {
+        $plan = $this->createPlan('premium', 15000, 10);
+        $user = User::factory()->create();
+
+        $subscription = $user->subscriptions()->create([
+            'plan_id' => $plan->id,
+            'starts_at' => now(),
+            'ends_at' => now()->addDays(30),
+            'sms_remaining' => 50,
+            'sms_reset_at' => now(),
+            'status' => 'active',
+        ]);
+
+        $service = app(SmsQuotaService::class);
+
+        $this->assertSame(10, $service->quotaLimit($user));
+        $this->assertSame(10, $service->remaining($user));
+        $this->assertSame(10, $subscription->fresh()->smsRemaining());
+
+        // La consommation ne peut pas descendre sous zéro au-delà de la limite.
+        for ($i = 0; $i < 10; $i++) {
+            $this->assertTrue($service->reserve($user->fresh(), $this->logFor($user)));
+        }
+
+        $this->assertSame(0, $service->remaining($user->fresh()));
+        $this->assertFalse($service->reserve($user->fresh(), $this->logFor($user)));
+        $this->assertSame(0, $subscription->fresh()->sms_remaining);
     }
 
     public function test_release_restores_a_reserved_free_quota(): void
