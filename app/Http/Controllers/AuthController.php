@@ -33,6 +33,13 @@ class AuthController extends Controller
 
         // Transaction SQL : création utilisateur + abonnement atomique
         $user = DB::transaction(function () use ($validated) {
+            $freePlan = Plan::query()
+                ->where('active', true)
+                ->where('price', '<=', 0)
+                ->orderBy('price')
+                ->first()
+                ?? Plan::query()->where('name', 'free')->first();
+
             // Création de l'utilisateur
             $user = User::create([
                 'name' => $validated['name'],
@@ -42,12 +49,9 @@ class AuthController extends Controller
                 'role' => 'candidate',
                 'status' => 'pending',
                 'plan' => 'free',
-                'sms_quota' => 2,
+                'sms_quota' => (int) ($freePlan?->sms_quota ?? 2),
                 'sms_sent' => 0,
             ]);
-
-            // Récupérer le plan gratuit
-            $freePlan = Plan::where('name', 'free')->first();
 
             // Créer l'abonnement gratuit (RG01)
             if ($freePlan) {

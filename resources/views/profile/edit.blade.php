@@ -8,17 +8,21 @@
                     <p class="text-secondary mb-0">Gérez vos informations personnelles et la sécurité de votre compte.</p>
                 </div>
                 <span class="badge rounded-pill {{ $user->status === 'active' ? 'text-bg-success' : 'text-bg-secondary' }} px-3 py-2">
-                    {{ $user->status === 'active' ? 'Compte actif' : ucfirst($user->status) }}
+                    {{ $user->status === 'active' ? 'Compte actif' : $user->status_label }}
                 </span>
             </header>
 
             <div class="row g-4">
                 <aside class="col-lg-4">
-                    <section class="h-100 bg-white border rounded-3 p-4 p-lg-5" aria-labelledby="profile-summary-title">
+                    <section class="profile-summary h-100 bg-white border rounded-3 p-4 p-lg-5" aria-labelledby="profile-summary-title">
                         <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary fw-bold fs-3" style="width: 4rem; height: 4rem;" aria-hidden="true">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                            </div>
+                            @if ($user->photo_url)
+                                <img src="{{ $user->photo_url }}" alt="Photo de {{ $user->name }}" class="rounded-circle flex-shrink-0" style="width: 4rem; height: 4rem; object-fit: cover;">
+                            @else
+                                <div class="d-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary fw-bold fs-3 flex-shrink-0" style="width: 4rem; height: 4rem;" aria-hidden="true">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                            @endif
                             <div class="min-w-0">
                                 <h2 id="profile-summary-title" class="h5 fw-bold text-break mb-1">{{ $user->name }}</h2>
                                 <p class="text-secondary mb-0">{{ $user->email }}</p>
@@ -28,7 +32,7 @@
                         <dl class="mb-0">
                             <div class="border-top py-3">
                                 <dt class="small text-secondary fw-normal mb-1">Rôle</dt>
-                                <dd class="fw-semibold mb-0">{{ $user->role === 'admin' ? 'Administrateur' : 'Candidat' }}</dd>
+                                <dd class="fw-semibold mb-0">{{ $user->role_label }}</dd>
                             </div>
                             <div class="border-top py-3">
                                 <dt class="small text-secondary fw-normal mb-1">Téléphone</dt>

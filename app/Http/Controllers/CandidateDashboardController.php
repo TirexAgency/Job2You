@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JobMatch;
 use App\Models\Offer;
-use App\Models\Plan;
 use App\Models\Setting;
-use App\Models\Subscription;
 use App\Services\MatchingService;
 use App\Services\Sms\SmsQuotaService;
 use Illuminate\Http\Request;
@@ -27,6 +25,9 @@ class CandidateDashboardController extends Controller
         }
 
         $alertThreshold = (float) Setting::get('matching.alert_threshold', 0.7);
+        $subscription = $user->activeSubscriptions()->with('plan')->first();
+        $smsQuota = $smsQuotaService->quotaLimit($user);
+        $smsRemaining = max($smsQuotaService->remaining($user), 0);
 
         // Statistiques du candidat
         $stats = [
@@ -37,10 +38,12 @@ class CandidateDashboardController extends Controller
             'matches_this_week' => JobMatch::where('user_id', $user->id)
                 ->where('created_at', '>=', now()->subWeek())
                 ->count(),
-            'sms_remaining' => max($smsQuotaService->remaining($user), 0),
-            'sms_quota' => $smsQuotaService->quotaLimit($user),
-            'plan' => $user->plan,
-            'subscription' => $user->activeSubscriptions()->with('plan')->first(),
+            'sms_remaining' => $smsRemaining,
+            'sms_quota' => $smsQuota,
+            'sms_used' => max($smsQuota - $smsRemaining, 0),
+            'plan' => $subscription?->plan?->name ?? $user->plan,
+            'plan_display' => $user->planDisplayName(),
+            'subscription' => $subscription,
         ];
 
         // Recommandations (matchings au-dessus du seuil). Si aucune offre

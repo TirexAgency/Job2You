@@ -23,8 +23,8 @@
                         <label for="role" class="form-label">Rôle</label>
                         <select class="form-select" id="role" name="role">
                             <option value="">Tous les rôles</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role }}" {{ request('role') === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                            @foreach($roles as $roleValue => $roleLabel)
+                                <option value="{{ $roleValue }}" {{ request('role') === $roleValue ? 'selected' : '' }}>{{ $roleLabel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -32,8 +32,8 @@
                         <label for="status" class="form-label">Statut</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">Tous les statuts</option>
-                            @foreach($statuses as $status)
-                                <option value="{{ $status }}" {{ request('status') === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                            @foreach($statuses as $statusValue => $statusLabel)
+                                <option value="{{ $statusValue }}" {{ request('status') === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -63,8 +63,8 @@
                                     <td>
                                         <div class="d-flex align-items-center gap-3">
                                             <div class="position-relative" style="width: 40px; height: 40px;">
-                                                @if ($user->photo_path)
-                                                    <img src="{{ asset('storage/' . $user->photo_path) }}" alt="Photo de {{ $user->name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                                @if ($user->photo_url)
+                                                    <img src="{{ $user->photo_url }}" alt="Photo de {{ $user->name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                                                 @else
                                                     <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                                         <span class="fw-semibold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
@@ -82,12 +82,12 @@
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $user->role === 'admin' ? 'danger' : ($user->role === 'recruiter' ? 'warning' : 'info') }}">
-                                            {{ ucfirst($user->role) }}
+                                            {{ $user->role_label }}
                                         </span>
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $user->status === 'active' ? 'success' : ($user->status === 'pending' ? 'warning' : 'secondary') }}">
-                                            {{ ucfirst($user->status) }}
+                                            {{ $user->status_label }}
                                         </span>
                                     </td>
                                     <td>
@@ -173,8 +173,8 @@
                                 <label for="role" class="form-label">Rôle</label>
                                 <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                                     <option value="">Sélectionner un rôle</option>
-                                    @foreach($roles as $role)
-                                        <option value="{{ $role }}" {{ old('role') === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                    @foreach($roles as $roleValue => $roleLabel)
+                                        <option value="{{ $roleValue }}" {{ old('role') === $roleValue ? 'selected' : '' }}>{{ $roleLabel }}</option>
                                     @endforeach
                                 </select>
                                 @error('role')
@@ -186,8 +186,8 @@
                                 <label for="status" class="form-label">Statut</label>
                                 <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
                                     <option value="">Sélectionner un statut</option>
-                                    @foreach($statuses as $status)
-                                        <option value="{{ $status }}" {{ old('status') === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                    @foreach($statuses as $statusValue => $statusLabel)
+                                        <option value="{{ $statusValue }}" {{ old('status') === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
                                     @endforeach
                                 </select>
                                 @error('status')
@@ -267,8 +267,8 @@
                                 <div class="col-md-6">
                                     <label for="edit_role_{{ $user->id }}" class="form-label">Rôle</label>
                                     <select class="form-select" id="edit_role_{{ $user->id }}" name="role" required>
-                                        @foreach($roles as $role)
-                                            <option value="{{ $role }}" {{ old('role', $user->role) === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                        @foreach($roles as $roleValue => $roleLabel)
+                                            <option value="{{ $roleValue }}" {{ old('role', $user->role) === $roleValue ? 'selected' : '' }}>{{ $roleLabel }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -276,8 +276,8 @@
                                 <div class="col-md-6">
                                     <label for="edit_status_{{ $user->id }}" class="form-label">Statut</label>
                                     <select class="form-select" id="edit_status_{{ $user->id }}" name="status" required>
-                                        @foreach($statuses as $status)
-                                            <option value="{{ $status }}" {{ old('status', $user->status) === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                        @foreach($statuses as $statusValue => $statusLabel)
+                                            <option value="{{ $statusValue }}" {{ old('status', $user->status) === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -340,14 +340,14 @@
                                     <dt class="col-sm-5 text-secondary">Rôle</dt>
                                     <dd class="col-sm-7">
                                         <span class="badge bg-{{ $user->role === 'admin' ? 'danger' : ($user->role === 'recruiter' ? 'warning' : 'info') }}">
-                                            {{ ucfirst($user->role) }}
+                                            {{ $user->role_label }}
                                         </span>
                                     </dd>
 
                                     <dt class="col-sm-5 text-secondary">Statut</dt>
                                     <dd class="col-sm-7">
                                         <span class="badge bg-{{ $user->status === 'active' ? 'success' : ($user->status === 'pending' ? 'warning' : 'secondary') }}">
-                                            {{ ucfirst($user->status) }}
+                                            {{ $user->status_label }}
                                         </span>
                                     </dd>
 

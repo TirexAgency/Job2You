@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="app-container">
+    <div class="app-container candidate-profile">
         <header class="app-page-header">
             <div>
                 <p class="app-eyebrow">Espace candidat</p>
@@ -147,14 +147,15 @@
                                 </div>
 
                                 <div class="col-md-4">
-                                    <div class="d-flex h-100 flex-column justify-content-end">
-                                        <div class="form-check form-switch mb-1">
+                                    <span class="form-label d-block">Alertes SMS</span>
+                                    <div class="profile-switch-field">
+                                        <div class="form-check form-switch mb-0">
                                             <input type="hidden" name="alerts_enabled" value="0">
                                             <input type="checkbox" name="alerts_enabled" value="1" class="form-check-input" id="alerts_enabled" role="switch" @checked(old('alerts_enabled', $profile->alerts_enabled))>
                                             <label class="form-check-label" for="alerts_enabled">Activer les alertes SMS</label>
                                         </div>
-                                        <div class="form-text">Recevez un SMS lorsqu’une offre correspond à votre profil.</div>
                                     </div>
+                                    <div class="form-text">Recevez un SMS lorsqu’une offre correspond à votre profil.</div>
                                 </div>
 
                                 <div class="col-12">
@@ -187,21 +188,17 @@
                     </div>
 
                     <div class="app-card-body">
-                        <form method="GET" action="{{ route('candidate.profile.edit') }}" class="row g-2 align-items-end mb-4">
-                            <input type="hidden" name="tab" value="skills">
-                            <div class="col-md-6">
-                                <label for="skill-search" class="form-label">Rechercher une compétence</label>
+                        <div class="mb-4">
+                            <label for="skill-search" class="form-label">Rechercher une compétence</label>
+                            <form method="GET" action="{{ route('candidate.profile.edit') }}" class="skill-search-bar">
+                                <input type="hidden" name="tab" value="skills">
                                 <input type="text" id="skill-search" name="q" class="form-control" placeholder="Ex. : Laravel, PHP…" value="{{ $skillSearch }}">
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-outline-secondary w-100"><i class="bi bi-search me-1" aria-hidden="true"></i>Rechercher</button>
-                            </div>
-                            @if ($skillSearch !== '')
-                                <div class="col-md-3">
-                                    <a href="{{ route('candidate.profile.edit', ['tab' => 'skills']) }}" class="btn btn-link text-decoration-none w-100">Réinitialiser</a>
-                                </div>
-                            @endif
-                        </form>
+                                <button class="btn btn-outline-secondary"><i class="bi bi-search me-1" aria-hidden="true"></i>Rechercher</button>
+                                @if ($skillSearch !== '')
+                                    <a href="{{ route('candidate.profile.edit', ['tab' => 'skills']) }}" class="btn btn-link skill-search-reset">Réinitialiser</a>
+                                @endif
+                            </form>
+                        </div>
 
                         <form method="POST" action="{{ route('candidate.skills.store') }}" class="row g-2 align-items-end mb-4">
                             @csrf
@@ -305,11 +302,11 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="experience_start_date" class="form-label">Date de début <span class="text-danger" aria-hidden="true">*</span></label>
-                                <input type="date" id="experience_start_date" name="start_date" class="form-control" required>
+                                <x-forms.date-select name="start_date" id="experience_start_date" :max-year="(int) now()->year" :required="true" />
                             </div>
                             <div class="col-md-6">
                                 <label for="experience_end_date" class="form-label">Date de fin</label>
-                                <input type="date" id="experience_end_date" name="end_date" class="form-control">
+                                <x-forms.date-select name="end_date" id="experience_end_date" />
                                 <div class="form-text">Laissez vide si le poste est toujours en cours.</div>
                             </div>
                             <div class="col-12">
@@ -363,11 +360,11 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="exp-start-{{ $experience->id }}" class="form-label">Date de début</label>
-                                                <input type="date" id="exp-start-{{ $experience->id }}" name="start_date" class="form-control" value="{{ $experience->start_date->format('Y-m-d') }}" required>
+                                                <x-forms.date-select name="start_date" id="exp-start-{{ $experience->id }}" :value="$experience->start_date" :max-year="(int) now()->year" :required="true" />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="exp-end-{{ $experience->id }}" class="form-label">Date de fin</label>
-                                                <input type="date" id="exp-end-{{ $experience->id }}" name="end_date" class="form-control" value="{{ $experience->end_date?->format('Y-m-d') }}">
+                                                <x-forms.date-select name="end_date" id="exp-end-{{ $experience->id }}" :value="$experience->end_date" />
                                             </div>
                                             <div class="col-12">
                                                 <label for="exp-description-{{ $experience->id }}" class="form-label">Description</label>
@@ -418,11 +415,11 @@
                             </div>
                             <div class="col-md-4">
                                 <label for="education_start_date" class="form-label">Date de début <span class="text-danger" aria-hidden="true">*</span></label>
-                                <input type="date" id="education_start_date" name="start_date" class="form-control" required>
+                                <x-forms.date-select name="start_date" id="education_start_date" :max-year="(int) now()->year" :required="true" />
                             </div>
                             <div class="col-md-4">
                                 <label for="education_end_date" class="form-label">Date de fin</label>
-                                <input type="date" id="education_end_date" name="end_date" class="form-control">
+                                <x-forms.date-select name="end_date" id="education_end_date" />
                             </div>
                             <div class="col-12">
                                 <button class="btn btn-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Ajouter la formation</button>
@@ -475,11 +472,11 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="edu-start-{{ $education->id }}" class="form-label">Date de début</label>
-                                                <input type="date" id="edu-start-{{ $education->id }}" name="start_date" class="form-control" value="{{ $education->start_date->format('Y-m-d') }}" required>
+                                                <x-forms.date-select name="start_date" id="edu-start-{{ $education->id }}" :value="$education->start_date" :max-year="(int) now()->year" :required="true" />
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="edu-end-{{ $education->id }}" class="form-label">Date de fin</label>
-                                                <input type="date" id="edu-end-{{ $education->id }}" name="end_date" class="form-control" value="{{ $education->end_date?->format('Y-m-d') }}">
+                                                <x-forms.date-select name="end_date" id="edu-end-{{ $education->id }}" :value="$education->end_date" />
                                             </div>
                                             <div class="col-12">
                                                 <button class="btn btn-sm btn-primary"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Enregistrer</button>

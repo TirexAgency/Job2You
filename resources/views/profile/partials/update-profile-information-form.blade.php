@@ -8,14 +8,22 @@
 
     <div class="mb-3">
         <label for="photo" class="form-label">Photo de profil</label>
-        @if ($user->photo_path)
-            <div class="mb-2">
-                <img src="{{ asset('storage/'.$user->photo_path) }}" alt="Photo de profil" class="rounded-circle" style="width: 72px; height: 72px; object-fit: cover;">
-            </div>
-        @endif
-        <input id="photo" name="photo" type="file" class="form-control @error('photo') is-invalid @enderror" accept="image/*">
+        <label for="photo" class="photo-dropzone @error('photo') is-invalid @enderror" data-photo-dropzone>
+            <input id="photo" name="photo" type="file" class="visually-hidden" accept="image/*" data-photo-input>
+            <span class="photo-dropzone-preview" data-photo-preview aria-hidden="true">
+                @if ($user->photo_url)
+                    <img src="{{ $user->photo_url }}" alt="">
+                @else
+                    <i class="bi bi-camera"></i>
+                @endif
+            </span>
+            <span class="photo-dropzone-text">
+                <strong>Glissez-déposez votre photo</strong>
+                <span class="d-block small text-secondary">ou cliquez pour parcourir (JPG, PNG — 2 Mo max.)</span>
+            </span>
+        </label>
         @error('photo')
-            <div class="invalid-feedback">{{ $message }}</div>
+            <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
     </div>
 
@@ -55,3 +63,67 @@
 
     <button type="submit" class="btn btn-primary">Enregistrer les informations</button>
 </form>
+
+@push('scripts')
+    <script>
+        (function () {
+            document.querySelectorAll('[data-photo-dropzone]').forEach(function (zone) {
+                const input = zone.querySelector('[data-photo-input]');
+                const preview = zone.querySelector('[data-photo-preview]');
+
+                if (!input || !preview) {
+                    return;
+                }
+
+                function showPreview(file) {
+                    if (!file || !file.type || !file.type.startsWith('image/')) {
+                        return;
+                    }
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        preview.innerHTML = '';
+                        const image = document.createElement('img');
+                        image.src = event.target.result;
+                        image.alt = '';
+                        preview.appendChild(image);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+
+                ['dragenter', 'dragover'].forEach(function (eventName) {
+                    zone.addEventListener(eventName, function (event) {
+                        event.preventDefault();
+                        zone.classList.add('is-dragover');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(function (eventName) {
+                    zone.addEventListener(eventName, function (event) {
+                        event.preventDefault();
+                        zone.classList.remove('is-dragover');
+                    });
+                });
+
+                zone.addEventListener('drop', function (event) {
+                    const files = event.dataTransfer && event.dataTransfer.files;
+
+                    if (!files || files.length === 0) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(files[0]);
+                    input.files = transfer.files;
+                    showPreview(files[0]);
+                });
+
+                input.addEventListener('change', function () {
+                    showPreview(input.files && input.files[0]);
+                });
+            });
+        })();
+    </script>
+@endpush

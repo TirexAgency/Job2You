@@ -32,7 +32,7 @@ class CandidateProfileFactory extends Factory
             ]),
             'location' => $this->faker->city(),
             'city' => $this->faker->city(),
-            'region' => $this->faker->state(),
+            'region' => $this->faker->region(),
             'mobility' => $this->faker->randomElement(['local', 'regional', 'national', 'remote']),
             'latitude' => $this->faker->latitude(),
             'longitude' => $this->faker->longitude(),

@@ -1,7 +1,7 @@
 <section class="bg-white border rounded-3 p-4 p-md-5 mb-4">
     <div class="d-flex flex-column flex-md-row align-items-center gap-4 border-bottom pb-4 mb-4">
-        @if (auth()->user()->photo_path)
-            <img src="{{ asset('storage/'.auth()->user()->photo_path) }}" alt="Photo de {{ auth()->user()->name }}" class="rounded-circle shadow-sm border border-3 border-white" style="width: 120px; height: 120px; object-fit: cover;">
+        @if (auth()->user()->photo_url)
+            <img src="{{ auth()->user()->photo_url }}" alt="Photo de {{ auth()->user()->name }}" class="rounded-circle shadow-sm border border-3 border-white" style="width: 120px; height: 120px; object-fit: cover;">
         @else
             <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 120px; height: 120px; font-size: 3rem;">{{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
         @endif

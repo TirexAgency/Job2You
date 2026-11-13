@@ -39,8 +39,8 @@ class UserController extends Controller
 
         return view('admin.users.index', [
             'users' => $users,
-            'roles' => ['candidate', 'admin', 'recruiter'],
-            'statuses' => ['pending', 'active', 'inactive', 'suspended'],
+            'roles' => User::roleLabels(),
+            'statuses' => User::statusLabels(),
         ]);
     }
 

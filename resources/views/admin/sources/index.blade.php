@@ -19,8 +19,8 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Nom</th>
-                                <th>Base URL</th>
-                                <th>Collector key</th>
+                                <th>URL de base</th>
+                                <th>Clé collecteur</th>
                                 <th>Dernière exécution</th>
                                 <th>Actif</th>
                                 <th class="text-end">Actions</th>

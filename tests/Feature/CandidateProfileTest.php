@@ -117,6 +117,57 @@ class CandidateProfileTest extends TestCase
         ])->assertSessionHasErrors('end_date');
     }
 
+    public function test_experience_dates_can_be_selected_with_day_month_year_fields(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('candidate.experiences.store'), [
+            'company' => 'ACME',
+            'position' => 'Dev',
+            'start_date_day' => '15',
+            'start_date_month' => '3',
+            'start_date_year' => '2019',
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $experience = $user->fresh()->candidateProfile->experiences->first();
+
+        $this->assertSame('2019-03-15', $experience->start_date->format('Y-m-d'));
+        $this->assertNull($experience->end_date);
+    }
+
+    public function test_education_dates_can_be_selected_with_day_month_year_fields(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('candidate.educations.store'), [
+            'school' => 'Université d’Antananarivo',
+            'degree' => 'Licence Informatique',
+            'start_date_day' => '1',
+            'start_date_month' => '9',
+            'start_date_year' => '2018',
+            'end_date_day' => '30',
+            'end_date_month' => '6',
+            'end_date_year' => '2021',
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $education = $user->fresh()->candidateProfile->educations->first();
+
+        $this->assertSame('2018-09-01', $education->start_date->format('Y-m-d'));
+        $this->assertSame('2021-06-30', $education->end_date->format('Y-m-d'));
+    }
+
+    public function test_validation_messages_are_in_french(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('candidate.experiences.store'), [
+            'company' => 'ACME',
+            'position' => 'Dev',
+        ])->assertSessionHasErrors([
+            'start_date' => 'Le champ date de début est obligatoire.',
+        ]);
+    }
+
     public function test_skill_is_added_with_level_and_removed(): void
     {
         $user = User::factory()->create();
@@ -165,17 +216,17 @@ class CandidateProfileTest extends TestCase
         $this->assertSame('Licence Informatique', $education->degree);
     }
 
-    public function test_candidate_can_change_plan(): void
+    public function test_candidate_is_redirected_to_checkout_for_paid_plan(): void
     {
         $user = User::factory()->create(['plan' => 'free', 'sms_quota' => 2]);
         $plan = Plan::create(['name' => 'Premium', 'price' => 49000, 'duration_days' => 30, 'sms_quota' => 50, 'active' => true]);
 
         $this->actingAs($user)->post(route('candidate.subscription.change'), ['plan_id' => $plan->id])
-            ->assertRedirect(route('candidate.subscription'));
+            ->assertRedirect(route('candidate.checkout', $plan))
+            ->assertSessionHas('info');
 
-        $this->assertSame('premium', $user->fresh()->plan);
-        $this->assertSame(50, $user->fresh()->sms_quota);
-        $this->assertDatabaseHas('subscriptions', ['user_id' => $user->id, 'plan_id' => $plan->id, 'status' => 'active', 'sms_remaining' => 50]);
+        $this->assertSame('free', $user->fresh()->plan);
+        $this->assertDatabaseMissing('subscriptions', ['user_id' => $user->id, 'plan_id' => $plan->id]);
     }
 
     public function test_candidate_can_toggle_sms_alerts(): void

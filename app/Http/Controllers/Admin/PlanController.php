@@ -24,7 +24,12 @@ class PlanController extends Controller
         $plans = Plan::query()
             ->withCount([
                 'subscriptions',
-                'subscriptions as active_subscriptions_count' => fn ($query) => $query->where('status', 'active'),
+                'subscriptions as active_subscriptions_count' => fn ($query) => $query
+                    ->where('status', 'active')
+                    ->where(function ($query) {
+                        $query->whereNull('ends_at')
+                            ->orWhere('ends_at', '>', now());
+                    }),
                 'payments',
             ])
             ->orderBy('price')

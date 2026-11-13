@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -51,6 +52,20 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
+     * URL publique de la photo de profil, ou null si le fichier est absent.
+     */
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (! $this->photo_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->exists($this->photo_path)
+            ? Storage::disk('public')->url($this->photo_path)
+            : null;
+    }
+
+    /**
      * Relation avec les abonnements.
      */
     public function candidateProfile(): HasOne
@@ -76,6 +91,46 @@ class User extends Authenticatable implements MustVerifyEmail
                 $query->whereNull('ends_at')
                     ->orWhere('ends_at', '>', now());
             });
+    }
+
+    /**
+     * Retourne l'abonnement actif le plus récent avec sa formule.
+     */
+    public function activeSubscription(): ?Subscription
+    {
+        return $this->activeSubscriptions()->with('plan')->latest('starts_at')->first();
+    }
+
+    /**
+     * Retourne la formule active de l'utilisateur.
+     */
+    public function currentPlan(): ?Plan
+    {
+        return $this->activeSubscription()?->plan;
+    }
+
+    /**
+     * Vérifie si la formule active donne accès à une fonctionnalité.
+     */
+    public function hasPlanFeature(string $feature): bool
+    {
+        return $this->currentPlan()?->hasFeature($feature) ?? false;
+    }
+
+    /**
+     * Libellé de la formule actuelle pour l'affichage.
+     */
+    public function planDisplayName(): string
+    {
+        $plan = $this->currentPlan();
+
+        if ($plan) {
+            return $plan->isFree() ? 'Gratuite' : ucfirst($plan->name);
+        }
+
+        return $this->plan === 'free' || ! $this->plan
+            ? 'Gratuite'
+            : ucfirst((string) $this->plan);
     }
 
     /**
@@ -122,14 +177,66 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->sms_quota;
     }
 
+    /**
+     * Libellés français des rôles.
+     *
+     * @return array<string, string>
+     */
+    public static function roleLabels(): array
+    {
+        return [
+            'candidate' => 'Candidat',
+            'admin' => 'Administrateur',
+            'recruiter' => 'Recruteur',
+        ];
+    }
+
+    /**
+     * Libellé français du rôle de l'utilisateur.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return self::roleLabels()[$this->role ?? ''] ?? 'Utilisateur';
+    }
+
+    /**
+     * Libellés français des statuts de compte.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            'pending' => 'En attente',
+            'active' => 'Actif',
+            'inactive' => 'Inactif',
+            'suspended' => 'Suspendu',
+        ];
+    }
+
+    /**
+     * Libellé français du statut du compte.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return self::statusLabels()[$this->status ?? ''] ?? ucfirst((string) $this->status);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
+    public function isCandidate(): bool
+    {
+        return $this->role === 'candidate';
+    }
+
     public function isPremium(): bool
     {
-        return $this->plan !== 'free';
+        $plan = $this->currentPlan();
+
+        return $plan ? ! $plan->isFree() : $this->plan !== 'free';
     }
 
     public function hasFreeSmsRemaining(): bool

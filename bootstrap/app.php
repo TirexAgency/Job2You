@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Enregistrement des alias de middleware personnalisés
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'plan.feature' => \App\Http\Middleware\EnsurePlanFeature::class,
+            'subscription.current' => \App\Http\Middleware\EnsureSubscriptionIsCurrent::class,
         ]);
 
         // Remplacer le middleware CSRF par notre version avec exceptions

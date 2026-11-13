@@ -46,3 +46,12 @@ Schedule::command('sms:reset-quotas')
     ->name('sms-reset-quotas')
     ->dailyAt('00:05')
     ->withoutOverlapping();
+
+// Détection quotidienne des abonnements arrivés à échéance.
+Schedule::command('subscriptions:expire')
+    ->name('subscriptions-expire')
+    ->dailyAt('00:10')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        Log::error('Scheduler: Échec de l’expiration des abonnements');
+    });

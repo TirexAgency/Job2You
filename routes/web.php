@@ -29,6 +29,7 @@ use App\Models\SmsLog;
 use App\Models\Subscription;
 use App\Services\MatchingService;
 use App\Services\Sms\SmsQuotaService;
+use App\Services\Subscriptions\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -147,7 +148,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     })->name('offers.toggle');
 });
 
-Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
+Route::middleware(['auth', 'role:candidate', 'subscription.current'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::get('/dashboard', CandidateDashboardController::class)->name('dashboard');
 
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
@@ -169,9 +170,6 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
         return view('candidate.cv', compact('parses', 'cvParsingEnabled'));
     })->name('cv');
     Route::post('/cv', function (Request $request) {
-        $subscription = $request->user()->activeSubscriptions()->with('plan')->first();
-        abort_unless($subscription?->plan?->cv_parsing_enabled, 403, 'Votre plan n\'inclut pas l\'analyse de CV.');
-
         $validated = $request->validate([
             'cv' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ]);
@@ -180,15 +178,23 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
         CvParse::create(['user_id' => $request->user()->id, 'file_path' => $path, 'status' => 'pending']);
 
         return redirect()->route('candidate.cv')->with('status', 'cv-uploaded');
-    })->name('cv.upload');
+    })->middleware('plan.feature:cv_parsing')->name('cv.upload');
     Route::post('/cv/{parse}/validate', function (Request $request, CvParse $parse) {
         abort_unless($parse->user_id === $request->user()->id, 403);
         $parse->update(['validated_at' => now(), 'status' => 'done']);
 
         return redirect()->route('candidate.cv')->with('status', 'cv-validated');
-    })->name('cv.validate');
+    })->middleware('plan.feature:cv_parsing')->name('cv.validate');
 
-    Route::post('/checkout/{plan}', function (Request $request, Plan $plan) {
+    Route::post('/checkout/{plan}', function (Request $request, Plan $plan, SubscriptionService $subscriptionService) {
+        abort_unless($plan->active, 404);
+
+        if ($plan->isFree()) {
+            $subscriptionService->activate($request->user(), $plan);
+
+            return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
+        }
+
         $payment = Payment::create([
             'user_id' => $request->user()->id,
             'plan_id' => $plan->id,
@@ -206,27 +212,24 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
         return view('candidate.payment-sandbox', compact('payment'));
     })->name('payment.sandbox');
-    Route::post('/payment/{payment}/sandbox/{outcome}', function (Request $request, Payment $payment, string $outcome) {
+    Route::post('/payment/{payment}/sandbox/{outcome}', function (Request $request, Payment $payment, string $outcome, SubscriptionService $subscriptionService) {
         abort_unless($payment->user_id === $request->user()->id, 403);
         abort_unless(in_array($outcome, ['success', 'failed'], true), 404);
 
-        $payment->update(['status' => $outcome === 'success' ? 'paid' : 'failed']);
-
-        if ($outcome === 'success') {
-            $plan = $payment->plan;
-            $user = $request->user();
-            $user->activeSubscriptions()->update(['status' => 'inactive', 'ends_at' => now()]);
-            Subscription::create([
-                'user_id' => $user->id,
-                'plan_id' => $plan->id,
-                'starts_at' => now(),
-                'ends_at' => now()->addDays($plan->duration_days ?: 30),
-                'sms_remaining' => $plan->sms_quota,
-                'sms_reset_at' => $plan->price > 0 ? now() : null,
-                'status' => 'active',
-            ]);
-            $user->update(['plan' => strtolower($plan->name), 'sms_quota' => $plan->sms_quota, 'sms_sent' => 0]);
+        if ($payment->status === 'paid') {
+            return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
         }
+
+        if ($outcome === 'failed') {
+            $payment->update(['status' => 'failed']);
+
+            return redirect()->route('candidate.subscription')->with('status', 'payment-failed');
+        }
+
+        $payment->loadMissing('plan');
+        abort_unless($payment->plan, 404);
+
+        $subscriptionService->activate($request->user(), $payment->plan, $payment);
 
         return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
     })->name('payment.sandbox.confirm');
@@ -276,29 +279,17 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
         return view('candidate.subscription', compact('subscription', 'plans', 'smsRemaining', 'smsQuotaLimit'));
     })->name('subscription');
-    Route::post('/subscription/change', function (Request $request) {
+    Route::post('/subscription/change', function (Request $request, SubscriptionService $subscriptionService) {
         $validated = $request->validate(['plan_id' => ['required', 'exists:plans,id']]);
-        $plan = Plan::findOrFail($validated['plan_id']);
-        $user = $request->user();
+        $plan = Plan::query()->where('active', true)->findOrFail($validated['plan_id']);
 
-        // Clôture l'abonnement actif actuel
-        $user->activeSubscriptions()->update(['status' => 'inactive', 'ends_at' => now()]);
+        if (! $plan->isFree()) {
+            return redirect()
+                ->route('candidate.checkout', $plan)
+                ->with('info', 'Finalisez le paiement pour activer cette formule.');
+        }
 
-        Subscription::create([
-            'user_id' => $user->id,
-            'plan_id' => $plan->id,
-            'starts_at' => now(),
-            'ends_at' => now()->addDays($plan->duration_days),
-            'sms_remaining' => $plan->sms_quota,
-            'sms_reset_at' => $plan->price > 0 ? now() : null,
-            'status' => 'active',
-        ]);
-
-        $user->update([
-            'plan' => strtolower($plan->name),
-            'sms_quota' => $plan->sms_quota,
-            'sms_sent' => 0,
-        ]);
+        $subscriptionService->activate($request->user(), $plan);
 
         return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
     })->name('subscription.change');
@@ -310,7 +301,9 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
 // Routes publiques
 Route::get('/pricing', function () {
-    return view('pricing');
+    $plans = Plan::query()->active()->orderBy('price')->get();
+
+    return view('pricing', compact('plans'));
 })->name('pricing');
 
 Route::get('/how-it-works', function () {

@@ -30,14 +30,14 @@
                     <dt class="col-sm-4 text-secondary">Rôle</dt>
                     <dd class="col-sm-8">
                         <span class="badge bg-{{ $user->role === 'admin' ? 'danger' : ($user->role === 'recruiter' ? 'warning' : 'info') }}">
-                            {{ ucfirst($user->role) }}
+                            {{ $user->role_label }}
                         </span>
                     </dd>
 
                     <dt class="col-sm-4 text-secondary">Statut</dt>
                     <dd class="col-sm-8">
                         <span class="badge bg-{{ $user->status === 'active' ? 'success' : ($user->status === 'pending' ? 'warning' : 'secondary') }}">
-                            {{ ucfirst($user->status) }}
+                            {{ $user->status_label }}
                         </span>
                     </dd>
 

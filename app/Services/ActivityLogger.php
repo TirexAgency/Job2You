@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Plan;
+use App\Models\Subscription;
 use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
 
@@ -200,6 +202,41 @@ class ActivityLogger
             $logger->info("👤 Action admin : {$action}".($details ? " — {$details}" : ''), [
                 'action' => 'admin_action',
                 'details' => $details,
+                'horodatage' => now()->format('d/m/Y H:i:s'),
+            ]);
+        }
+    }
+
+    /**
+     * Log l'activation d'un abonnement.
+     */
+    public function subscriptionActivated(Subscription $subscription): void
+    {
+        $logger = $this->getLogger();
+        if ($logger) {
+            $logger->info('💳 Abonnement activé', [
+                'action' => 'subscription_activated',
+                'utilisateur' => $subscription->user?->email,
+                'plan' => $subscription->plan?->name,
+                'debut' => $subscription->starts_at?->format('d/m/Y H:i'),
+                'fin' => $subscription->ends_at?->format('d/m/Y H:i'),
+                'horodatage' => now()->format('d/m/Y H:i:s'),
+            ]);
+        }
+    }
+
+    /**
+     * Log l'expiration d'un abonnement et la rétrogradation éventuelle.
+     */
+    public function subscriptionExpired(Subscription $subscription, ?Plan $fallbackPlan = null): void
+    {
+        $logger = $this->getLogger();
+        if ($logger) {
+            $logger->info('⌛ Abonnement expiré', [
+                'action' => 'subscription_expired',
+                'utilisateur' => $subscription->user?->email,
+                'plan' => $subscription->plan?->name,
+                'plan_retrograde' => $fallbackPlan?->name,
                 'horodatage' => now()->format('d/m/Y H:i:s'),
             ]);
         }

@@ -43,8 +43,8 @@
                             <label for="role" class="form-label">Rôle</label>
                             <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
                                 <option value="">Sélectionner un rôle</option>
-                                @foreach($roles as $role)
-                                    <option value="{{ $role }}" {{ old('role', $user->role) === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                @foreach($roles as $roleValue => $roleLabel)
+                                    <option value="{{ $roleValue }}" {{ old('role', $user->role) === $roleValue ? 'selected' : '' }}>{{ $roleLabel }}</option>
                                 @endforeach
                             </select>
                             @error('role')
@@ -56,8 +56,8 @@
                             <label for="status" class="form-label">Statut</label>
                             <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
                                 <option value="">Sélectionner un statut</option>
-                                @foreach($statuses as $status)
-                                    <option value="{{ $status }}" {{ old('status', $user->status) === $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
+                                @foreach($statuses as $statusValue => $statusLabel)
+                                    <option value="{{ $statusValue }}" {{ old('status', $user->status) === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
                                 @endforeach
                             </select>
                             @error('status')
@@ -70,7 +70,7 @@
                             <input type="text" class="form-control @error('plan') is-invalid @enderror" id="plan" name="plan" value="{{ old('plan', $user->plan) }}" required>
                             @error('plan')
                                 <div class="invalid-feedback">{{ $message }}</div>
-                            @endif
+                            @enderror
                         </div>
 
                         <div class="col-md-6">
@@ -78,7 +78,7 @@
                             <input type="number" class="form-control @error('sms_quota') is-invalid @enderror" id="sms_quota" name="sms_quota" value="{{ old('sms_quota', $user->sms_quota) }}" min="0" required>
                             @error('sms_quota')
                                 <div class="invalid-feedback">{{ $message }}</div>
-                            @endif
+                            @enderror
                         </div>
 
                         <div class="col-12">
@@ -91,7 +91,7 @@
                             <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password">
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
-                            @endif
+                            @enderror
                         </div>
 
                         <div class="col-md-6">

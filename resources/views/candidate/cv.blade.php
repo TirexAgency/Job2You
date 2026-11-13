@@ -16,7 +16,7 @@
                 <i class="bi bi-exclamation-triangle-fill alert-icon mt-1" aria-hidden="true"></i>
                 <div>
                     Votre formule actuelle n’inclut pas l’analyse de CV par IA.
-                    <a href="{{ route('candidate.subscription') }}" class="alert-link">Passer à une formule Premium</a>.
+                    <a href="{{ route('candidate.subscription') }}" class="alert-link">Voir les formules disponibles</a>.
                 </div>
             </div>
         @else

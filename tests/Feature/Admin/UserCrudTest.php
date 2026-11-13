@@ -96,7 +96,7 @@ class UserCrudTest extends TestCase
         $response
             ->assertSee('alert-danger')
             ->assertSee('data-auto-open="true"', false)
-            ->assertSee('The email field must be a valid email address.');
+            ->assertSee('Le champ adresse e-mail doit être une adresse e-mail valide.');
     }
 
     public function test_admin_can_update_user(): void
@@ -145,7 +145,7 @@ class UserCrudTest extends TestCase
         $response
             ->assertSee('alert-danger')
             ->assertSee('data-auto-open="true"', false)
-            ->assertSee('The email field must be a valid email address.');
+            ->assertSee('Le champ adresse e-mail doit être une adresse e-mail valide.');
     }
 
     public function test_admin_can_update_user_password(): void
