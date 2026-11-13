@@ -9,7 +9,8 @@
    Job2You — système de design
    --------------------------------------------------------------------------
    Monde : bureau de recrutement. Papier chaud, encre, filets fins, un seul
-   accent vert de tampon. Le contenu porte la couleur, pas le chrome.
+   accent bleu de tampon (celui du logo). Le contenu porte la couleur, pas le
+   chrome.
    ========================================================================== */
 
 :root {
@@ -23,18 +24,18 @@
 	--j2y-line: rgba(28, 27, 23, 0.12);
 	--j2y-line-strong: rgba(28, 27, 23, 0.22);
 
-	/* Accent : vert de tampon */
-	--j2y-accent: #14603f;
-	--j2y-accent-ink: #0d4a30;
-	--j2y-accent-soft: #e7f0ea;
+	/* Accent : bleu de tampon (celui du logo) */
+	--j2y-accent: #0b4fa8;
+	--j2y-accent-ink: #083a7c;
+	--j2y-accent-soft: #e6eef9;
 
 	/* Signaux, volontairement sourds */
 	--j2y-warning: #8a5a12;
 	--j2y-warning-soft: #f6eedd;
 	--j2y-danger: #9c3a2a;
 	--j2y-danger-soft: #f7e9e5;
-	--j2y-success: #14603f;
-	--j2y-success-soft: #e7f0ea;
+	--j2y-success: #0b4fa8;
+	--j2y-success-soft: #e6eef9;
 
 	/* Rythme */
 	--j2y-radius-sm: 6px;
@@ -56,12 +57,12 @@
 	--j2y-muted: var(--j2y-ink-3);
 
 	/* Bootstrap */
-	--bs-primary: #14603f;
-	--bs-primary-rgb: 20, 96, 63;
-	--bs-link-color: #14603f;
-	--bs-link-color-rgb: 20, 96, 63;
-	--bs-link-hover-color: #0d4a30;
-	--bs-link-hover-color-rgb: 13, 74, 48;
+	--bs-primary: #0b4fa8;
+	--bs-primary-rgb: 11, 79, 168;
+	--bs-link-color: #0b4fa8;
+	--bs-link-color-rgb: 11, 79, 168;
+	--bs-link-hover-color: #083a7c;
+	--bs-link-hover-color-rgb: 8, 58, 124;
 	--bs-body-font-family: var(--j2y-font);
 	--bs-body-color: var(--j2y-ink);
 	--bs-body-bg: var(--j2y-paper);
@@ -157,7 +158,7 @@ pre {
 	--bs-btn-padding-y: 0.5rem;
 	--bs-btn-padding-x: 1rem;
 	--bs-btn-border-radius: var(--j2y-radius-sm);
-	--bs-btn-focus-box-shadow: 0 0 0 3px rgba(20, 96, 63, 0.18);
+	--bs-btn-focus-box-shadow: 0 0 0 3px rgba(11, 79, 168, 0.18);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -197,8 +198,8 @@ pre {
 	--bs-btn-hover-color: #fff;
 	--bs-btn-active-bg: var(--j2y-accent-ink);
 	--bs-btn-active-border-color: var(--j2y-accent-ink);
-	--bs-btn-disabled-bg: #9db3a8;
-	--bs-btn-disabled-border-color: #9db3a8;
+	--bs-btn-disabled-bg: #93aed4;
+	--bs-btn-disabled-border-color: #93aed4;
 	background-image: none;
 	box-shadow: none;
 }
@@ -245,12 +246,12 @@ pre {
 }
 
 .btn-outline-light {
-	--bs-btn-color: #f4f1e8;
-	--bs-btn-border-color: rgba(244, 241, 232, 0.35);
-	--bs-btn-hover-bg: rgba(244, 241, 232, 0.12);
-	--bs-btn-hover-border-color: rgba(244, 241, 232, 0.6);
+	--bs-btn-color: #f0f4fa;
+	--bs-btn-border-color: rgba(224, 234, 248, 0.35);
+	--bs-btn-hover-bg: rgba(224, 234, 248, 0.12);
+	--bs-btn-hover-border-color: rgba(224, 234, 248, 0.6);
 	--bs-btn-hover-color: #fff;
-	--bs-btn-active-bg: rgba(244, 241, 232, 0.16);
+	--bs-btn-active-bg: rgba(224, 234, 248, 0.16);
 	--bs-btn-active-color: #fff;
 }
 
@@ -271,7 +272,7 @@ pre {
 
 .btn-check:focus + .btn,
 .btn:focus-visible {
-	box-shadow: 0 0 0 3px rgba(20, 96, 63, 0.18);
+	box-shadow: 0 0 0 3px rgba(11, 79, 168, 0.18);
 }
 
 .form-label {
@@ -305,7 +306,7 @@ pre {
 	color: var(--j2y-ink);
 	background-color: var(--j2y-surface);
 	border-color: var(--j2y-accent);
-	box-shadow: 0 0 0 3px rgba(20, 96, 63, 0.14);
+	box-shadow: 0 0 0 3px rgba(11, 79, 168, 0.14);
 }
 
 .form-control::placeholder {
@@ -352,7 +353,7 @@ textarea.form-control {
 
 .form-check-input:focus {
 	border-color: var(--j2y-accent);
-	box-shadow: 0 0 0 3px rgba(20, 96, 63, 0.14);
+	box-shadow: 0 0 0 3px rgba(11, 79, 168, 0.14);
 }
 
 .form-switch .form-check-input {
@@ -407,13 +408,13 @@ textarea.form-control {
 .alert-success {
 	color: var(--j2y-accent-ink);
 	background: var(--j2y-success-soft);
-	border-color: rgba(20, 96, 63, 0.2);
+	border-color: rgba(11, 79, 168, 0.2);
 }
 
 .alert-info {
-	color: #2f4a5a;
-	background: #eef2f3;
-	border-color: #d8e0e2;
+	color: #1e3a5f;
+	background: #eef2f9;
+	border-color: #d9e1ee;
 }
 
 .alert-warning {
@@ -535,7 +536,7 @@ textarea.form-control {
 	--bs-pagination-hover-border-color: var(--j2y-line-strong);
 	--bs-pagination-active-bg: var(--j2y-accent);
 	--bs-pagination-active-border-color: var(--j2y-accent);
-	--bs-pagination-focus-box-shadow: 0 0 0 3px rgba(20, 96, 63, 0.14);
+	--bs-pagination-focus-box-shadow: 0 0 0 3px rgba(11, 79, 168, 0.14);
 	gap: 0.25rem;
 }
 
@@ -972,7 +973,7 @@ textarea.form-control {
 }
 
 .public-navbar .navbar-toggler:focus {
-	box-shadow: 0 0 0 3px rgba(20, 96, 63, 0.14);
+	box-shadow: 0 0 0 3px rgba(11, 79, 168, 0.14);
 }
 
 .public-nav-link {
@@ -1229,7 +1230,7 @@ textarea.form-control {
 	margin-bottom: 1rem;
 	padding: 0.9rem 1rem;
 	background: var(--j2y-accent-soft);
-	border: 1px solid rgba(20, 96, 63, 0.18);
+	border: 1px solid rgba(11, 79, 168, 0.18);
 	border-radius: var(--j2y-radius);
 }
 
@@ -1245,7 +1246,7 @@ textarea.form-control {
 	font-size: 1rem;
 	font-weight: 500;
 	background: var(--j2y-surface);
-	border: 1px solid rgba(20, 96, 63, 0.25);
+	border: 1px solid rgba(11, 79, 168, 0.25);
 	border-radius: 50%;
 	box-shadow: none;
 	font-variant-numeric: tabular-nums;
@@ -1599,7 +1600,7 @@ textarea.form-control {
 	text-transform: none;
 	white-space: nowrap;
 	background: var(--j2y-accent-soft);
-	border: 1px solid rgba(20, 96, 63, 0.2);
+	border: 1px solid rgba(11, 79, 168, 0.2);
 	border-radius: 4px;
 	transform: none;
 	box-shadow: none;
@@ -1749,15 +1750,15 @@ textarea.form-control {
 	position: relative;
 	overflow: hidden;
 	padding: 2.75rem 1.5rem;
-	color: #f4f1e8;
+	color: #f0f4fa;
 	text-align: center;
-	background: #1b2a24;
+	background: #10213c;
 	border-radius: var(--j2y-radius-lg);
 	box-shadow: none;
 }
 
 .public-cta-band h2 {
-	color: #f7f4ec;
+	color: #f5f8fd;
 	font-size: clamp(1.5rem, 2.6vw, 2rem);
 	font-weight: 600;
 	letter-spacing: -0.02em;
@@ -1766,27 +1767,27 @@ textarea.form-control {
 .public-cta-band p {
 	max-width: 32rem;
 	margin-inline: auto;
-	color: #b9c6bd;
+	color: #b4c2d6;
 }
 
 .public-cta-band .public-eyebrow {
-	color: #9db3a8;
+	color: #93aed4;
 }
 
 .public-cta-band .public-eyebrow i {
-	color: #9db3a8;
+	color: #93aed4;
 }
 
 /* Pied de page public. */
 .public-footer {
 	padding: 3rem 0 1.25rem;
-	color: #a8b3ab;
-	background: #1b2a24;
+	color: #a9b7cc;
+	background: #10213c;
 }
 
 .public-footer h4 {
 	margin-bottom: 0.75rem;
-	color: #f4f1e8;
+	color: #f0f4fa;
 	font-size: 0.8125rem;
 	font-weight: 500;
 	letter-spacing: 0;
@@ -1794,7 +1795,7 @@ textarea.form-control {
 }
 
 .public-footer a {
-	color: #a8b3ab;
+	color: #a9b7cc;
 	font-size: 0.875rem;
 	text-decoration: none;
 	transition: color 0.15s ease;
@@ -1830,7 +1831,7 @@ textarea.form-control {
 .public-footer .footer-description {
 	max-width: 20rem;
 	margin: 0.9rem 0 0;
-	color: #a8b3ab;
+	color: #a9b7cc;
 	font-size: 0.875rem;
 	line-height: 1.65;
 }
@@ -1840,7 +1841,7 @@ textarea.form-control {
 	align-items: center;
 	gap: 0.35rem;
 	padding: 0;
-	color: #a8b3ab;
+	color: #a9b7cc;
 	font-size: 0.78rem;
 	font-weight: 500;
 	background: transparent;
@@ -1861,7 +1862,7 @@ textarea.form-control {
 	padding-top: 1rem;
 	color: #7f8c84;
 	font-size: 0.8rem;
-	border-top: 1px solid rgba(244, 241, 232, 0.14);
+	border-top: 1px solid rgba(224, 234, 248, 0.14);
 }
 
 /* --------------------------------------------------------------------------
@@ -1953,8 +1954,8 @@ textarea.form-control {
 	flex-direction: column;
 	justify-content: space-between;
 	padding: 2rem;
-	color: #eef2ee;
-	background: #1b2a24;
+	color: #eaf0f8;
+	background: #10213c;
 }
 
 .auth-aside .auth-aside-brand {
@@ -1975,7 +1976,7 @@ textarea.form-control {
 .auth-aside h2 {
 	max-width: 20rem;
 	margin: 2rem 0 0.75rem;
-	color: #f7f4ec;
+	color: #f5f8fd;
 	font-size: 1.6rem;
 	font-weight: 600;
 	letter-spacing: -0.02em;
@@ -1984,7 +1985,7 @@ textarea.form-control {
 .auth-aside p {
 	max-width: 22rem;
 	margin-bottom: 0;
-	color: #b9c6bd;
+	color: #b4c2d6;
 	font-size: 0.9rem;
 	line-height: 1.6;
 }
@@ -2016,7 +2017,7 @@ textarea.form-control {
 	padding-top: 1rem;
 	color: #8f9d94;
 	font-size: 0.78rem;
-	border-top: 1px solid rgba(244, 241, 232, 0.14);
+	border-top: 1px solid rgba(224, 234, 248, 0.14);
 }
 
 .auth-form-side {
@@ -2639,20 +2640,20 @@ textarea.form-control {
 
 /* --------------------------------------------------------------------------
    Alignement des couleurs Bootstrap sur la palette.
-   Les variables « subtle » restaient bleues par défaut, ce qui faisait
+   Les variables « subtle » restaient au bleu Bootstrap par défaut, ce qui faisait
    apparaître des pastilles et des icônes hors palette dans les espaces
    candidat et administration.
    -------------------------------------------------------------------------- */
 
 :root {
 	--bs-primary-bg-subtle: var(--j2y-accent-soft);
-	--bs-primary-border-subtle: rgba(20, 96, 63, 0.24);
+	--bs-primary-border-subtle: rgba(11, 79, 168, 0.24);
 	--bs-primary-text-emphasis: var(--j2y-accent-ink);
 	--bs-secondary-bg-subtle: var(--j2y-paper);
 	--bs-secondary-border-subtle: var(--j2y-line);
 	--bs-secondary-text-emphasis: var(--j2y-ink-2);
 	--bs-success-bg-subtle: var(--j2y-success-soft);
-	--bs-success-border-subtle: rgba(20, 96, 63, 0.22);
+	--bs-success-border-subtle: rgba(11, 79, 168, 0.22);
 	--bs-success-text-emphasis: var(--j2y-accent-ink);
 	--bs-info-bg-subtle: var(--j2y-paper);
 	--bs-info-border-subtle: var(--j2y-line);
@@ -2667,9 +2668,9 @@ textarea.form-control {
 	--bs-light-border-subtle: var(--j2y-line);
 	--bs-dark-bg-subtle: var(--j2y-ink);
 	--bs-info: var(--j2y-accent);
-	--bs-info-rgb: 20, 96, 63;
+	--bs-info-rgb: 11, 79, 168;
 	--bs-success: var(--j2y-success);
-	--bs-success-rgb: 20, 96, 63;
+	--bs-success-rgb: 11, 79, 168;
 	--bs-warning: var(--j2y-warning);
 	--bs-warning-rgb: 138, 90, 18;
 	--bs-danger: var(--j2y-danger);
