@@ -7,6 +7,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -58,6 +59,7 @@ class PlanFeatureAccessTest extends TestCase
 
     public function test_expired_premium_subscription_is_blocked_from_cv_parsing(): void
     {
+        Notification::fake();
         Storage::fake('local');
 
         Plan::factory()->free()->create();

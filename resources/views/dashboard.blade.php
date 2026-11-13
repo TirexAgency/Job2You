@@ -36,7 +36,7 @@
                     <div class="col-sm-6 col-xl-4">
                         <article class="h-100 bg-white border rounded-3 p-4">
                             <p class="small text-secondary mb-2">Formule</p>
-                            <p class="h3 fw-bold mb-1">{{ $user->plan === 'free' ? 'Gratuite' : ucfirst($user->plan) }}</p>
+                            <p class="h3 fw-bold mb-1">{{ $user->planDisplayName() }}</p>
                             <p class="small text-secondary mb-0">Votre abonnement actuel</p>
                         </article>
                     </div>

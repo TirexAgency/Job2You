@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\EnsurePlanFeature;
+use App\Http\Middleware\EnsureSubscriptionIsCurrent;
+use App\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,13 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Enregistrement des alias de middleware personnalisés
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
-            'plan.feature' => \App\Http\Middleware\EnsurePlanFeature::class,
-            'subscription.current' => \App\Http\Middleware\EnsureSubscriptionIsCurrent::class,
+            'role' => CheckRole::class,
+            'plan.feature' => EnsurePlanFeature::class,
+            'subscription.current' => EnsureSubscriptionIsCurrent::class,
         ]);
 
         // Remplacer le middleware CSRF par notre version avec exceptions
-        $middleware->replace(\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class, \App\Http\Middleware\PreventRequestForgery::class);
+        $middleware->replace(Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class, PreventRequestForgery::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

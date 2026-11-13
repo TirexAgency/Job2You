@@ -184,7 +184,7 @@ class AuthSecurityTest extends TestCase
         $this->actingAs($user)
             ->get(route('candidate.dashboard'))
             ->assertOk()
-            ->assertSee('Bonjour')
+            ->assertSee('Tableau de bord')
             ->assertSee($user->name)
             ->assertSee('SMS restants');
     }

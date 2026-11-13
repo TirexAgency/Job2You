@@ -3,7 +3,7 @@
         <header class="app-page-header">
             <div>
                 <p class="app-eyebrow">Espace candidat</p>
-                <h1>Tableau de bord</h1>
+                <h1>Bonjour {{ auth()->user()->name }}</h1>
                 <p class="text-secondary mb-0">Vos correspondances et vos alertes du jour.</p>
             </div>
             <div class="d-flex flex-wrap gap-2">

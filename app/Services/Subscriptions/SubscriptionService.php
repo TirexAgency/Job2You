@@ -122,7 +122,7 @@ class SubscriptionService
      */
     public function expire(Subscription $subscription): bool
     {
-        return DB::transaction(function () use ($subscription): bool {
+        $result = DB::transaction(function () use ($subscription): ?array {
             $lockedSubscription = Subscription::query()
                 ->with('plan')
                 ->lockForUpdate()
@@ -132,13 +132,13 @@ class SubscriptionService
                 || $lockedSubscription->status !== 'active'
                 || ! $lockedSubscription->ends_at
                 || $lockedSubscription->ends_at->isFuture()) {
-                return false;
+                return null;
             }
 
             $user = User::query()->lockForUpdate()->find($lockedSubscription->user_id);
 
             if (! $user) {
-                return false;
+                return null;
             }
 
             $lockedSubscription->update(['status' => 'inactive']);
@@ -161,12 +161,22 @@ class SubscriptionService
             }
 
             $lockedSubscription->loadMissing('plan');
-            $user->notify(new SubscriptionExpired($lockedSubscription, $freePlan));
 
-            $this->activityLogger->subscriptionExpired($lockedSubscription, $freePlan);
-
-            return true;
+            return [
+                'subscription' => $lockedSubscription,
+                'user' => $user,
+                'fallback_plan' => $freePlan,
+            ];
         });
+
+        if ($result === null) {
+            return false;
+        }
+
+        $result['user']->notify(new SubscriptionExpired($result['subscription'], $result['fallback_plan']));
+        $this->activityLogger->subscriptionExpired($result['subscription'], $result['fallback_plan']);
+
+        return true;
     }
 
     /**

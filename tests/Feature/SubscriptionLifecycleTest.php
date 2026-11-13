@@ -188,6 +188,28 @@ class SubscriptionLifecycleTest extends TestCase
         Notification::assertSentTo($user, SubscriptionExpired::class);
     }
 
+    public function test_subscription_notifications_render_custom_email_templates(): void
+    {
+        $plan = Plan::factory()->create([
+            'name' => 'premium',
+            'price' => 85000,
+            'duration_days' => 30,
+            'sms_quota' => 50,
+            'cv_parsing_enabled' => true,
+            'active' => true,
+        ]);
+        $user = User::factory()->create();
+        $subscription = $this->subscriptionFor($user, $plan, endsAt: now()->addDays(30), smsRemaining: 50);
+        $fallbackPlan = Plan::factory()->free()->create();
+
+        $activationEmail = (new SubscriptionActivated($subscription->load('plan')))->toMail($user)->render();
+        $expirationEmail = (new SubscriptionExpired($subscription->load('plan'), $fallbackPlan))->toMail($user)->render();
+
+        $this->assertStringContainsString('Votre abonnement est actif', $activationEmail);
+        $this->assertStringContainsString('Votre abonnement a expiré', $expirationEmail);
+        $this->assertStringContainsString($fallbackPlan->name, $expirationEmail);
+    }
+
     private function subscriptionFor(
         User $user,
         Plan $plan,
