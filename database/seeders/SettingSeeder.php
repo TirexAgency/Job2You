@@ -15,6 +15,40 @@ class SettingSeeder extends Seeder
      */
     public function run(): void
     {
+        // --- Configuration générale ---
+        Setting::updateOrCreate(
+            ['key' => 'general.app_name'],
+            [
+                'label' => 'Nom de l’application',
+                'value' => config('app.name', 'Job2You'),
+                'type' => Setting::TYPE_STRING,
+                'description' => 'Nom affiché dans l’interface et les emails',
+                'group' => Setting::GROUP_GENERAL,
+            ]
+        );
+
+        Setting::updateOrCreate(
+            ['key' => 'general.support_email'],
+            [
+                'label' => 'Email de support',
+                'value' => (string) config('mail.from.address', ''),
+                'type' => Setting::TYPE_STRING,
+                'description' => 'Adresse de contact affichée aux utilisateurs',
+                'group' => Setting::GROUP_GENERAL,
+            ]
+        );
+
+        Setting::updateOrCreate(
+            ['key' => 'general.contact_phone'],
+            [
+                'label' => 'Téléphone de contact',
+                'value' => '',
+                'type' => Setting::TYPE_STRING,
+                'description' => 'Numéro affiché sur les pages publiques',
+                'group' => Setting::GROUP_GENERAL,
+            ]
+        );
+
         // --- Poids du matching (somme = 1.0) ---
         Setting::updateOrCreate(
             ['key' => 'matching.skills_weight'],

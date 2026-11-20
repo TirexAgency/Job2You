@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\SubscriptionActivated;
 use App\Notifications\SubscriptionExpired;
 use App\Services\ActivityLogger;
+use App\Services\Notifications\SafeNotifier;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -18,6 +19,7 @@ class SubscriptionService
 {
     public function __construct(
         private readonly ActivityLogger $activityLogger,
+        private readonly SafeNotifier $notifier,
     ) {}
 
     /**
@@ -68,7 +70,7 @@ class SubscriptionService
         $this->activityLogger->subscriptionActivated($subscription);
 
         if ($notify) {
-            $user->notify(new SubscriptionActivated($subscription));
+            $this->notifier->send($user, new SubscriptionActivated($subscription));
         }
 
         return $subscription;
@@ -173,7 +175,7 @@ class SubscriptionService
             return false;
         }
 
-        $result['user']->notify(new SubscriptionExpired($result['subscription'], $result['fallback_plan']));
+        $this->notifier->send($result['user'], new SubscriptionExpired($result['subscription'], $result['fallback_plan']));
         $this->activityLogger->subscriptionExpired($result['subscription'], $result['fallback_plan']);
 
         return true;

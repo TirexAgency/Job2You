@@ -8,45 +8,70 @@
             </div>
             <div class="btn-group" role="group">
                 <a href="{{ route('admin.activity-log.index') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-journal-text me-1"></i> Journal d'activité (métier - filtres)
+                    <i class="bi bi-journal-text me-1" aria-hidden="true"></i>Journal d’activité
                 </a>
                 <a href="{{ route('admin.logs.index') }}" class="btn btn-outline-secondary active" aria-current="page">
-                    <i class="bi bi-terminal me-1"></i> Logs complets (brut)
+                    <i class="bi bi-terminal me-1" aria-hidden="true"></i>Logs bruts
                 </a>
             </div>
-        </div>
+        </header>
 
-        <div class="bg-white border rounded-3 p-4">
+        <section class="row g-3 mb-4">
+            @foreach (['info' => 'Info', 'warning' => 'Attention', 'error' => 'Erreur'] as $levelKey => $levelLabel)
+                <div class="col-sm-4">
+                    <div class="card stat-card h-100">
+                        <div class="card-body">
+                            <p class="text-secondary small mb-1">{{ $levelLabel }}</p>
+                            <p class="h3 mb-0">{{ number_format($levelCounts[$levelKey] ?? 0, 0, ',', ' ') }}</p>
+                            <p class="small text-secondary mb-0">entrées affichées</p>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </section>
+
+        <div class="app-card p-4">
             <p class="text-secondary mb-2">
-                Dernières entrées du journal d'activité métier (<code>storage/logs/activity.log</code>) :
+                Fichier : <code>{{ $logFile ?? 'introuvable' }}</code>
             </p>
+
             <form method="GET" class="mb-3">
                 <div class="row g-2 align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label for="source" class="form-label small mb-1">Journal</label>
+                        <select id="source" name="source" class="form-select form-select-sm">
+                            <option value="activity" {{ $source === 'activity' ? 'selected' : '' }}>Activité métier</option>
+                            <option value="laravel" {{ $source === 'laravel' ? 'selected' : '' }}>Application (Laravel)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <label for="lines-count" class="form-label small mb-1">Nombre de lignes</label>
-                        <select id="lines-count" name="lines" class="form-select form-select-sm" onchange="this.form.submit()">
-                            <option value="50" {{ request('lines') == '50' ? 'selected' : '' }}>50 lignes</option>
-                            <option value="100" {{ request('lines') == '100' ? 'selected' : '' }}>100 lignes</option>
-                            <option value="200" {{ request('lines') == '200' ? 'selected' : '' }}>200 lignes</option>
-                            <option value="500" {{ request('lines') == '500' ? 'selected' : '' }}>500 lignes</option>
+                        <select id="lines-count" name="lines" class="form-select form-select-sm">
+                            @foreach ($lineOptions as $option)
+                                <option value="{{ $option }}" {{ $linesCount === $option ? 'selected' : '' }}>{{ $option }} lignes</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="level-filter" class="form-label small mb-1">Niveau</label>
+                        <select id="level-filter" name="level" class="form-select form-select-sm">
+                            <option value="">Tous les niveaux</option>
+                            @foreach (['info' => 'Info', 'warning' => 'Attention', 'error' => 'Erreur'] as $levelKey => $levelLabel)
+                                <option value="{{ $levelKey }}" {{ $level === $levelKey ? 'selected' : '' }}>{{ $levelLabel }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="level-filter" class="form-label small mb-1">Niveau</label>
-                        <select id="level-filter" name="level" class="form-select form-select-sm" onchange="this.form.submit()">
-                            <option value="">Tous les niveaux</option>
-                            <option value="info" {{ request('level') === 'info' ? 'selected' : '' }}>Info</option>
-                            <option value="warning" {{ request('level') === 'warning' ? 'selected' : '' }}>Attention</option>
-                            <option value="error" {{ request('level') === 'error' ? 'selected' : '' }}>Erreur</option>
-                        </select>
-                    </div>
-                    <div class="col-md-5">
                         <label for="search-filter" class="form-label small mb-1">Recherche</label>
-                        <input type="text" id="search-filter" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="Filtrer (source, message...)" onchange="this.form.submit()">
+                        <input type="text" id="search-filter" name="search" class="form-control form-control-sm" value="{{ $search }}" placeholder="Filtrer (source, message…)">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary btn-sm w-100">Appliquer</button>
                     </div>
                 </div>
             </form>
-            <pre class="bg-dark text-light border rounded p-3 small" style="max-height: 500px; overflow:auto;">{{ $logContent ?? 'Fichier de log introuvable.' }}</pre>
+
+            <pre class="app-log-output">{{ $logContent ?: 'Aucune entrée ne correspond aux filtres.' }}</pre>
         </div>
     </div>
 </x-app-layout>

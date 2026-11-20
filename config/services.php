@@ -42,4 +42,12 @@ return [
         'timeout' => (int) env('SMS_API_TIMEOUT', 15),
     ],
 
+    'fiveonepay' => [
+        'base_url' => env('FIVEONEPAY_API_URL', 'https://api.fiveonepay.com/v1'),
+        'secret' => env('FIVEONEPAY_API_KEY'),
+        'webhook_secret' => env('FIVEONEPAY_WEBHOOK_SECRET'),
+        'connect_timeout' => (int) env('FIVEONEPAY_CONNECT_TIMEOUT', 5),
+        'timeout' => (int) env('FIVEONEPAY_TIMEOUT', 15),
+    ],
+
 ];

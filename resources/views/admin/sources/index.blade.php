@@ -66,12 +66,9 @@
                                                     <i class="bi bi-{{ $source->active ? 'pause' : 'play' }}"></i>
                                                 </button>
                                             </form>
-                                            <form method="POST" action="{{ route('admin.sources.destroy', $source) }}" class="d-inline" onsubmit="return confirm('Supprimer cette source ?');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
-                                                    <i class="bi bi-trash" aria-hidden="true"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer" data-bs-toggle="modal" data-bs-target="#deleteSourceModal{{ $source->id }}">
+                                                <i class="bi bi-trash" aria-hidden="true"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -250,6 +247,16 @@
                 </div>
             </div>
         </div>
+    @endforeach
+
+    @foreach($sources as $source)
+        <x-confirm-modal
+            id="deleteSourceModal{{ $source->id }}"
+            title="Supprimer la source"
+            :action="route('admin.sources.destroy', $source)"
+            confirm-label="Supprimer"
+            :message="'La source « ' . $source->name . ' » sera définitivement supprimée.'"
+        />
     @endforeach
 
     @if($errors->any())

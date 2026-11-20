@@ -16,23 +16,38 @@
                         <label for="search" class="form-label">Rechercher</label>
                         <input type="text" class="form-control" id="search" name="search" value="{{ request('search') }}" placeholder="Filtrer par source, message, etc.">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="level" class="form-label">Niveau</label>
                         <select class="form-select" id="level" name="level">
                             <option value="">Tous les niveaux</option>
-                            <option value="info" {{ request('level') === 'info' ? 'selected' : '' }}>Info</option>
-                            <option value="warning" {{ request('level') === 'warning' ? 'selected' : '' }}>Attention</option>
-                            <option value="error" {{ request('level') === 'error' ? 'selected' : '' }}>Erreur</option>
+                            <option value="info" {{ $level === 'info' ? 'selected' : '' }}>Info</option>
+                            <option value="warning" {{ $level === 'warning' ? 'selected' : '' }}>Attention</option>
+                            <option value="error" {{ $level === 'error' ? 'selected' : '' }}>Erreur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="lines" class="form-label">Lignes</label>
+                        <select class="form-select" id="lines" name="lines">
+                            @foreach ($lineOptions as $option)
+                                <option value="{{ $option }}" {{ $lines === $option ? 'selected' : '' }}>{{ $option }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-outline-primary w-100">Filtrer</button>
                     </div>
-                    <div class="col-md-3 d-flex align-items-end">
+                    <div class="col-md-2 d-flex align-items-end">
                         <a href="{{ route('admin.activity-log.index') }}" class="btn btn-outline-secondary w-100">Réinitialiser</a>
                     </div>
                 </form>
             </section>
+
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="badge bg-info-subtle text-info-emphasis">Info : {{ $levelCounts['info'] ?? 0 }}</span>
+                <span class="badge bg-warning-subtle text-warning-emphasis">Attention : {{ $levelCounts['warning'] ?? 0 }}</span>
+                <span class="badge bg-danger-subtle text-danger-emphasis">Erreur : {{ $levelCounts['error'] ?? 0 }}</span>
+                <span class="badge bg-light text-secondary">{{ $parsedLines ? count($parsedLines) : 0 }} entrée(s) affichée(s)</span>
+            </div>
 
             <!-- Logs Table -->
             <section class="bg-white border rounded-3 shadow-sm overflow-hidden">

@@ -13,5 +13,6 @@ class PreventRequestForgery extends Middleware
      */
     protected $except = [
         'cron/scrape-all',
+        'webhooks/fiveonepay',
     ];
 }

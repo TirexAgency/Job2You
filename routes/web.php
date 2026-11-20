@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OfferController as AdminOfferController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SmsController as AdminSmsController;
 use App\Http\Controllers\Admin\SourceController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -13,6 +16,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidateDashboardController;
+use App\Http\Controllers\CandidatePaymentController;
 use App\Http\Controllers\CandidateProfileController;
 use App\Http\Controllers\CandidateSkillController;
 use App\Http\Controllers\DashboardRedirectController;
@@ -20,6 +24,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Webhooks\FiveOnePayWebhookController;
 use App\Models\CvParse;
 use App\Models\JobMatch;
 use App\Models\Offer;
@@ -118,8 +123,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    // CRUD Utilisateurs (resource sans create/show/edit - utilisés dans des modals)
+    // CRUD Utilisateurs (création et modification également disponibles en modals)
     Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::patch('/users/{user}/status', [UserController::class, 'updateStatus'])->name('users.status');
 
     // Paramètres de matching (pondérations et seuil d'alerte)
     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
@@ -133,19 +141,20 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Journal d'activité (logs métier lisibles)
     Route::get('/activity-log', ActivityLogController::class)->name('activity-log.index');
 
-    Route::get('/offers', fn () => view('admin.offers.index', ['offers' => Offer::latest()->paginate(10)]))->name('offers.index');
+    // Modération et suppression des offres
+    Route::get('/offers', [AdminOfferController::class, 'index'])->name('offers.index');
+    Route::patch('/offers/{offer}/status', [AdminOfferController::class, 'updateStatus'])->name('offers.status');
+    Route::delete('/offers/{offer}', [AdminOfferController::class, 'destroy'])->name('offers.destroy');
     // CRUD Plans (resource sans create/show/edit - utilisés dans des modals)
     Route::resource('plans', PlanController::class)->except(['create', 'show', 'edit']);
     Route::patch('/plans/{plan}/toggle', [PlanController::class, 'toggle'])->name('plans.toggle');
     Route::get('/subscriptions', fn () => view('admin.subscriptions.index', ['subscriptions' => Subscription::with(['user', 'plan'])->latest()->paginate(10)]))->name('subscriptions.index');
-    Route::get('/payments', fn () => view('admin.payments.index', ['payments' => Payment::with(['user'])->latest()->paginate(10)]))->name('payments.index');
-    Route::get('/sms', fn () => view('admin.sms.index', ['logs' => SmsLog::with(['user'])->latest()->paginate(10)]))->name('sms.index');
+    // Suivi et remboursement des paiements
+    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+    Route::patch('/payments/{payment}/refund', [AdminPaymentController::class, 'refund'])->name('payments.refund');
+    // Historique SMS et quotas
+    Route::get('/sms', [AdminSmsController::class, 'index'])->name('sms.index');
     Route::get('/logs', [ActivityLogController::class, 'rawLogs'])->name('logs.index');
-    Route::patch('/offers/{offer}/toggle', function (Offer $offer) {
-        $offer->update(['status' => $offer->status === 'active' ? 'archived' : 'active']);
-
-        return redirect()->back();
-    })->name('offers.toggle');
 });
 
 Route::middleware(['auth', 'role:candidate', 'subscription.current'])->prefix('candidate')->name('candidate.')->group(function () {
@@ -186,53 +195,11 @@ Route::middleware(['auth', 'role:candidate', 'subscription.current'])->prefix('c
         return redirect()->route('candidate.cv')->with('status', 'cv-validated');
     })->middleware('plan.feature:cv_parsing')->name('cv.validate');
 
-    Route::post('/checkout/{plan}', function (Request $request, Plan $plan, SubscriptionService $subscriptionService) {
-        abort_unless($plan->active, 404);
-
-        if ($plan->isFree()) {
-            $subscriptionService->activate($request->user(), $plan);
-
-            return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
-        }
-
-        $payment = Payment::create([
-            'user_id' => $request->user()->id,
-            'plan_id' => $plan->id,
-            'provider' => 'fiveonepay',
-            'provider_reference' => 'sandbox-'.str()->uuid(),
-            'amount' => $plan->price,
-            'status' => 'pending',
-            'payload_reference' => str()->uuid(),
-        ]);
-
-        return redirect()->route('candidate.payment.sandbox', $payment);
-    })->name('checkout');
-    Route::get('/payment/{payment}/sandbox', function (Request $request, Payment $payment) {
-        abort_unless($payment->user_id === $request->user()->id, 403);
-
-        return view('candidate.payment-sandbox', compact('payment'));
-    })->name('payment.sandbox');
-    Route::post('/payment/{payment}/sandbox/{outcome}', function (Request $request, Payment $payment, string $outcome, SubscriptionService $subscriptionService) {
-        abort_unless($payment->user_id === $request->user()->id, 403);
-        abort_unless(in_array($outcome, ['success', 'failed'], true), 404);
-
-        if ($payment->status === 'paid') {
-            return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
-        }
-
-        if ($outcome === 'failed') {
-            $payment->update(['status' => 'failed']);
-
-            return redirect()->route('candidate.subscription')->with('status', 'payment-failed');
-        }
-
-        $payment->loadMissing('plan');
-        abort_unless($payment->plan, 404);
-
-        $subscriptionService->activate($request->user(), $payment->plan, $payment);
-
-        return redirect()->route('candidate.subscription')->with('status', 'plan-changed');
-    })->name('payment.sandbox.confirm');
+    Route::post('/checkout/{plan}', [CandidatePaymentController::class, 'checkout'])->name('checkout');
+    Route::get('/payment/{payment}/return', [CandidatePaymentController::class, 'returnFromProvider'])->name('payment.return');
+    Route::get('/payment/{payment}/status', [CandidatePaymentController::class, 'status'])->name('payment.status');
+    Route::get('/payment/{payment}/sandbox', [CandidatePaymentController::class, 'sandbox'])->name('payment.sandbox');
+    Route::post('/payment/{payment}/sandbox/{outcome}', [CandidatePaymentController::class, 'confirmSandbox'])->name('payment.sandbox.confirm');
 
     Route::get('/recommendations', function (Request $request) {
         $user = $request->user();
@@ -276,8 +243,15 @@ Route::middleware(['auth', 'role:candidate', 'subscription.current'])->prefix('c
         $plans = Plan::where('active', true)->orderBy('price')->get();
         $smsRemaining = $smsQuotaService->remaining($user);
         $smsQuotaLimit = $smsQuotaService->quotaLimit($user);
+        $pendingPayment = Payment::query()
+            ->with('plan')
+            ->where('user_id', $user->id)
+            ->where('status', Payment::STATUS_PENDING)
+            ->whereNotNull('payment_url')
+            ->latest()
+            ->first();
 
-        return view('candidate.subscription', compact('subscription', 'plans', 'smsRemaining', 'smsQuotaLimit'));
+        return view('candidate.subscription', compact('subscription', 'plans', 'smsRemaining', 'smsQuotaLimit', 'pendingPayment'));
     })->name('subscription');
     Route::post('/subscription/change', function (Request $request, SubscriptionService $subscriptionService) {
         $validated = $request->validate(['plan_id' => ['required', 'exists:plans,id']]);
@@ -300,6 +274,8 @@ Route::middleware(['auth', 'role:candidate', 'subscription.current'])->prefix('c
 });
 
 // Routes publiques
+Route::post('/webhooks/fiveonepay', FiveOnePayWebhookController::class)->name('webhooks.fiveonepay');
+
 Route::get('/pricing', function () {
     $plans = Plan::query()->active()->orderBy('price')->get();
 

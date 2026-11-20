@@ -20,15 +20,19 @@
 
                 <dl class="row mb-4">
                     <dt class="col-sm-4 text-secondary fw-normal">Référence</dt>
-                    <dd class="col-sm-8"><code>{{ $payment->provider_reference }}</code></dd>
+                    <dd class="col-sm-8"><code>{{ $payment->payload_reference }}</code></dd>
                     <dt class="col-sm-4 text-secondary fw-normal">Formule</dt>
-                    <dd class="col-sm-8 fw-semibold">{{ $payment->plan->name }}</dd>
+                    <dd class="col-sm-8 fw-semibold">{{ $payment->plan?->name }}</dd>
                 </dl>
 
                 <div class="alert alert-info d-flex align-items-start gap-2" role="status">
                     <i class="bi bi-info-circle-fill alert-icon mt-1" aria-hidden="true"></i>
-                    <div>Mode sandbox FiveOnePay — en production, le paiement serait confirmé côté serveur via le callback.</div>
+                    <div>Mode simulation local — aucun argent n’est débité. En production, la confirmation vient du webhook signé FiveOne Pay.</div>
                 </div>
+
+                @if ($payment->error_message)
+                    <div class="alert alert-danger" role="alert">{{ $payment->error_message }}</div>
+                @endif
 
                 <div class="d-flex flex-column flex-sm-row gap-2">
                     <form method="POST" action="{{ route('candidate.payment.sandbox.confirm', [$payment, 'success']) }}">

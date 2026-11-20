@@ -16,6 +16,29 @@
             </a>
         </header>
 
+        @if ($pendingPayment)
+            <section class="alert alert-warning d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3" role="status">
+                <div class="d-flex align-items-start gap-3">
+                    <i class="bi bi-hourglass-split fs-4 mt-1" aria-hidden="true"></i>
+                    <div>
+                        <div class="fw-semibold">Paiement en attente — {{ $pendingPayment->plan?->name }}</div>
+                        <div class="small">
+                            {{ number_format($pendingPayment->amount, 0, ',', ' ') }} Ar · référence
+                            <code>{{ $pendingPayment->payload_reference }}</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                    <a href="{{ $pendingPayment->payment_url }}" class="btn btn-warning">
+                        <i class="bi bi-credit-card me-1" aria-hidden="true"></i>Reprendre le paiement
+                    </a>
+                    <a href="{{ route('candidate.payment.status', $pendingPayment) }}" class="btn btn-outline-dark">
+                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Vérifier l’état
+                    </a>
+                </div>
+            </section>
+        @endif
+
         <section class="app-card mb-4">
             <div class="app-card-body">
                 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
@@ -146,7 +169,7 @@
                                 <form method="POST" action="{{ route('candidate.checkout', $plan) }}" class="mt-auto">
                                     @csrf
                                     <button class="btn btn-primary w-100">
-                                        <i class="bi bi-credit-card me-1" aria-hidden="true"></i>Souscrire
+                                        <i class="bi bi-phone me-1" aria-hidden="true"></i>Payer par Mobile Money
                                     </button>
                                 </form>
                             @endif

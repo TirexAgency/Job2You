@@ -49,7 +49,7 @@ class MatchingSettingsTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.settings.edit'));
-        $response->assertSessionHas('success', 'Paramètres de matching mis à jour avec succès.');
+        $response->assertSessionHas('success', 'Paramètres de l’application mis à jour avec succès.');
 
         $this->assertDatabaseHas('settings', ['key' => 'matching.skills_weight', 'value' => '0.5']);
         $this->assertDatabaseHas('settings', ['key' => 'matching.alert_threshold', 'value' => '0.8']);
@@ -93,6 +93,65 @@ class MatchingSettingsTest extends TestCase
             ]);
 
         $response->assertSessionHasErrors(['weights.skills', 'alert_threshold']);
+    }
+
+    public function test_admin_can_update_general_sms_and_scraping_settings(): void
+    {
+        $response = $this->actingAs($this->admin)->put('/admin/settings', [
+            'weights' => [
+                'skills' => 0.40,
+                'job' => 0.25,
+                'location' => 0.15,
+                'experience' => 0.10,
+                'contract' => 0.10,
+            ],
+            'alert_threshold' => 0.75,
+            'app_name' => 'Mon Job2You',
+            'support_email' => 'support@job2you.mg',
+            'contact_phone' => '+261 34 00 000 00',
+            'free_trial_limit' => 5,
+            'sms_provider' => 'tirex',
+            'max_offers_per_source' => 250,
+            'request_timeout' => 45,
+        ]);
+
+        $response->assertRedirect(route('admin.settings.edit'));
+        $response->assertSessionHas('success', 'Paramètres de l’application mis à jour avec succès.');
+
+        $this->assertSame('Mon Job2You', Setting::get('general.app_name'));
+        $this->assertSame('support@job2you.mg', Setting::get('general.support_email'));
+        $this->assertSame('+261 34 00 000 00', Setting::get('general.contact_phone'));
+        $this->assertSame(5, Setting::get('sms.free_trial_limit'));
+        $this->assertSame('tirex', Setting::get('sms.provider'));
+        $this->assertSame(250, Setting::get('scraping.max_offers_per_source'));
+        $this->assertSame(45, Setting::get('scraping.request_timeout'));
+    }
+
+    public function test_invalid_general_and_collection_settings_are_rejected(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->from('/admin/settings')
+            ->put('/admin/settings', [
+                'weights' => [
+                    'skills' => 0.40,
+                    'job' => 0.25,
+                    'location' => 0.15,
+                    'experience' => 0.10,
+                    'contract' => 0.10,
+                ],
+                'alert_threshold' => 0.70,
+                'support_email' => 'pas-un-email',
+                'free_trial_limit' => -1,
+                'max_offers_per_source' => 0,
+                'request_timeout' => 0,
+            ]);
+
+        $response->assertSessionHasErrors([
+            'support_email',
+            'free_trial_limit',
+            'max_offers_per_source',
+            'request_timeout',
+        ]);
     }
 
     public function test_dashboard_uses_the_threshold_saved_in_settings(): void

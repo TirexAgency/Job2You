@@ -201,6 +201,55 @@ class UserCrudTest extends TestCase
         $this->post('/admin/users')->assertRedirect('/login');
     }
 
+    public function test_admin_can_view_user_detail_page(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Fiche Détaillée',
+            'email' => 'fiche@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.users.show', $user));
+
+        $response->assertOk();
+        $response->assertViewIs('admin.users.show');
+        $response->assertSee('Fiche Détaillée');
+        $response->assertSee('fiche@example.com');
+        $response->assertSee('Derniers abonnements');
+        $response->assertSee('Derniers paiements');
+    }
+
+    public function test_admin_can_change_user_status_from_detail_page(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+
+        $response = $this->actingAs($this->admin)
+            ->from(route('admin.users.show', $user))
+            ->patch(route('admin.users.status', $user), ['status' => 'suspended']);
+
+        $response->assertRedirect(route('admin.users.show', $user));
+        $response->assertSessionHas('success', "Statut de {$user->name} mis à jour.");
+        $this->assertSame('suspended', $user->fresh()->status);
+    }
+
+    public function test_admin_cannot_change_own_status(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->from(route('admin.users.show', $this->admin))
+            ->patch(route('admin.users.status', $this->admin), ['status' => 'suspended']);
+
+        $response->assertSessionHas('error', 'Vous ne pouvez pas modifier le statut de votre propre compte.');
+        $this->assertSame('active', $this->admin->fresh()->status);
+    }
+
+    public function test_non_admin_cannot_view_or_moderate_user_detail(): void
+    {
+        $candidate = User::factory()->candidate()->create();
+        $other = User::factory()->create();
+
+        $this->actingAs($candidate)->get(route('admin.users.show', $other))->assertForbidden();
+        $this->actingAs($candidate)->patch(route('admin.users.status', $other), ['status' => 'suspended'])->assertForbidden();
+    }
+
     public function test_admin_can_filter_users_by_role(): void
     {
         User::factory()->admin()->create();

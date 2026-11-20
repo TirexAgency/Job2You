@@ -64,13 +64,9 @@
                                                 </button>
                                             </form>
                                             @if ($plan->subscriptions_count === 0 && $plan->payments_count === 0)
-                                                <form method="POST" action="{{ route('admin.plans.destroy', $plan) }}" class="d-inline" onsubmit="return confirm('Supprimer ce plan ?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
-                                                        <i class="bi bi-trash" aria-hidden="true"></i>
-                                                    </button>
-                                                </form>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer" data-bs-toggle="modal" data-bs-target="#deletePlanModal{{ $plan->id }}">
+                                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                                </button>
                                             @else
                                                 <button type="button" class="btn btn-sm btn-outline-danger" title="Ce plan est utilisé par des abonnements ou des paiements" disabled>
                                                     <i class="bi bi-trash" aria-hidden="true"></i>
@@ -280,6 +276,17 @@
                 </div>
             </div>
         </div>
+    @endforeach
+
+    @foreach($plans as $plan)
+        @continue($plan->subscriptions_count !== 0 || $plan->payments_count !== 0)
+        <x-confirm-modal
+            id="deletePlanModal{{ $plan->id }}"
+            title="Supprimer le plan"
+            :action="route('admin.plans.destroy', $plan)"
+            confirm-label="Supprimer"
+            :message="'Le plan « ' . $plan->name . ' » sera définitivement supprimé.'"
+        />
     @endforeach
 
     @if ($errors->any())

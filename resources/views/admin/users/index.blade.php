@@ -95,20 +95,16 @@
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-end gap-2">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" title="Voir" data-bs-toggle="modal" data-bs-target="#showUserModal{{ $user->id }}">
+                                            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-outline-primary" title="Voir la fiche">
                                                 <i class="bi bi-eye" aria-hidden="true"></i>
-                                            </button>
+                                            </a>
                                             <button type="button" class="btn btn-sm btn-outline-secondary" title="Modifier" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" data-auto-open="{{ $errors->any() && old('_user_id') == $user->id ? 'true' : 'false' }}">
                                                 <i class="bi bi-pencil" aria-hidden="true"></i>
                                             </button>
                                             @if($user->id !== auth()->id())
-                                                <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
-                                                        <i class="bi bi-trash" aria-hidden="true"></i>
-                                                    </button>
-                                                </form>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ $user->id }}">
+                                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                                </button>
                                             @endif
                                         </div>
                                     </td>
@@ -399,6 +395,17 @@
                 </div>
             </div>
         </div>
+    @endforeach
+
+    @foreach($users as $user)
+        @continue($user->id === auth()->id())
+        <x-confirm-modal
+            id="deleteUserModal{{ $user->id }}"
+            title="Supprimer l’utilisateur"
+            :action="route('admin.users.destroy', $user)"
+            confirm-label="Supprimer"
+            :message="'Le compte de ' . $user->name . ' sera définitivement supprimé. Cette action est irréversible.'"
+        />
     @endforeach
 
     @if($errors->any())
